@@ -1,0 +1,585 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1BB6A9EA2625C3420063F378 /* EVO_DevicesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */; };
+		1BB6A9EC2625C3420063F378 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6A9EB2625C3420063F378 /* ContentView.swift */; };
+		1BB6A9EE2625C38C0063F378 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1BB6A9ED2625C38B0063F378 /* Assets.xcassets */; };
+		1BB6A9F12625C38C0063F378 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1BB6A9F02625C38C0063F378 /* Preview Assets.xcassets */; };
+		1BB6A9FC2625C38E0063F378 /* EVO_DevicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6A9FB2625C38E0063F378 /* EVO_DevicesTests.swift */; };
+		1BB6AA072625C38E0063F378 /* EVO_DevicesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6AA062625C38E0063F378 /* EVO_DevicesUITests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1BB6A9F82625C38E0063F378 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1BB6A9DE2625C33F0063F378 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1BB6A9E52625C3410063F378;
+			remoteInfo = "EVO Devices";
+		};
+		1BB6AA032625C38E0063F378 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1BB6A9DE2625C33F0063F378 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1BB6A9E52625C3410063F378;
+			remoteInfo = "EVO Devices";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1BB6A9E62625C3410063F378 /* EVO Devices.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "EVO Devices.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EVO_DevicesApp.swift; sourceTree = "<group>"; };
+		1BB6A9EB2625C3420063F378 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		1BB6A9ED2625C38B0063F378 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1BB6A9F02625C38C0063F378 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		1BB6A9F22625C38C0063F378 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1BB6A9F72625C38E0063F378 /* EVO DevicesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "EVO DevicesTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1BB6A9FB2625C38E0063F378 /* EVO_DevicesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EVO_DevicesTests.swift; sourceTree = "<group>"; };
+		1BB6A9FD2625C38E0063F378 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1BB6AA022625C38E0063F378 /* EVO DevicesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "EVO DevicesUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1BB6AA062625C38E0063F378 /* EVO_DevicesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EVO_DevicesUITests.swift; sourceTree = "<group>"; };
+		1BB6AA082625C38E0063F378 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1BB6A9E32625C3410063F378 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BB6A9F42625C38E0063F378 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BB6A9FF2625C38E0063F378 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1BB6A9DD2625C33F0063F378 = {
+			isa = PBXGroup;
+			children = (
+				1BB6A9E82625C3410063F378 /* EVO Devices */,
+				1BB6A9FA2625C38E0063F378 /* EVO DevicesTests */,
+				1BB6AA052625C38E0063F378 /* EVO DevicesUITests */,
+				1BB6A9E72625C3410063F378 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		1BB6A9E72625C3410063F378 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1BB6A9E62625C3410063F378 /* EVO Devices.app */,
+				1BB6A9F72625C38E0063F378 /* EVO DevicesTests.xctest */,
+				1BB6AA022625C38E0063F378 /* EVO DevicesUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1BB6A9E82625C3410063F378 /* EVO Devices */ = {
+			isa = PBXGroup;
+			children = (
+				1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */,
+				1BB6A9EB2625C3420063F378 /* ContentView.swift */,
+				1BB6A9ED2625C38B0063F378 /* Assets.xcassets */,
+				1BB6A9F22625C38C0063F378 /* Info.plist */,
+				1BB6A9EF2625C38C0063F378 /* Preview Content */,
+			);
+			path = "EVO Devices";
+			sourceTree = "<group>";
+		};
+		1BB6A9EF2625C38C0063F378 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				1BB6A9F02625C38C0063F378 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		1BB6A9FA2625C38E0063F378 /* EVO DevicesTests */ = {
+			isa = PBXGroup;
+			children = (
+				1BB6A9FB2625C38E0063F378 /* EVO_DevicesTests.swift */,
+				1BB6A9FD2625C38E0063F378 /* Info.plist */,
+			);
+			path = "EVO DevicesTests";
+			sourceTree = "<group>";
+		};
+		1BB6AA052625C38E0063F378 /* EVO DevicesUITests */ = {
+			isa = PBXGroup;
+			children = (
+				1BB6AA062625C38E0063F378 /* EVO_DevicesUITests.swift */,
+				1BB6AA082625C38E0063F378 /* Info.plist */,
+			);
+			path = "EVO DevicesUITests";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		1BB6A9E52625C3410063F378 /* EVO Devices */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1BB6AA0B2625C38E0063F378 /* Build configuration list for PBXNativeTarget "EVO Devices" */;
+			buildPhases = (
+				1BB6A9E22625C3410063F378 /* Sources */,
+				1BB6A9E32625C3410063F378 /* Frameworks */,
+				1BB6A9E42625C3410063F378 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "EVO Devices";
+			productName = "EVO Devices";
+			productReference = 1BB6A9E62625C3410063F378 /* EVO Devices.app */;
+			productType = "com.apple.product-type.application";
+		};
+		1BB6A9F62625C38E0063F378 /* EVO DevicesTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1BB6AA0E2625C38E0063F378 /* Build configuration list for PBXNativeTarget "EVO DevicesTests" */;
+			buildPhases = (
+				1BB6A9F32625C38E0063F378 /* Sources */,
+				1BB6A9F42625C38E0063F378 /* Frameworks */,
+				1BB6A9F52625C38E0063F378 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1BB6A9F92625C38E0063F378 /* PBXTargetDependency */,
+			);
+			name = "EVO DevicesTests";
+			productName = "EVO DevicesTests";
+			productReference = 1BB6A9F72625C38E0063F378 /* EVO DevicesTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		1BB6AA012625C38E0063F378 /* EVO DevicesUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1BB6AA112625C38E0063F378 /* Build configuration list for PBXNativeTarget "EVO DevicesUITests" */;
+			buildPhases = (
+				1BB6A9FE2625C38E0063F378 /* Sources */,
+				1BB6A9FF2625C38E0063F378 /* Frameworks */,
+				1BB6AA002625C38E0063F378 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1BB6AA042625C38E0063F378 /* PBXTargetDependency */,
+			);
+			name = "EVO DevicesUITests";
+			productName = "EVO DevicesUITests";
+			productReference = 1BB6AA022625C38E0063F378 /* EVO DevicesUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1BB6A9DE2625C33F0063F378 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1240;
+				LastUpgradeCheck = 1240;
+				TargetAttributes = {
+					1BB6A9E52625C3410063F378 = {
+						CreatedOnToolsVersion = 12.4;
+					};
+					1BB6A9F62625C38E0063F378 = {
+						CreatedOnToolsVersion = 12.4;
+						TestTargetID = 1BB6A9E52625C3410063F378;
+					};
+					1BB6AA012625C38E0063F378 = {
+						CreatedOnToolsVersion = 12.4;
+						TestTargetID = 1BB6A9E52625C3410063F378;
+					};
+				};
+			};
+			buildConfigurationList = 1BB6A9E12625C3400063F378 /* Build configuration list for PBXProject "EVO Devices" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 1BB6A9DD2625C33F0063F378;
+			productRefGroup = 1BB6A9E72625C3410063F378 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				1BB6A9E52625C3410063F378 /* EVO Devices */,
+				1BB6A9F62625C38E0063F378 /* EVO DevicesTests */,
+				1BB6AA012625C38E0063F378 /* EVO DevicesUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		1BB6A9E42625C3410063F378 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1BB6A9F12625C38C0063F378 /* Preview Assets.xcassets in Resources */,
+				1BB6A9EE2625C38C0063F378 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BB6A9F52625C38E0063F378 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BB6AA002625C38E0063F378 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1BB6A9E22625C3410063F378 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1BB6A9EC2625C3420063F378 /* ContentView.swift in Sources */,
+				1BB6A9EA2625C3420063F378 /* EVO_DevicesApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BB6A9F32625C38E0063F378 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1BB6A9FC2625C38E0063F378 /* EVO_DevicesTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1BB6A9FE2625C38E0063F378 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1BB6AA072625C38E0063F378 /* EVO_DevicesUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1BB6A9F92625C38E0063F378 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1BB6A9E52625C3410063F378 /* EVO Devices */;
+			targetProxy = 1BB6A9F82625C38E0063F378 /* PBXContainerItemProxy */;
+		};
+		1BB6AA042625C38E0063F378 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1BB6A9E52625C3410063F378 /* EVO Devices */;
+			targetProxy = 1BB6AA032625C38E0063F378 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1BB6AA092625C38E0063F378 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		1BB6AA0A2625C38E0063F378 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		1BB6AA0C2625C38E0063F378 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"EVO Devices/Preview Content\"";
+				DEVELOPMENT_TEAM = UNC76KCKZX;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = "EVO Devices/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.gotoevo.EVO-Devices";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		1BB6AA0D2625C38E0063F378 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_ASSET_PATHS = "\"EVO Devices/Preview Content\"";
+				DEVELOPMENT_TEAM = UNC76KCKZX;
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = "EVO Devices/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.gotoevo.EVO-Devices";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		1BB6AA0F2625C38E0063F378 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = UNC76KCKZX;
+				INFOPLIST_FILE = "EVO DevicesTests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.gotoevo.EVO-DevicesTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EVO Devices.app/EVO Devices";
+			};
+			name = Debug;
+		};
+		1BB6AA102625C38E0063F378 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = UNC76KCKZX;
+				INFOPLIST_FILE = "EVO DevicesTests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.gotoevo.EVO-DevicesTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/EVO Devices.app/EVO Devices";
+			};
+			name = Release;
+		};
+		1BB6AA122625C38E0063F378 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = UNC76KCKZX;
+				INFOPLIST_FILE = "EVO DevicesUITests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.gotoevo.EVO-DevicesUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "EVO Devices";
+			};
+			name = Debug;
+		};
+		1BB6AA132625C38E0063F378 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = UNC76KCKZX;
+				INFOPLIST_FILE = "EVO DevicesUITests/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.gotoevo.EVO-DevicesUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "EVO Devices";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1BB6A9E12625C3400063F378 /* Build configuration list for PBXProject "EVO Devices" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1BB6AA092625C38E0063F378 /* Debug */,
+				1BB6AA0A2625C38E0063F378 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1BB6AA0B2625C38E0063F378 /* Build configuration list for PBXNativeTarget "EVO Devices" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1BB6AA0C2625C38E0063F378 /* Debug */,
+				1BB6AA0D2625C38E0063F378 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1BB6AA0E2625C38E0063F378 /* Build configuration list for PBXNativeTarget "EVO DevicesTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1BB6AA0F2625C38E0063F378 /* Debug */,
+				1BB6AA102625C38E0063F378 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1BB6AA112625C38E0063F378 /* Build configuration list for PBXNativeTarget "EVO DevicesUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1BB6AA122625C38E0063F378 /* Debug */,
+				1BB6AA132625C38E0063F378 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 1BB6A9DE2625C33F0063F378 /* Project object */;
+}
