@@ -7,12 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1B5AAC7A265BC3C6002AAB70 /* DeviceData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */; };
 		1BB6A9EA2625C3420063F378 /* EVO_DevicesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */; };
 		1BB6A9EC2625C3420063F378 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6A9EB2625C3420063F378 /* ContentView.swift */; };
 		1BB6A9EE2625C38C0063F378 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1BB6A9ED2625C38B0063F378 /* Assets.xcassets */; };
 		1BB6A9F12625C38C0063F378 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1BB6A9F02625C38C0063F378 /* Preview Assets.xcassets */; };
 		1BB6A9FC2625C38E0063F378 /* EVO_DevicesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6A9FB2625C38E0063F378 /* EVO_DevicesTests.swift */; };
 		1BB6AA072625C38E0063F378 /* EVO_DevicesUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6AA062625C38E0063F378 /* EVO_DevicesUITests.swift */; };
+		1BB6AA182625C94F0063F378 /* DeviceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6AA172625C94E0063F378 /* DeviceDetail.swift */; };
+		1BB6AA1D2625C9970063F378 /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6AA1C2625C9970063F378 /* Device.swift */; };
+		1BB6AA22262719AD0063F378 /* DeviceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6AA21262719AD0063F378 /* DeviceStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceData.swift; sourceTree = "<group>"; };
 		1BB6A9E62625C3410063F378 /* EVO Devices.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "EVO Devices.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EVO_DevicesApp.swift; sourceTree = "<group>"; };
 		1BB6A9EB2625C3420063F378 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -45,6 +50,9 @@
 		1BB6AA022625C38E0063F378 /* EVO DevicesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "EVO DevicesUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1BB6AA062625C38E0063F378 /* EVO_DevicesUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EVO_DevicesUITests.swift; sourceTree = "<group>"; };
 		1BB6AA082625C38E0063F378 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1BB6AA172625C94E0063F378 /* DeviceDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetail.swift; sourceTree = "<group>"; };
+		1BB6AA1C2625C9970063F378 /* Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
+		1BB6AA21262719AD0063F378 /* DeviceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,8 +103,12 @@
 		1BB6A9E82625C3410063F378 /* EVO Devices */ = {
 			isa = PBXGroup;
 			children = (
-				1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */,
+				1BB6AA21262719AD0063F378 /* DeviceStore.swift */,
+				1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */,
+				1BB6AA1C2625C9970063F378 /* Device.swift */,
+				1BB6AA172625C94E0063F378 /* DeviceDetail.swift */,
 				1BB6A9EB2625C3420063F378 /* ContentView.swift */,
+				1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */,
 				1BB6A9ED2625C38B0063F378 /* Assets.xcassets */,
 				1BB6A9F22625C38C0063F378 /* Info.plist */,
 				1BB6A9EF2625C38C0063F378 /* Preview Content */,
@@ -259,8 +271,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1BB6AA182625C94F0063F378 /* DeviceDetail.swift in Sources */,
 				1BB6A9EC2625C3420063F378 /* ContentView.swift in Sources */,
+				1BB6AA1D2625C9970063F378 /* Device.swift in Sources */,
 				1BB6A9EA2625C3420063F378 /* EVO_DevicesApp.swift in Sources */,
+				1BB6AA22262719AD0063F378 /* DeviceStore.swift in Sources */,
+				1B5AAC7A265BC3C6002AAB70 /* DeviceData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
