@@ -29,6 +29,8 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     let RF_SERVICE_UUID = CBUUID(string: "d3ecc05a-5192-43f8-a409-84faca67e7b0")
     let FILTER_MONITORING_SERVICE = CBUUID(string: "9f8d8050-9731-4597-85a0-d49fba2db671")
     
+    let SILICON_LABS_OTA_SERVICE_UUID = CBUUID(string: "1D14D6EE-FD63-4FA1-BFA4-8F47B42119F0")
+    
     //var MOTOR_CONTROL_CHARACTERISTICS_UUIDS = [RPM_CHARACTERISTICS_UUID, ]
 //    @Published var RPM: Int
 //    @Published var type: String
@@ -104,7 +106,6 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
             let dataArray = [UInt8](data)
             if( dataArray[0] == Character("E").asciiValue && dataArray[1] == Character("V").asciiValue && dataArray[2] == Character("O").asciiValue)
             {
-                
                 if dataArray[3] & 0xF0 == 0 { }
                 let newDevice = Device(id: peripheral.identifier, deviceRSSI: Int(truncating: RSSI), peripheral: peripheral, type: Int((dataArray[3] & 0xF0) >> 4))
                 self.devices.append(newDevice)
@@ -145,6 +146,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
         // func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) in
         // the extension DeviceStore: CBPeripheralDelegate
         targetPeripheral?.discoverServices(nil)
+        //targetPeripheral?.discoverServices(Array(_immutableCocoaArray: GENERIC_ACCESS_SERVICE_UUID))
     }
     
     //
@@ -165,6 +167,12 @@ extension DeviceStore: CBPeripheralDelegate {
     // delegate to handle targetPeripheral?.discoverServices(nil) results
     //
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        
+        if let er = error {
+            print(er.localizedDescription)
+            return
+        }
+        
         guard let services = peripheral.services else { return }
         
         for service in services {
@@ -188,9 +196,12 @@ extension DeviceStore: CBPeripheralDelegate {
                 print("Filter monitoring service found")
             }
             // The discover service does not return Generic Access Profile (GAP) service
-//            else if service.uuid.isEqual( GENERIC_ACCESS_SERVICE_UUID ){
-//                print("Generic access service found")
-//            }
+            else if service.uuid.isEqual( GENERIC_ACCESS_SERVICE_UUID ){
+                print("Generic access service found")
+            }
+            else if service.uuid.isEqual( SILICON_LABS_OTA_SERVICE_UUID ) {
+                print("Silicon Labs OTA Service found")
+            }
             
         }
     }
