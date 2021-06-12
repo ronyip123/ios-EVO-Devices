@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1B0A2EA52674E35700A3A8C4 /* MotorSetting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0A2EA42674E35700A3A8C4 /* MotorSetting.swift */; };
 		1B5AAC7A265BC3C6002AAB70 /* DeviceData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */; };
 		1BB6A9EA2625C3420063F378 /* EVO_DevicesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */; };
 		1BB6A9EC2625C3420063F378 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6A9EB2625C3420063F378 /* ContentView.swift */; };
@@ -37,6 +38,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1B0A2EA42674E35700A3A8C4 /* MotorSetting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotorSetting.swift; sourceTree = "<group>"; };
 		1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceData.swift; sourceTree = "<group>"; };
 		1BB6A9E62625C3410063F378 /* EVO Devices.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "EVO Devices.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EVO_DevicesApp.swift; sourceTree = "<group>"; };
@@ -107,6 +109,7 @@
 				1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */,
 				1BB6AA1C2625C9970063F378 /* Device.swift */,
 				1BB6AA172625C94E0063F378 /* DeviceDetail.swift */,
+				1B0A2EA42674E35700A3A8C4 /* MotorSetting.swift */,
 				1BB6A9EB2625C3420063F378 /* ContentView.swift */,
 				1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */,
 				1BB6A9ED2625C38B0063F378 /* Assets.xcassets */,
@@ -276,6 +279,7 @@
 				1BB6AA1D2625C9970063F378 /* Device.swift in Sources */,
 				1BB6A9EA2625C3420063F378 /* EVO_DevicesApp.swift in Sources */,
 				1BB6AA22262719AD0063F378 /* DeviceStore.swift in Sources */,
+				1B0A2EA52674E35700A3A8C4 /* MotorSetting.swift in Sources */,
 				1B5AAC7A265BC3C6002AAB70 /* DeviceData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
