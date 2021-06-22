@@ -25,9 +25,20 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     let FLOW_INDEX_CHARACTERISTIC_UUID = CBUUID(string: "47844164-f734-40bd-8469-c38c02382046")
     
     let SECURITY_SERVICE_UUID = CBUUID(string: "3a658e10-af85-4163-9607-094fdaeb3859")
+    let GET_ALL_PASSWORD_ENABLE_STATES_CHARACTERISTIC_UUID = CBUUID(string: "ee45ab48-b6b8-4f2a-83db-86e9011fd40a");
+    
     let FACTORY_SERVICE_UUID = CBUUID(string: "b7da3a79-a0df-45d9-bd85-f165605e2a04")
     let RF_SERVICE_UUID = CBUUID(string: "d3ecc05a-5192-43f8-a409-84faca67e7b0")
+    
     let FILTER_MONITORING_SERVICE = CBUUID(string: "9f8d8050-9731-4597-85a0-d49fba2db671")
+    let RESET_FILTER1_ALARM_CHARACTERISTIC_UUUID = CBUUID(string: "1aaf1b0e-b754-11eb-8529-0242ac130003")
+    let RESET_FILTER2_ALARM_CHARACTERISTIC_UUID = CBUUID(string: "1aaf1dac-b754-11eb-8529-0242ac130003")
+    let RESET_FILTER3_ALARM_CHARACTERISTIC_UUID = CBUUID(string: "1aaf1ea6-b754-11eb-8529-0242ac130003")
+    let FILTER_MONITORING_ENABLE_STATUS_CHARACTERISTIC_UUID = CBUUID(string: "1aaf1f6e-b754-11eb-8529-0242ac130003")
+    let REMAINING_FILTER_LIVES_CHARACTERISTIC_UUID = CBUUID(string: "1aaf24d2-b754-11eb-8529-0242ac130003")
+    let FILTER1_NAME_CHARACTERISTIC_UUID = CBUUID(string: "8524b1f2-4ce9-466f-9886-238937741bf5")
+    let FILTER2_NAME_CHARACTERISTIC_UUID = CBUUID(string: "ac2b933e-a782-4841-af93-377cdd6f521c");
+    let FILTER3_NAME_CHARACTERISTIC_UUID = CBUUID(string: "d08c2d65-c3e1-464d-b2a5-8387959fe5de");
     
     let SILICON_LABS_OTA_SERVICE_UUID = CBUUID(string: "1D14D6EE-FD63-4FA1-BFA4-8F47B42119F0")
     
@@ -38,8 +49,18 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     var centralManager: CBCentralManager?
     var connected = false
     var targetPeripheral: CBPeripheral?
-    var FlowIndexCharacteristic: CBCharacteristic?
-    var DeviceNameCharacteristic: CBCharacteristic?
+    var flowIndexCharacteristic: CBCharacteristic?
+    var deviceNameCharacteristic: CBCharacteristic?
+    var securityService: CBService?
+    var filterMonitorEnableCharacteristic: CBCharacteristic?
+    var filterMonitor1ResetCharacteristic: CBCharacteristic?
+    var filterMonitor2ResetCharacteristic: CBCharacteristic?
+    var filterMonitor3ResetCharacteristic: CBCharacteristic?
+    var filterRemainingLivesCharacteristic: CBCharacteristic?
+    var filter1NameCharacteristic: CBCharacteristic?
+    var filter2NameCharacteristic: CBCharacteristic?
+    var filter3NameCharacteristic: CBCharacteristic?
+    
     @Published var speed: Double = 0.0
     
     init(devices: [Device] = []){
@@ -185,6 +206,8 @@ extension DeviceStore: CBPeripheralDelegate {
             }
             else if service.uuid.isEqual(SECURITY_SERVICE_UUID) {
                 print("Security service found")
+                peripheral.discoverCharacteristics(nil, for: service)
+                securityService = service
             }
             else if service.uuid.isEqual(FACTORY_SERVICE_UUID) {
                 print("Factory service found")
@@ -194,6 +217,7 @@ extension DeviceStore: CBPeripheralDelegate {
             }
             else if service.uuid.isEqual(FILTER_MONITORING_SERVICE) {
                 print("Filter monitoring service found")
+                peripheral.discoverCharacteristics(nil, for: service)
             }
             // The discover service does not return Generic Access Profile (GAP) service
             else if service.uuid.isEqual( GENERIC_ACCESS_SERVICE_UUID ){
@@ -211,7 +235,7 @@ extension DeviceStore: CBPeripheralDelegate {
     //
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         if service.uuid.isEqual(MOTOR_CONTROL_SERVICE_UUID) {
-            guard let characteristics = service.characteristics else { print("no characteristics found"); return }
+            guard let characteristics = service.characteristics else { print("no motor control characteristics found"); return }
             
                 for characteristic in characteristics {
                     print(characteristic)
@@ -229,9 +253,51 @@ extension DeviceStore: CBPeripheralDelegate {
                     else if characteristic.uuid.isEqual(FLOW_INDEX_CHARACTERISTIC_UUID){
                         print("found Flow Index characteristic")
                         peripheral.setNotifyValue(true, for: characteristic)
-                        FlowIndexCharacteristic = characteristic
+                        flowIndexCharacteristic = characteristic
                     }
             }
+        }
+        else if service.uuid.isEqual(SECURITY_SERVICE_UUID) {
+            guard let characteristics = service.characteristics else { print("no security settings characteristics found"); return }
+            
+            for characteristic in characteristics {
+                if characteristic.uuid.isEqual(GET_ALL_PASSWORD_ENABLE_STATES_CHARACTERISTIC_UUID){
+                    print("found get all password enable states characteristic")
+                    peripheral.setNotifyValue(true, for: characteristic)
+                }
+            }
+        }
+        else if service.uuid.isEqual(FILTER_MONITORING_SERVICE) {
+            guard let characteristics = service.characteristics else { print("no Filter Monitoring characteristics found"); return }
+            
+            for characteristic in characteristics {
+                if characteristic.uuid.isEqual(FILTER1_NAME_CHARACTERISTIC_UUID){
+                    filter1NameCharacteristic = characteristic
+                }
+                else if characteristic.uuid.isEqual(FILTER2_NAME_CHARACTERISTIC_UUID) {
+                    filter2NameCharacteristic = characteristic
+                }
+                else if characteristic.uuid.isEqual(FILTER3_NAME_CHARACTERISTIC_UUID) {
+                    filter3NameCharacteristic = characteristic
+                }
+                else if characteristic.uuid.isEqual(REMAINING_FILTER_LIVES_CHARACTERISTIC_UUID) {
+                    filterRemainingLivesCharacteristic = characteristic
+                    peripheral.setNotifyValue(true, for: characteristic)
+                }
+                else if characteristic.uuid.isEqual(FILTER_MONITORING_ENABLE_STATUS_CHARACTERISTIC_UUID) {
+                    filterMonitorEnableCharacteristic = characteristic
+                }
+                else if characteristic.uuid.isEqual(RESET_FILTER1_ALARM_CHARACTERISTIC_UUUID) {
+                    filterMonitor1ResetCharacteristic = characteristic
+                }
+                else if characteristic.uuid.isEqual(RESET_FILTER2_ALARM_CHARACTERISTIC_UUID) {
+                    filterMonitor2ResetCharacteristic = characteristic
+                }
+                else if characteristic.uuid.isEqual(RESET_FILTER3_ALARM_CHARACTERISTIC_UUID) {
+                    filterMonitor3ResetCharacteristic = characteristic
+                }
+            }
+            
         }
     }
     
@@ -256,6 +322,20 @@ extension DeviceStore: CBPeripheralDelegate {
                 print(deviceData.speed)
             }
         }
+        else if characteristic.uuid.isEqual(GET_ALL_PASSWORD_ENABLE_STATES_CHARACTERISTIC_UUID){
+            if let passwordEnableStates = characteristic.value {
+                deviceData.userPasswordEnabled = (passwordEnableStates[0] & 0x01) == 0x01
+                deviceData.adminPasswordEnabled = (passwordEnableStates[0] & 0x02) == 0x02
+            }
+        }
+        else if characteristic.uuid.isEqual(REMAINING_FILTER_LIVES_CHARACTERISTIC_UUID) {
+            if let filterRemainingLives = characteristic.value {
+                deviceData.filterMonitors[0].filterRemainingLife = Int(filterRemainingLives[0])
+                deviceData.filterMonitors[1].filterRemainingLife = Int(filterRemainingLives[1])
+                deviceData.filterMonitors[2].filterRemainingLife = Int(filterRemainingLives[2])
+            }
+        }
+            
     }
 
     
@@ -279,11 +359,11 @@ extension DeviceStore: CBPeripheralDelegate {
         return ret
     }
     
-    func updateSpeed()
+    func updateFlowIndex()
     {
         print(speed)
 
-        if let characteristic = FlowIndexCharacteristic {
+        if let characteristic = flowIndexCharacteristic {
             let bytes: [UInt8] = [UInt8(speed)]
             let data: NSData = NSData(bytes: bytes, length: bytes.count)
             if let peripheral = targetPeripheral {
@@ -295,6 +375,10 @@ extension DeviceStore: CBPeripheralDelegate {
     func updateDeviceName(NewDeviceName newName: String )
     {
         print("The new name is \(newName)." )
+    }
+    
+    func writeSecurityStuff(characteristicUUID uuid: CBUUID, Data data: NSData ){
+        
     }
 }
 

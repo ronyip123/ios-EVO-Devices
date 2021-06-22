@@ -8,13 +8,114 @@
 import SwiftUI
 
 struct StatusDetails: View {
+    @ObservedObject var data: DeviceData
+    @ObservedObject var store: DeviceStore
+    @Binding var showViewState: Bool
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        NavigationView{
+            List{
+                HStack{
+                    Text("RPM Alarm:").padding()
+                    if data.RPMInAlarm {
+                        // to be replaced by the red LED
+                        Text("In Alarm").padding()
+                    }
+                    else {
+                        // to be replaced by the green LED
+                        Text("Normal").padding()
+                    }
+                    Button(action: {
+                        // reset rpm alarm
+                    }){
+                        Text("Reset Alarm")
+                    }
+                    .buttonStyle(RoundedRectangleButtonStyle())
+                }
+                
+                Text("Filter Monitors:")
+                    .padding()
+                
+                HStack{
+                    if data.filterMonitors[0].filterName.count != 0 {
+                        Text(data.filterMonitors[0].filterName)
+                    }
+                    else {
+                        Text("Filter1")
+                    }
+                    // The following Filter Status are to be replaced by images
+                    switch data.filterMonitors[0].FilterAlarmStatus(){
+                        case FilterStatus.Normal:
+                            Text(" Normal")
+                        case FilterStatus.Dirty:
+                            Text("Dirty")
+                        case FilterStatus.Bad:
+                            Text("Bad")
+                    }
+                    Button( action: {}){
+                        Text("Reset")
+                    }
+                    .buttonStyle(RoundedRectangleButtonStyle())
+                }
+                
+                HStack{
+                    if data.filterMonitors[1].filterName.count != 0 {
+                        Text(data.filterMonitors[1].filterName)
+                    }
+                    else {
+                        Text("Filter2")
+                    }
+                    // The following Filter Status are to be replaced by images
+                    switch data.filterMonitors[1].FilterAlarmStatus(){
+                        case FilterStatus.Normal:
+                            Text(" Normal")
+                        case FilterStatus.Dirty:
+                            Text("Dirty")
+                        case FilterStatus.Bad:
+                            Text("Bad")
+                    }
+                    Button( action: {}){
+                        Text("Reset")
+                    }
+                    .buttonStyle(RoundedRectangleButtonStyle())
+                }
+                
+                HStack{
+                    if data.filterMonitors[2].filterName.count != 0 {
+                        Text(data.filterMonitors[2].filterName)
+                    }
+                    else {
+                        Text("Filter2")
+                    }
+                    // The following Filter Status are to be replaced by images
+                    switch data.filterMonitors[2].FilterAlarmStatus(){
+                        case FilterStatus.Normal:
+                            Text(" Normal")
+                        case FilterStatus.Dirty:
+                            Text("Dirty")
+                        case FilterStatus.Bad:
+                            Text("Bad")
+                    }
+                    Button( action: {}){
+                        Text("Reset")
+                    }
+                    .buttonStyle(RoundedRectangleButtonStyle())
+                }
+                
+                Button( action:{showViewState.toggle()}){
+                    Text("Done")
+                        .padding()
+                }
+                .buttonStyle(RoundedRectangleButtonStyle())
+                
+            }
+            .navigationBarTitle("status Details")
+        }
     }
 }
 
-struct StatusDetails_Previews: PreviewProvider {
-    static var previews: some View {
-        StatusDetails()
-    }
-}
+//struct StatusDetails_Previews: PreviewProvider {
+//    static var previews: some View {
+//        StatusDetails(data: DeviceData(), store: DeviceStore(), showViewState: false)
+//    }
+//}

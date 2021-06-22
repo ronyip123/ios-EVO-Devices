@@ -14,6 +14,8 @@ struct DeviceDetail: View {
     @ObservedObject var store: DeviceStore
     @StateObject var data = DeviceData()
     @State private var connected = false
+    @State var showSecuritySettingsView = false
+    @State var showStatusDetailsView = false
 
     var body: some View {
         
@@ -27,11 +29,14 @@ struct DeviceDetail: View {
                 }.padding()
                 HStack{
                     Text("Device Name:").font(.subheadline)
-                    TextField("", text: $deviceNameStr, onCommit: {
-                        deviceNameChanged(deviceNameStr)
-                    })
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .font(Font.title2.weight(.heavy))
+                    Text(deviceNameStr)
+                        .fontWeight(.bold)
+                        .font(.title2)
+//                    TextField("", text: $deviceNameStr, onCommit: {
+//                        deviceNameChanged(deviceNameStr)
+//                    })
+//                        .textFieldStyle(RoundedBorderTextFieldStyle())
+//                        .font(Font.title2.weight(.heavy))
                 }.padding()
                 
                 HStack{
@@ -69,29 +74,54 @@ struct DeviceDetail: View {
                     }
                 }.padding()
                 
+//                Text("Status Details")
+//                    .fontWeight(.bold)
+//                    .font(.title2)
+//
+//                Text("Motor Settings")
+//                    .fontWeight(.bold)
+//                    .font(.title2)
+//
+//                Text("Security Settings")
+//                    .fontWeight(.bold)
+//                    .font(.title2)
+                
                 HStack{
                     Button(action: {
-                        // switch to status details setting user interface
+                        // set flag to show status details view
+                        self.showStatusDetailsView.toggle()
                     }){
                         Text("Status Details")
                     }
                     .buttonStyle(RoundedRectangleButtonStyle())
-                    Button(action: {
-                        // switch to motor setting user interface
-                    }){
-                        Text("Motor Settings")
-                    }
-                    .buttonStyle(RoundedRectangleButtonStyle())
-                    Button(action: {
-                        // switch to security settings user interface
-                    }){
-                        Text("Security Settings")
-                    }
-                    .buttonStyle(RoundedRectangleButtonStyle())
+                    .sheet(isPresented: $showStatusDetailsView, content: {
+                        StatusDetails(data: self.data, store: self.store, showViewState: $showStatusDetailsView)
+                                .animation(.spring())
+                                .transition(.slide)
+                    })
+
+//                    Button(action: {
+//                        // switch to motor setting user interface
+//                    }){
+//                        Text("Motor Settings")
+//                    }
+//                    .buttonStyle(RoundedRectangleButtonStyle())
+//                    Button(action: {
+//                        // set flag to show security settings view
+//                        self.showSecuritySettingsView.toggle()
+//                    }){
+//                        Text("Security Settings")
+//                    }
+//                    .buttonStyle(RoundedRectangleButtonStyle())
+//                    .sheet(isPresented: $showSecuritySettingsView, content: {
+////                        SecuritySettings(userPassword: data.userPassword, adminPassword: data.adminPassword, userPasswordEnableState: data.userPasswordEnabled, adminPasswordEnableState: data.adminPasswordEnabled, showViewState: self.$showSecuritySettingsView)
+//                        SecuritySettings(data: self.data, store: self.store, showViewState: self.$showSecuritySettingsView)
+//                                .animation(.spring())
+//                                .transition(.slide)
+//                    })
                 }
             }
             .navigationBarTitle("Device Detail")
-            
         }
         .onAppear(){
             print("DeviceDetail appearing")
@@ -109,7 +139,7 @@ struct DeviceDetail: View {
     }
     
     func speedChanged(){
-        store.updateSpeed()
+        store.updateFlowIndex()
     }
     
     func deviceNameChanged(_ newName: String){
