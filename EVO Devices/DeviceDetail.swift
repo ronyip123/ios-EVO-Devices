@@ -65,7 +65,7 @@ struct DeviceDetail: View {
                         Image(systemName: "minus")
                         Slider(value: $store.speed, in: 0...100, step: 1 ){
                             editing in if !editing {
-                                speedChanged()
+                                FlowIndexChanged()
                             }
                         }
                             .accentColor(Color.green)
@@ -138,12 +138,12 @@ struct DeviceDetail: View {
         }
     }
     
-    func speedChanged(){
-        store.updateFlowIndex()
+    func FlowIndexChanged(){
+        store.sendFlowIndex()
     }
     
     func deviceNameChanged(_ newName: String){
-        store.updateDeviceName(NewDeviceName: newName)
+        store.sendDeviceName(NewDeviceName: newName)
     }
     
 }

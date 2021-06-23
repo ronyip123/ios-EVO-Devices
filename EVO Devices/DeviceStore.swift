@@ -23,6 +23,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     let RPM_CHARACTERISTICS_UUID = CBUUID(string: "b1f8b319-fc1c-4756-a391-f56dfa101b24")
     let GO_CHARACTERISTIC_UUID = CBUUID(string: "02f2ec80-ce47-4383-9e41-170fc6fe06fe")
     let FLOW_INDEX_CHARACTERISTIC_UUID = CBUUID(string: "47844164-f734-40bd-8469-c38c02382046")
+    let RPM_ALARM_STATUS_CHARACTERISTIC_UUID = CBUUID(string: "809f3fff-41bf-4c72-a6b0-fb88f4218bbe")
     
     let SECURITY_SERVICE_UUID = CBUUID(string: "3a658e10-af85-4163-9607-094fdaeb3859")
     let GET_ALL_PASSWORD_ENABLE_STATES_CHARACTERISTIC_UUID = CBUUID(string: "ee45ab48-b6b8-4f2a-83db-86e9011fd40a");
@@ -51,6 +52,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     var targetPeripheral: CBPeripheral?
     var flowIndexCharacteristic: CBCharacteristic?
     var deviceNameCharacteristic: CBCharacteristic?
+    var RPMAlarmStatusCharacteristic: CBCharacteristic?
     var securityService: CBService?
     var filterMonitorEnableCharacteristic: CBCharacteristic?
     var filterMonitor1ResetCharacteristic: CBCharacteristic?
@@ -255,6 +257,10 @@ extension DeviceStore: CBPeripheralDelegate {
                         peripheral.setNotifyValue(true, for: characteristic)
                         flowIndexCharacteristic = characteristic
                     }
+                    else if characteristic.uuid.isEqual(RPM_ALARM_STATUS_CHARACTERISTIC_UUID){
+                        RPMAlarmStatusCharacteristic = characteristic
+                        peripheral.setNotifyValue(true, for: characteristic)
+                    }
             }
         }
         else if service.uuid.isEqual(SECURITY_SERVICE_UUID) {
@@ -335,6 +341,19 @@ extension DeviceStore: CBPeripheralDelegate {
                 deviceData.filterMonitors[2].filterRemainingLife = Int(filterRemainingLives[2])
             }
         }
+        else if characteristic.uuid.isEqual(FILTER_MONITORING_ENABLE_STATUS_CHARACTERISTIC_UUID)
+        {
+            if let filterEnableStates = characteristic.value {
+                deviceData.filterMonitors[0].filterEnabled = (filterEnableStates[0] & 0x01) == 0x01
+                deviceData.filterMonitors[1].filterEnabled = (filterEnableStates[1] & 0x02) == 0x02
+                deviceData.filterMonitors[2].filterEnabled = (filterEnableStates[2] & 0x04) == 0x04
+            }
+        }
+        else if characteristic.uuid.isEqual(RPM_ALARM_STATUS_CHARACTERISTIC_UUID){
+            if let RPMAlarmStatus = characteristic.value {
+                deviceData.RPMInAlarm = RPMAlarmStatus[0] == 0x01
+            }
+        }
             
     }
 
@@ -359,7 +378,7 @@ extension DeviceStore: CBPeripheralDelegate {
         return ret
     }
     
-    func updateFlowIndex()
+    func sendFlowIndex()
     {
         print(speed)
 
@@ -372,13 +391,56 @@ extension DeviceStore: CBPeripheralDelegate {
         }
     }
     
-    func updateDeviceName(NewDeviceName newName: String )
+    func sendDeviceName(NewDeviceName newName: String )
     {
         print("The new name is \(newName)." )
     }
     
-    func writeSecurityStuff(characteristicUUID uuid: CBUUID, Data data: NSData ){
+    func sendSecurityStuff(characteristicUUID uuid: CBUUID, Data data: NSData ){
         
+    }
+    
+    func getFilterEnableStatus()
+    {
+        if let characteristic = filterMonitorEnableCharacteristic {
+            if let peripheral = targetPeripheral {
+                peripheral.readValue(for: characteristic)
+            }
+        }
+    }
+    
+    func resetRPMAlarm(){
+        let bytes: [UInt8] = [0]
+        let data: NSData = NSData(bytes: bytes, length: bytes.count)
+        if let peripheral = targetPeripheral {
+            if let characteristic = RPMAlarmStatusCharacteristic {
+                peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
+    }
+    
+    
+    func resetFilter(FilterIndes index: Int){
+        let bytes: [UInt8] = [0]
+        let data: NSData = NSData(bytes: bytes, length: bytes.count)
+        if let peripheral = targetPeripheral {
+            switch index {
+            case 0:
+                if let characteristic = filterMonitor1ResetCharacteristic {
+                    peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+                }
+            case 1:
+                if let characteristic = filterMonitor2ResetCharacteristic {
+                    peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+                }
+            case 2:
+                if let characteristic = filterMonitor3ResetCharacteristic {
+                    peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+                }
+            default:
+                print("filter index error")
+            }
+        }
     }
 }
 

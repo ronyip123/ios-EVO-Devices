@@ -27,6 +27,7 @@ struct StatusDetails: View {
                     }
                     Button(action: {
                         // reset rpm alarm
+                        store.resetRPMAlarm()
                     }){
                         Text("Reset Alarm")
                     }
@@ -52,7 +53,7 @@ struct StatusDetails: View {
                         case FilterStatus.Bad:
                             Text("Bad")
                     }
-                    Button( action: {}){
+                    Button( action: { store.resetFilter(FilterIndes: 0 )}){
                         Text("Reset")
                     }
                     .buttonStyle(RoundedRectangleButtonStyle())
@@ -74,7 +75,7 @@ struct StatusDetails: View {
                         case FilterStatus.Bad:
                             Text("Bad")
                     }
-                    Button( action: {}){
+                    Button( action: { store.resetFilter(FilterIndes: 1) }){
                         Text("Reset")
                     }
                     .buttonStyle(RoundedRectangleButtonStyle())
@@ -96,7 +97,7 @@ struct StatusDetails: View {
                         case FilterStatus.Bad:
                             Text("Bad")
                     }
-                    Button( action: {}){
+                    Button( action: { store.resetFilter(FilterIndes: 2)}){
                         Text("Reset")
                     }
                     .buttonStyle(RoundedRectangleButtonStyle())
@@ -110,6 +111,13 @@ struct StatusDetails: View {
                 
             }
             .navigationBarTitle("status Details")
+        }
+        .onAppear(){
+            store.getFilterEnableStatus()
+            
+        }
+        .onDisappear(){
+            
         }
     }
 }
