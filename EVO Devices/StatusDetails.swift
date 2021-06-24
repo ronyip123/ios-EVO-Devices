@@ -39,19 +39,21 @@ struct StatusDetails: View {
                 
                 HStack{
                     if data.filterMonitors[0].filterName.count != 0 {
-                        Text(data.filterMonitors[0].filterName)
+                        Text(data.filterMonitors[0].filterName).padding()
                     }
                     else {
-                        Text("Filter1")
+                        Text("Filter1").padding()
                     }
+                    
+                    Text("\(data.filterMonitors[0].filterRemainingLife) %").padding()
                     // The following Filter Status are to be replaced by images
                     switch data.filterMonitors[0].FilterAlarmStatus(){
                         case FilterStatus.Normal:
-                            Text(" Normal")
+                            Text(" Normal").padding()
                         case FilterStatus.Dirty:
-                            Text("Dirty")
+                            Text("Dirty").padding()
                         case FilterStatus.Bad:
-                            Text("Bad")
+                            Text("Bad").padding()
                     }
                     Button( action: { store.resetFilter(FilterIndes: 0 )}){
                         Text("Reset")
@@ -61,19 +63,20 @@ struct StatusDetails: View {
                 
                 HStack{
                     if data.filterMonitors[1].filterName.count != 0 {
-                        Text(data.filterMonitors[1].filterName)
+                        Text(data.filterMonitors[1].filterName).padding()
                     }
                     else {
-                        Text("Filter2")
+                        Text("Filter2").padding()
                     }
+                    Text("\(data.filterMonitors[1].filterRemainingLife) %").padding()
                     // The following Filter Status are to be replaced by images
                     switch data.filterMonitors[1].FilterAlarmStatus(){
                         case FilterStatus.Normal:
-                            Text(" Normal")
+                            Text(" Normal").padding()
                         case FilterStatus.Dirty:
-                            Text("Dirty")
+                            Text("Dirty").padding()
                         case FilterStatus.Bad:
-                            Text("Bad")
+                            Text("Bad").padding()
                     }
                     Button( action: { store.resetFilter(FilterIndes: 1) }){
                         Text("Reset")
@@ -83,19 +86,20 @@ struct StatusDetails: View {
                 
                 HStack{
                     if data.filterMonitors[2].filterName.count != 0 {
-                        Text(data.filterMonitors[2].filterName)
+                        Text(data.filterMonitors[2].filterName).padding()
                     }
                     else {
-                        Text("Filter2")
+                        Text("Filter2").padding()
                     }
+                    Text("\(data.filterMonitors[2].filterRemainingLife) %").padding()
                     // The following Filter Status are to be replaced by images
                     switch data.filterMonitors[2].FilterAlarmStatus(){
                         case FilterStatus.Normal:
-                            Text(" Normal")
+                            Text(" Normal").padding()
                         case FilterStatus.Dirty:
-                            Text("Dirty")
+                            Text("Dirty").padding()
                         case FilterStatus.Bad:
-                            Text("Bad")
+                            Text("Bad").padding()
                     }
                     Button( action: { store.resetFilter(FilterIndes: 2)}){
                         Text("Reset")

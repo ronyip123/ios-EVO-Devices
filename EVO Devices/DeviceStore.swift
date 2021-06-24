@@ -345,8 +345,8 @@ extension DeviceStore: CBPeripheralDelegate {
         {
             if let filterEnableStates = characteristic.value {
                 deviceData.filterMonitors[0].filterEnabled = (filterEnableStates[0] & 0x01) == 0x01
-                deviceData.filterMonitors[1].filterEnabled = (filterEnableStates[1] & 0x02) == 0x02
-                deviceData.filterMonitors[2].filterEnabled = (filterEnableStates[2] & 0x04) == 0x04
+                deviceData.filterMonitors[1].filterEnabled = (filterEnableStates[0] & 0x02) == 0x02
+                deviceData.filterMonitors[2].filterEnabled = (filterEnableStates[0] & 0x04) == 0x04
             }
         }
         else if characteristic.uuid.isEqual(RPM_ALARM_STATUS_CHARACTERISTIC_UUID){
