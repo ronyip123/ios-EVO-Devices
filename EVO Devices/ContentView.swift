@@ -23,13 +23,13 @@ struct ContentView: View {
                     Button( action:{
                         self.scanning.toggle()
                         if self.scanning {
-                            store.clearStore()
+                            //store.clearStore()
                             startScan()
-                            self.timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
+                            //self.timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
                         }
                         else{
-                            self.timer.upstream.connect().cancel()
-                            self.scanTimer = 0 //reset scantimer
+//                            self.timer.upstream.connect().cancel()
+//                            self.scanTimer = 0 //reset scantimer
                             stopScan()
                         }
                     })
@@ -87,24 +87,32 @@ struct ContentView: View {
              })
             .onAppear(){
                 print("ContentView appears")
+                scanning.toggle()
+                startScan()
             }
             .onDisappear(){
                 print("ContentView disappears")
                 if scanning {
                     scanning.toggle()
-                    self.timer.upstream.connect().cancel()
+                    //self.timer.upstream.connect().cancel()
+                    stopScan()
                 }
             }
         }
     }
+
    
     func startScan()
     {
+        store.clearStore()
+        self.timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
         store.startScan()
     }
 
     func stopScan()
     {
+        self.timer.upstream.connect().cancel()
+        self.scanTimer = 0 //reset scantimer
         store.stopScan()
     }
     
