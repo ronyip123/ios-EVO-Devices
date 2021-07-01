@@ -1,14 +1,17 @@
 {
   "images" : [
     {
+      "filename" : "goodfilter x1.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
+      "filename" : "goodfilter x2.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
+      "filename" : "goodfilter x3.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

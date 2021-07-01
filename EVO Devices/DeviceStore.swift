@@ -129,6 +129,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
             let dataArray = [UInt8](data)
             if( dataArray[0] == Character("E").asciiValue && dataArray[1] == Character("V").asciiValue && dataArray[2] == Character("O").asciiValue)
             {
+                // check alarm status
                 if dataArray[3] & 0xF0 == 0 { }
                 let newDevice = Device(id: peripheral.identifier, deviceRSSI: Int(truncating: RSSI), peripheral: peripheral, type: Int((dataArray[3] & 0xF0) >> 4))
                 self.devices.append(newDevice)
