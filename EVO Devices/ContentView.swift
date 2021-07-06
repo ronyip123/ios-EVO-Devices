@@ -52,7 +52,7 @@ struct ContentView: View {
                     .cornerRadius(5.0)
                     
                     ForEach(store.devices){device in
-                        DeviceCell(device: device, store: store)
+                        DeviceCell(device: device, store: store).background(device.inAlarm ? Color.red : Color.white)
                     }
                 }
                 .navigationBarTitle("EVO Devices")
@@ -96,6 +96,7 @@ struct ContentView: View {
                     scanning.toggle()
                     //self.timer.upstream.connect().cancel()
                     stopScan()
+                    cleanup()
                 }
             }
         }
@@ -120,11 +121,11 @@ struct ContentView: View {
     {
         print("in cleanup")
         store.clearStore();
-//        if scanning {
-//            scanning.toggle()
-//        }
-//        scanning = false
-//        self.timer.upstream.connect().cancel()
+        //        if scanning {
+        //            scanning.toggle()
+        //        }
+        //        scanning = false
+        //        self.timer.upstream.connect().cancel()
     }
     
     func getReady() {
@@ -137,7 +138,7 @@ struct DeviceCell: View {
     let device : Device
     let store : DeviceStore
     var body: some View {
-        NavigationLink(destination: DeviceDetail(targetDevice: device, deviceNameStr: device.getNameString(), store: store)){
+        NavigationLink(destination: DeviceDetail(targetDevice: device, deviceNameStr: device.getNameString(), store: store )){
             VStack(alignment: .leading){
                 Text(device.getNameString())
                     .font(.headline)

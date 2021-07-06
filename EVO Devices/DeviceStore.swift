@@ -26,9 +26,17 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     let RPM_ALARM_STATUS_CHARACTERISTIC_UUID = CBUUID(string: "809f3fff-41bf-4c72-a6b0-fb88f4218bbe")
     
     let SECURITY_SERVICE_UUID = CBUUID(string: "3a658e10-af85-4163-9607-094fdaeb3859")
-    let GET_ALL_PASSWORD_ENABLE_STATES_CHARACTERISTIC_UUID = CBUUID(string: "ee45ab48-b6b8-4f2a-83db-86e9011fd40a");
+    let GET_ALL_PASSWORD_ENABLE_STATES_CHARACTERISTIC_UUID = CBUUID(string: "ee45ab48-b6b8-4f2a-83db-86e9011fd40a")
+    let USER_PASSWORD_VERIFIED_CHARACTERISTIC_UUID = CBUUID(string: "e958246c-32ba-4243-a945-42daf45c22df")
+    let ADMIN_PASSWORD_VERIFIED_CHARACTERISTIC_UUID = CBUUID(string: "6d873ad3-8327-4943-9bd5-481daffab853")
+    let VERIFY_USER_PASSWORD_CHARACTERISTIC_UUID = CBUUID(string: "2fc0c709-e8b8-45f8-a917-ef9dd902b4cb")
+    let VERIFY_ADMIN_PASSWORD_CHARACTERISTIC_UUID = CBUUID(string: "1ffa6379-38b1-4861-be7c-7722dcb6c917");
     
     let FACTORY_SERVICE_UUID = CBUUID(string: "b7da3a79-a0df-45d9-bd85-f165605e2a04")
+    // We need this Write device name through a characteristic in the factory service becuase
+    // ios does not allow writing and changing the device name thoufh the GAP
+    let WRITE_DEVICE_NAME_THROUGH_GATT_CHARACTERISTIC_UUID = CBUUID(string: "9c81b0bd-b2d4-4439-9f87-3dd9a454baf3")
+    
     let RF_SERVICE_UUID = CBUUID(string: "d3ecc05a-5192-43f8-a409-84faca67e7b0")
     
     let FILTER_MONITORING_SERVICE = CBUUID(string: "9f8d8050-9731-4597-85a0-d49fba2db671")
@@ -62,6 +70,10 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     var filter1NameCharacteristic: CBCharacteristic?
     var filter2NameCharacteristic: CBCharacteristic?
     var filter3NameCharacteristic: CBCharacteristic?
+    var writeDeviceNameThroughGATTCharacteristic: CBCharacteristic?
+    var verifyUserPasswordCharacteristic: CBCharacteristic?
+    var verifyAdminPasswordCharacteristic: CBCharacteristic?
+    
     
     @Published var speed: Double = 0.0
     
@@ -129,9 +141,13 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
             let dataArray = [UInt8](data)
             if( dataArray[0] == Character("E").asciiValue && dataArray[1] == Character("V").asciiValue && dataArray[2] == Character("O").asciiValue)
             {
-                // check alarm status
-                if dataArray[3] & 0xF0 == 0 { }
-                let newDevice = Device(id: peripheral.identifier, deviceRSSI: Int(truncating: RSSI), peripheral: peripheral, type: Int((dataArray[3] & 0xF0) >> 4))
+                // bit 0 of dataArray[3] is RPM alarm status for all versions
+                // bit 1 is the filter monitor alarm for major version 3 and higher
+                // bit 2 and 3 are reserved for future use
+                // bit 4 to 7 are reserved for device type. 0 is ECM10-BTH1, the developement name for ECM-BCU.
+                
+                if dataArray[3] & 0xF0 == 0 { }  // detect device type. We only have one type for now
+                let newDevice = Device(id: peripheral.identifier, deviceRSSI: Int(truncating: RSSI), peripheral: peripheral, type: Int((dataArray[3] & 0xF0) >> 4), inAlarm: dataArray[3] & 0x03 != 0)
                 self.devices.append(newDevice)
                 let count = devices.count
                 print("peripherals count = \(count)")
@@ -214,6 +230,7 @@ extension DeviceStore: CBPeripheralDelegate {
             }
             else if service.uuid.isEqual(FACTORY_SERVICE_UUID) {
                 print("Factory service found")
+                peripheral.discoverCharacteristics(nil, for: service)
             }
             else if service.uuid.isEqual(RF_SERVICE_UUID) {
                 print("RF service found")
@@ -272,6 +289,25 @@ extension DeviceStore: CBPeripheralDelegate {
                     print("found get all password enable states characteristic")
                     peripheral.setNotifyValue(true, for: characteristic)
                 }
+                else if characteristic.uuid.isEqual(ADMIN_PASSWORD_VERIFIED_CHARACTERISTIC_UUID){
+                    print("found get admin password verified characteristic")
+                    peripheral.setNotifyValue(true, for: characteristic)
+                    peripheral.readValue(for: characteristic)
+                }
+                else if characteristic.uuid.isEqual(USER_PASSWORD_VERIFIED_CHARACTERISTIC_UUID){
+                    print("found get user password verified characteristic")
+                    peripheral.setNotifyValue(true, for: characteristic)
+                    peripheral.readValue(for: characteristic)
+                }
+                else if characteristic.uuid.isEqual(VERIFY_USER_PASSWORD_CHARACTERISTIC_UUID){
+                    print("found get user password characteristic")
+                    verifyUserPasswordCharacteristic = characteristic
+                    
+                }
+                else if characteristic.uuid.isEqual(VERIFY_ADMIN_PASSWORD_CHARACTERISTIC_UUID){
+                    print("found get admin password characteristic")
+                    verifyAdminPasswordCharacteristic = characteristic
+                }
             }
         }
         else if service.uuid.isEqual(FILTER_MONITORING_SERVICE) {
@@ -293,6 +329,7 @@ extension DeviceStore: CBPeripheralDelegate {
                 }
                 else if characteristic.uuid.isEqual(FILTER_MONITORING_ENABLE_STATUS_CHARACTERISTIC_UUID) {
                     filterMonitorEnableCharacteristic = characteristic
+                    peripheral.readValue(for: characteristic)
                 }
                 else if characteristic.uuid.isEqual(RESET_FILTER1_ALARM_CHARACTERISTIC_UUUID) {
                     filterMonitor1ResetCharacteristic = characteristic
@@ -305,6 +342,15 @@ extension DeviceStore: CBPeripheralDelegate {
                 }
             }
             
+        }
+        else if service.uuid.isEqual(FACTORY_SERVICE_UUID){
+            guard let characteristics = service.characteristics else { print("no factory characteristics found"); return }
+            
+            for characteristic in characteristics {
+                if characteristic.uuid.isEqual(WRITE_DEVICE_NAME_THROUGH_GATT_CHARACTERISTIC_UUID){
+                    writeDeviceNameThroughGATTCharacteristic = characteristic
+                }
+            }
         }
     }
     
@@ -355,7 +401,16 @@ extension DeviceStore: CBPeripheralDelegate {
                 deviceData.RPMInAlarm = RPMAlarmStatus[0] == 0x01
             }
         }
-            
+        else if characteristic.uuid.isEqual(ADMIN_PASSWORD_VERIFIED_CHARACTERISTIC_UUID) {
+            if let adminPWVerifiedState = characteristic.value{
+                deviceData.adminPasswordVerified = adminPWVerifiedState[0] == 0x01
+            }
+        }
+        else if characteristic.uuid.isEqual(USER_PASSWORD_VERIFIED_CHARACTERISTIC_UUID) {
+            if let userPWVerifiedState = characteristic.value{
+                deviceData.userPasswordVerified = userPWVerifiedState[0] == 0x01
+            }
+        }
     }
 
     
@@ -395,6 +450,40 @@ extension DeviceStore: CBPeripheralDelegate {
     func sendDeviceName(NewDeviceName newName: String )
     {
         print("The new name is \(newName)." )
+        
+        if let characteristic = writeDeviceNameThroughGATTCharacteristic {
+            let bytes: [UInt8] = Array(newName.utf8)
+            let data: NSData = NSData(bytes: bytes, length: bytes.count)
+            if let peripheral = targetPeripheral {
+                peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
+    }
+    
+    func verifyUserPassword( UserPassword password: String )
+    {
+        print("Verify user assword \(password)." )
+        
+        if let characteristic = verifyUserPasswordCharacteristic {
+            let bytes: [UInt8] = Array(password.utf8)
+            let data: NSData = NSData(bytes: bytes, length: bytes.count)
+            if let peripheral = targetPeripheral {
+                peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
+    }
+    
+    func verifyAdminPassword( AdminPassword password: String )
+    {
+        print("Verify admin assword \(password)." )
+        
+        if let characteristic = verifyAdminPasswordCharacteristic {
+            let bytes: [UInt8] = Array(password.utf8)
+            let data: NSData = NSData(bytes: bytes, length: bytes.count)
+            if let peripheral = targetPeripheral {
+                peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
     }
     
     func sendSecurityStuff(characteristicUUID uuid: CBUUID, Data data: NSData ){

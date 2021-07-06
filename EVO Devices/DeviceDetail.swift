@@ -16,7 +16,8 @@ struct DeviceDetail: View {
     @State private var connected = false
     @State var showSecuritySettingsView = false
     @State var showStatusDetailsView = false
-
+    @State var showPasswordView = false
+    
     var body: some View {
         
         VStack{
@@ -26,17 +27,17 @@ struct DeviceDetail: View {
                     Text(targetDevice.getTypeString())
                         .fontWeight(.bold)
                         .font(.title2)
+                    Text()
                 }.padding()
                 HStack{
                     Text("Device Name:").font(.subheadline)
-                    Text(deviceNameStr)
-                        .fontWeight(.bold)
-                        .font(.title2)
-//                    TextField("", text: $deviceNameStr, onCommit: {
-//                        deviceNameChanged(deviceNameStr)
-//                    })
-//                        .textFieldStyle(RoundedBorderTextFieldStyle())
-//                        .font(Font.title2.weight(.heavy))
+                    TextField("", text: $deviceNameStr, onCommit: {
+                        deviceNameChanged(deviceNameStr)
+                    })
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .font(Font.title2.weight(.heavy))
+                    .disabled(data.adminPasswordEnabled && !data.adminPasswordVerified)
+                    Image(systemName: data.adminPasswordEnabled && !data.adminPasswordVerified ? "lock" : "lock.open")
                 }.padding()
                 
                 HStack{
@@ -59,6 +60,7 @@ struct DeviceDetail: View {
                         Text("\(store.speed, specifier: "%g") %")
                             .fontWeight(.bold)
                             .font(.title2)
+                        Image(systemName: (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
                     }
                     
                     HStack{
@@ -68,8 +70,8 @@ struct DeviceDetail: View {
                                 FlowIndexChanged()
                             }
                         }
-                            .accentColor(Color.green)
-//                            .onChange(of: store.speed){ _ in speedChanged() }
+                        .accentColor(Color.green)
+                        .disabled(data.userPasswordEnabled && !data.userPasswordVerified)
                         Image(systemName: "plus")
                     }
                 }.padding()
@@ -86,19 +88,38 @@ struct DeviceDetail: View {
 //                    .fontWeight(.bold)
 //                    .font(.title2)
                 
-                HStack{
+                
                     Button(action: {
                         // set flag to show status details view
                         self.showStatusDetailsView.toggle()
                     }){
                         Text("Status Details")
                     }
+                    .background(data.RPMInAlarm ||
+                                data.filterMonitors[0].FilterAlarmStatus() == FilterStatus.Bad ||
+                                data.filterMonitors[1].FilterAlarmStatus() == FilterStatus.Bad  ||
+                                data.filterMonitors[2].FilterAlarmStatus() == FilterStatus.Bad ? Color.red : Color.white)
                     .buttonStyle(RoundedRectangleButtonStyle())
                     .sheet(isPresented: $showStatusDetailsView, content: {
                         StatusDetails(data: self.data, store: self.store, showViewState: $showStatusDetailsView)
                                 .animation(.spring())
                                 .transition(.slide)
                     })
+                    
+                    Button(action: {
+                            self.showPasswordView.toggle()
+                    }){
+                        Text("Unlock")
+                    }
+                    // disable Unlock button is not user and admin passwords are not used or already verified
+                    .disabled((!data.adminPasswordEnabled || data.adminPasswordVerified) && (!data.userPasswordEnabled || data.userPasswordVerified))
+                    .buttonStyle(RoundedRectangleButtonStyle())
+                    .sheet(isPresented: $showPasswordView, content: {
+                        Password(showViewState: $showPasswordView, store: store)
+                            .animation(.spring())
+                            .transition(.slide)
+                    })
+                    
 
 //                    Button(action: {
 //                        // switch to motor setting user interface
@@ -119,7 +140,7 @@ struct DeviceDetail: View {
 //                                .animation(.spring())
 //                                .transition(.slide)
 //                    })
-                }
+                
             }
             .navigationBarTitle("Device Detail")
         }

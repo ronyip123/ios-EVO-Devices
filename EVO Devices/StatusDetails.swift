@@ -19,11 +19,15 @@ struct StatusDetails: View {
                     Text("RPM Alarm:").padding()
                     if data.RPMInAlarm {
                         // to be replaced by the red LED
-                        Text("In Alarm").padding()
+                        Image("RedLED")
+//                            .resizable()
+//                            .aspectRatio(contentMode: .fit)
                     }
                     else {
                         // to be replaced by the green LED
-                        Text("Normal").padding()
+                        Image("GreenLED")
+//                            .resizable()
+//                            .aspectRatio(contentMode: .fit)
                     }
                     Button(action: {
                         // reset rpm alarm
@@ -49,11 +53,17 @@ struct StatusDetails: View {
                     // The following Filter Status are to be replaced by images
                     switch data.filterMonitors[0].FilterAlarmStatus(){
                         case FilterStatus.Normal:
-                            Text(" Normal").padding()
+                            Image("NormalFilter")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
                         case FilterStatus.Dirty:
-                            Text("Dirty").padding()
+                            Image("DirtyFilter")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
                         case FilterStatus.Bad:
-                            Text("Bad").padding()
+                            Image("BadFilter")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
                     }
                     Button( action: { store.resetFilter(FilterIndes: 0 )}){
                         Text("Reset")
@@ -72,11 +82,17 @@ struct StatusDetails: View {
                     // The following Filter Status are to be replaced by images
                     switch data.filterMonitors[1].FilterAlarmStatus(){
                         case FilterStatus.Normal:
-                            Text(" Normal").padding()
+                            Image("NormalFilter")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
                         case FilterStatus.Dirty:
-                            Text("Dirty").padding()
+                            Image("DirtyFilter")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
                         case FilterStatus.Bad:
-                            Text("Bad").padding()
+                            Image("BadFilter")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
                     }
                     Button( action: { store.resetFilter(FilterIndes: 1) }){
                         Text("Reset")
@@ -95,11 +111,17 @@ struct StatusDetails: View {
                     // The following Filter Status are to be replaced by images
                     switch data.filterMonitors[2].FilterAlarmStatus(){
                         case FilterStatus.Normal:
-                            Text(" Normal").padding()
+                            Image("NormalFilter")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
                         case FilterStatus.Dirty:
-                            Text("Dirty").padding()
+                            Image("DirtyFilter")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
                         case FilterStatus.Bad:
-                            Text("Bad").padding()
+                            Image("BadFilter")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
                     }
                     Button( action: { store.resetFilter(FilterIndes: 2)}){
                         Text("Reset")
@@ -114,11 +136,11 @@ struct StatusDetails: View {
                 .buttonStyle(RoundedRectangleButtonStyle())
                 
             }
-            .navigationBarTitle("status Details")
+            .navigationBarTitle("Status Details")
         }
         .onAppear(){
-            store.getFilterEnableStatus()
-            
+            //store.getFilterEnableStatus()
+             
         }
         .onDisappear(){
             

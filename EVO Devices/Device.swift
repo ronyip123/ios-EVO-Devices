@@ -13,6 +13,7 @@ struct Device : Identifiable{
     var deviceRSSI : Int
     var peripheral : CBPeripheral
     var type : Int
+    var inAlarm : Bool
     
     func getNameString() -> String {
         if let name = peripheral.name{
