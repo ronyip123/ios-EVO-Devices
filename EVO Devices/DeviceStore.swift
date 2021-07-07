@@ -36,6 +36,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     // We need this Write device name through a characteristic in the factory service becuase
     // ios does not allow writing and changing the device name thoufh the GAP
     let WRITE_DEVICE_NAME_THROUGH_GATT_CHARACTERISTIC_UUID = CBUUID(string: "9c81b0bd-b2d4-4439-9f87-3dd9a454baf3")
+    let VERSION_CHARACTERISTIC_UUID = CBUUID(string: "fa39dccc-60c4-463a-b8c8-6ec6713923b6")
     
     let RF_SERVICE_UUID = CBUUID(string: "d3ecc05a-5192-43f8-a409-84faca67e7b0")
     
@@ -350,6 +351,9 @@ extension DeviceStore: CBPeripheralDelegate {
                 if characteristic.uuid.isEqual(WRITE_DEVICE_NAME_THROUGH_GATT_CHARACTERISTIC_UUID){
                     writeDeviceNameThroughGATTCharacteristic = characteristic
                 }
+                else if characteristic.uuid.isEqual(VERSION_CHARACTERISTIC_UUID) {
+                    peripheral.setNotifyValue(true, for: characteristic) //This will trigger device to send version
+                }
             }
         }
     }
@@ -410,6 +414,14 @@ extension DeviceStore: CBPeripheralDelegate {
             if let userPWVerifiedState = characteristic.value{
                 deviceData.userPasswordVerified = userPWVerifiedState[0] == 0x01
             }
+        }
+        else if characteristic.uuid.isEqual(VERSION_CHARACTERISTIC_UUID) {
+//            let nsdataStr = NSData.init(data: (characteristic.value)!)
+//            print(nsdataStr)
+            let dd = characteristic.value!;
+            let version = String(data: dd, encoding: String.Encoding.ascii)!.filter{ !$0.isWhitespace }
+            print(version)
+            deviceData.versionStr = version
         }
     }
 

@@ -27,7 +27,8 @@ struct DeviceDetail: View {
                     Text(targetDevice.getTypeString())
                         .fontWeight(.bold)
                         .font(.title2)
-                    Text()
+                    Text("V\(data.versionStr)")
+                        .alignmentGuide(.leading) { d in d[.trailing] }
                 }.padding()
                 HStack{
                     Text("Device Name:").font(.subheadline)
@@ -101,9 +102,19 @@ struct DeviceDetail: View {
                                 data.filterMonitors[2].FilterAlarmStatus() == FilterStatus.Bad ? Color.red : Color.white)
                     .buttonStyle(RoundedRectangleButtonStyle())
                     .sheet(isPresented: $showStatusDetailsView, content: {
-                        StatusDetails(data: self.data, store: self.store, showViewState: $showStatusDetailsView)
+                        if let version = data.getMajorVision() {
+                            if version >= 3 {
+                            StatusDetails(data: self.data, store: self.store, showViewState: $showStatusDetailsView)
                                 .animation(.spring())
                                 .transition(.slide)
+                            }
+                            else
+                            {
+                                FeaturesNotAvailable(showViewState: $showStatusDetailsView)
+                                    .animation(.spring())
+                                    .transition(.slide)
+                            }
+                        }
                     })
                     
                     Button(action: {

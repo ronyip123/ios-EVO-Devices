@@ -12,6 +12,7 @@
 		1B0A2EBD267506CA00A3A8C4 /* StatusDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0A2EBC267506CA00A3A8C4 /* StatusDetails.swift */; };
 		1B5AAC7A265BC3C6002AAB70 /* DeviceData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */; };
 		1B6AB0662691E1A0003ABA06 /* Password.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6AB0652691E1A0003ABA06 /* Password.swift */; };
+		1B6AB06826952843003ABA06 /* FeaturesNotAvailable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6AB06726952843003ABA06 /* FeaturesNotAvailable.swift */; };
 		1BB6A9EA2625C3420063F378 /* EVO_DevicesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */; };
 		1BB6A9EC2625C3420063F378 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6A9EB2625C3420063F378 /* ContentView.swift */; };
 		1BB6A9EE2625C38C0063F378 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1BB6A9ED2625C38B0063F378 /* Assets.xcassets */; };
@@ -46,6 +47,7 @@
 		1B0A2EBC267506CA00A3A8C4 /* StatusDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusDetails.swift; sourceTree = "<group>"; };
 		1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceData.swift; sourceTree = "<group>"; };
 		1B6AB0652691E1A0003ABA06 /* Password.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Password.swift; sourceTree = "<group>"; };
+		1B6AB06726952843003ABA06 /* FeaturesNotAvailable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesNotAvailable.swift; sourceTree = "<group>"; };
 		1BB6A9E62625C3410063F378 /* EVO Devices.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "EVO Devices.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EVO_DevicesApp.swift; sourceTree = "<group>"; };
 		1BB6A9EB2625C3420063F378 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -111,6 +113,7 @@
 		1BB6A9E82625C3410063F378 /* EVO Devices */ = {
 			isa = PBXGroup;
 			children = (
+				1B6AB06726952843003ABA06 /* FeaturesNotAvailable.swift */,
 				1B6AB0652691E1A0003ABA06 /* Password.swift */,
 				1BB6AA21262719AD0063F378 /* DeviceStore.swift */,
 				1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */,
@@ -292,6 +295,7 @@
 				1B0A2EBD267506CA00A3A8C4 /* StatusDetails.swift in Sources */,
 				1BB6AA22262719AD0063F378 /* DeviceStore.swift in Sources */,
 				1B6AB0662691E1A0003ABA06 /* Password.swift in Sources */,
+				1B6AB06826952843003ABA06 /* FeaturesNotAvailable.swift in Sources */,
 				1B5AAC7A265BC3C6002AAB70 /* DeviceData.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

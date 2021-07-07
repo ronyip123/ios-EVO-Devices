@@ -12,6 +12,7 @@ class DeviceData: ObservableObject{
     @Published var type: String
     @Published var go: Bool
     @Published var speed: Int
+    var versionStr: String
     var userPasswordEnabled: Bool
     var adminPasswordEnabled: Bool
     var userPasswordVerified: Bool
@@ -34,6 +35,7 @@ class DeviceData: ObservableObject{
         self.userPassword = ""
         self.adminPassword = ""
         self.RPMInAlarm = false
+        self.versionStr = ""
     }
     
     func getGOString()->String{
@@ -47,6 +49,19 @@ class DeviceData: ObservableObject{
     
     func getSpeed()->Int{
         return speed
+    }
+    
+    func getMajorVision()->Int?{
+        if let index = versionStr.firstIndex(of: "."){
+            let substring = versionStr[..<index] // major version characters
+            print(substring)
+            if let intVal = Int(substring) {
+                print("this is a number -> \(intVal)")
+                return intVal
+            }
+        }
+        print("Index not found")
+        return nil
     }
 }
 
