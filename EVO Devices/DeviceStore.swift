@@ -142,13 +142,22 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
             let dataArray = [UInt8](data)
             if( dataArray[0] == Character("E").asciiValue && dataArray[1] == Character("V").asciiValue && dataArray[2] == Character("O").asciiValue)
             {
+                // ios always uses the cached device name instead of using the name in the kCBAdvDataLocalName key.
+                // This causes big problem after a name change.
+                var DeviceName = ""
+                // In case something is wrong and we cannot get name from kCBAdvDataLocalName key,
+                // we can still display the device with no name and still able to access the control
+                if let Name = advertisementData["kCBAdvDataLocalName"] as? String {
+                    DeviceName = Name
+                }
+                
                 // bit 0 of dataArray[3] is RPM alarm status for all versions
                 // bit 1 is the filter monitor alarm for major version 3 and higher
                 // bit 2 and 3 are reserved for future use
                 // bit 4 to 7 are reserved for device type. 0 is ECM10-BTH1, the developement name for ECM-BCU.
                 
                 if dataArray[3] & 0xF0 == 0 { }  // detect device type. We only have one type for now
-                let newDevice = Device(id: peripheral.identifier, deviceRSSI: Int(truncating: RSSI), peripheral: peripheral, type: Int((dataArray[3] & 0xF0) >> 4), inAlarm: dataArray[3] & 0x03 != 0)
+                let newDevice = Device(id: peripheral.identifier, deviceRSSI: Int(truncating: RSSI), peripheral: peripheral, type: Int((dataArray[3] & 0xF0) >> 4), inAlarm: dataArray[3] & 0x03 != 0, deviceName: DeviceName)
                 self.devices.append(newDevice)
                 let count = devices.count
                 print("peripherals count = \(count)")
