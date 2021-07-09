@@ -17,6 +17,8 @@ struct DeviceDetail: View {
     @State var showSecuritySettingsView = false
     @State var showStatusDetailsView = false
     @State var showPasswordView = false
+    @State var oneSecTimer: Timer? = nil
+    @State var inAlarm = false
     
     var body: some View {
         
@@ -96,10 +98,7 @@ struct DeviceDetail: View {
                     }){
                         Text("Status Details")
                     }
-                    .background(data.RPMInAlarm ||
-                                data.filterMonitors[0].FilterAlarmStatus() == FilterStatus.Bad ||
-                                data.filterMonitors[1].FilterAlarmStatus() == FilterStatus.Bad  ||
-                                data.filterMonitors[2].FilterAlarmStatus() == FilterStatus.Bad ? Color.red : Color.white)
+                    .background(inAlarm ? Color.red : Color.white)
                     .buttonStyle(RoundedRectangleButtonStyle())
                     .sheet(isPresented: $showStatusDetailsView, content: {
                         if let version = data.getMajorVision() {
@@ -163,10 +162,12 @@ struct DeviceDetail: View {
             // connect to device.
             store.connect(targetPeripheral: targetDevice.peripheral)
             store.setData(data)
+            startOneSecTimer()
         }
         .onDisappear(){
             print("DeviceDetail disappearing")
             store.disconnect(targetPeripheral: targetDevice.peripheral)
+            oneSecTimer?.invalidate()
         }
     }
     
@@ -176,6 +177,17 @@ struct DeviceDetail: View {
     
     func deviceNameChanged(_ newName: String){
         store.sendDeviceName(NewDeviceName: newName)
+    }
+    
+    func startOneSecTimer()
+    {
+        oneSecTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true){ _ in
+              // 2. Check time to add to H:M:S
+              inAlarm = data.RPMInAlarm ||
+                data.filterMonitors[0].FilterAlarmStatus() == FilterStatus.Bad ||
+                data.filterMonitors[1].FilterAlarmStatus() == FilterStatus.Bad  ||
+                data.filterMonitors[2].FilterAlarmStatus() == FilterStatus.Bad
+        }
     }
     
 }
