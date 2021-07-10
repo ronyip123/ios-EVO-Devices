@@ -97,8 +97,10 @@ struct DeviceDetail: View {
                         self.showStatusDetailsView.toggle()
                     }){
                         Text("Status Details")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background( inAlarm ? Color.red : Color.white )
                     }
-                    .background(inAlarm ? Color.red : Color.white)
                     .buttonStyle(RoundedRectangleButtonStyle())
                     .sheet(isPresented: $showStatusDetailsView, content: {
                         if let version = data.getMajorVision() {
@@ -120,6 +122,7 @@ struct DeviceDetail: View {
                             self.showPasswordView.toggle()
                     }){
                         Text("Unlock")
+                            .padding()
                     }
                     // disable Unlock button is not user and admin passwords are not used or already verified
                     .disabled((!data.adminPasswordEnabled || data.adminPasswordVerified) && (!data.userPasswordEnabled || data.userPasswordVerified))
