@@ -28,8 +28,8 @@ class DeviceData: ObservableObject{
         self.type = ""
         self.go = false
         self.speed = 0
-        self.userPasswordEnabled = true
-        self.adminPasswordEnabled = true
+        self.userPasswordEnabled = false
+        self.adminPasswordEnabled = false
         self.userPasswordVerified = false
         self.adminPasswordVerified = false
         self.userPassword = ""
