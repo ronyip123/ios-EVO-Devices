@@ -1,109 +1,109 @@
 {
   "images" : [
     {
-      "filename" : "EVOMark 40x40.png",
+      "filename" : "EVOMark 40x40.jpg",
       "idiom" : "iphone",
       "scale" : "2x",
       "size" : "20x20"
     },
     {
-      "filename" : "EVOMark 60x60.png",
+      "filename" : "EVOMark 60x60.jpg",
       "idiom" : "iphone",
       "scale" : "3x",
       "size" : "20x20"
     },
     {
-      "filename" : "EVOMark 58x58.png",
+      "filename" : "EVOMark 58x58.jpg",
       "idiom" : "iphone",
       "scale" : "2x",
       "size" : "29x29"
     },
     {
-      "filename" : "EVOMark 87x87.png",
+      "filename" : "EVOMark 87x87.jpg",
       "idiom" : "iphone",
       "scale" : "3x",
       "size" : "29x29"
     },
     {
-      "filename" : "EVOMark 80x80.png",
+      "filename" : "EVOMark 80x80.jpg",
       "idiom" : "iphone",
       "scale" : "2x",
       "size" : "40x40"
     },
     {
-      "filename" : "EVOMark 120x120.png",
+      "filename" : "EVOMark 120x120.jpg",
       "idiom" : "iphone",
       "scale" : "3x",
       "size" : "40x40"
     },
     {
-      "filename" : "EVOMark 120x120-1.png",
+      "filename" : "EVOMark 120x120-1.jpg",
       "idiom" : "iphone",
       "scale" : "2x",
       "size" : "60x60"
     },
     {
-      "filename" : "EVOMark 180x180.png",
+      "filename" : "EVOMark 180x180.jpg",
       "idiom" : "iphone",
       "scale" : "3x",
       "size" : "60x60"
     },
     {
-      "filename" : "EVOMark 20x20.png",
+      "filename" : "EVOMark 20x20.jpg",
       "idiom" : "ipad",
       "scale" : "1x",
       "size" : "20x20"
     },
     {
-      "filename" : "EVOMark 40x40-1.png",
+      "filename" : "EVOMark 40x40-1.jpg",
       "idiom" : "ipad",
       "scale" : "2x",
       "size" : "20x20"
     },
     {
-      "filename" : "EVOMark 29x29.png",
+      "filename" : "EVOMark 29x29.jpg",
       "idiom" : "ipad",
       "scale" : "1x",
       "size" : "29x29"
     },
     {
-      "filename" : "EVOMark 58x58-1.png",
+      "filename" : "EVOMark 58x58-1.jpg",
       "idiom" : "ipad",
       "scale" : "2x",
       "size" : "29x29"
     },
     {
-      "filename" : "EVOMark 40x40-2.png",
+      "filename" : "EVOMark 40x40-2.jpg",
       "idiom" : "ipad",
       "scale" : "1x",
       "size" : "40x40"
     },
     {
-      "filename" : "EVOMark 80x80-1.png",
+      "filename" : "EVOMark 80x80-1.jpg",
       "idiom" : "ipad",
       "scale" : "2x",
       "size" : "40x40"
     },
     {
-      "filename" : "EVOMark 76x76.png",
+      "filename" : "EVOMark 76x76.jpg",
       "idiom" : "ipad",
       "scale" : "1x",
       "size" : "76x76"
     },
     {
-      "filename" : "EVOMark 152x152.png",
+      "filename" : "EVOMark 152x152.jpg",
       "idiom" : "ipad",
       "scale" : "2x",
       "size" : "76x76"
     },
     {
-      "filename" : "EVOMark 167x167.png",
+      "filename" : "EVOMark 167x167.jpg",
       "idiom" : "ipad",
       "scale" : "2x",
       "size" : "83.5x83.5"
     },
     {
-      "filename" : "EVOMark 1024x1024.png",
+      "filename" : "EVOMark 1024x1024.jpg",
       "idiom" : "ios-marketing",
       "scale" : "1x",
       "size" : "1024x1024"
