@@ -12,6 +12,7 @@ struct Password: View {
     @State var adminPassword = ""
     @Binding var showViewState: Bool
     @ObservedObject var store: DeviceStore
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         NavigationView{
@@ -27,6 +28,7 @@ struct Password: View {
                              .foregroundColor(.gray)
                         SecureField("Password", text: $userPassword)
                              .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
+                            .foregroundColor(.black)
                     }
                     .frame(height: 60)
                     //.padding(.horizontal, 20)
@@ -42,6 +44,7 @@ struct Password: View {
                              .foregroundColor(.gray)
                         SecureField("Password", text: $adminPassword)
                              .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
+                            .foregroundColor(.black)
                     }
                     .frame(height: 60)
                     //.padding(.horizontal, 20)
@@ -66,12 +69,14 @@ struct Password: View {
                     }){
                         Text("Submit")
                             .padding()
+                            .foregroundColor( colorScheme == .light ? .black : .white)
                     }
                     .buttonStyle(RoundedRectangleButtonStyle())
                     
                     Button( action:{showViewState.toggle()}){
                         Text("Cancel")
                             .padding()
+                            .foregroundColor( colorScheme == .light ? .black : .white)
                     }
                     .buttonStyle(RoundedRectangleButtonStyle())
                 }

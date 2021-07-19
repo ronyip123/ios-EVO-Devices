@@ -11,6 +11,7 @@ struct StatusDetails: View {
     @ObservedObject var data: DeviceData
     @ObservedObject var store: DeviceStore
     @Binding var showViewState: Bool
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         NavigationView{
@@ -34,6 +35,7 @@ struct StatusDetails: View {
                         store.resetRPMAlarm()
                     }){
                         Text("Reset Alarm")
+                            .foregroundColor(colorScheme == .light ? .black : .white)
                     }
                     .buttonStyle(RoundedRectangleButtonStyle())
                 }
@@ -67,6 +69,7 @@ struct StatusDetails: View {
                     }
                     Button( action: { store.resetFilter(FilterIndes: 0 )}){
                         Text("Reset")
+                            .foregroundColor(colorScheme == .light ? .black : .white)
                     }
                     .buttonStyle(RoundedRectangleButtonStyle())
                 }
@@ -96,6 +99,7 @@ struct StatusDetails: View {
                     }
                     Button( action: { store.resetFilter(FilterIndes: 1) }){
                         Text("Reset")
+                            .foregroundColor(colorScheme == .light ? .black : .white)
                     }
                     .buttonStyle(RoundedRectangleButtonStyle())
                 }
@@ -105,7 +109,7 @@ struct StatusDetails: View {
                         Text(data.filterMonitors[2].filterName).padding()
                     }
                     else {
-                        Text("Filter2").padding()
+                        Text("Filter3").padding()
                     }
                     Text("\(data.filterMonitors[2].filterRemainingLife) %").padding()
                     // The following Filter Status are to be replaced by images
@@ -125,6 +129,7 @@ struct StatusDetails: View {
                     }
                     Button( action: { store.resetFilter(FilterIndes: 2)}){
                         Text("Reset")
+                            .foregroundColor(colorScheme == .light ? .black : .white)
                     }
                     .buttonStyle(RoundedRectangleButtonStyle())
                 }
@@ -132,6 +137,7 @@ struct StatusDetails: View {
                 Button( action:{showViewState.toggle()}){
                     Text("Done")
                         .padding()
+                        .foregroundColor(colorScheme == .light ? .black : .white)
                 }
                 .buttonStyle(RoundedRectangleButtonStyle())
                 

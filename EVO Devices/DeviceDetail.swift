@@ -123,6 +123,8 @@ struct DeviceDetail: View {
                     }){
                         Text("Unlock")
                             .padding()
+                            .frame(maxWidth: .infinity)
+                            .background( Color.white )
                     }
                     // disable Unlock button is not user and admin passwords are not used or already verified
                     .disabled((!data.adminPasswordEnabled || data.adminPasswordVerified) && (!data.userPasswordEnabled || data.userPasswordVerified))

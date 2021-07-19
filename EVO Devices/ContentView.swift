@@ -52,7 +52,8 @@ struct ContentView: View {
                     .cornerRadius(5.0)
                     
                     ForEach(store.devices){device in
-                        DeviceCell(device: device, store: store).background(device.inAlarm ? Color.red : Color.white)
+                        DeviceCell(device: device, store: store)
+                            .background(device.inAlarm ? Color.red : Color.white)
                     }
                 }
                 .navigationBarTitle("EVO Devices")
@@ -142,9 +143,10 @@ struct DeviceCell: View {
             VStack(alignment: .leading){
                 Text(device.getNameString())
                     .font(.headline)
+                    .foregroundColor(.black)
                 Text("RSSI: \(device.deviceRSSI) dBm")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.black)
             }
         }
     }

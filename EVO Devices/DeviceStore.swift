@@ -68,9 +68,9 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     var filterMonitor2ResetCharacteristic: CBCharacteristic?
     var filterMonitor3ResetCharacteristic: CBCharacteristic?
     var filterRemainingLivesCharacteristic: CBCharacteristic?
-    var filter1NameCharacteristic: CBCharacteristic?
-    var filter2NameCharacteristic: CBCharacteristic?
-    var filter3NameCharacteristic: CBCharacteristic?
+//    var filter1NameCharacteristic: CBCharacteristic?
+//    var filter2NameCharacteristic: CBCharacteristic?
+//    var filter3NameCharacteristic: CBCharacteristic?
     var writeDeviceNameThroughGATTCharacteristic: CBCharacteristic?
     var verifyUserPasswordCharacteristic: CBCharacteristic?
     var verifyAdminPasswordCharacteristic: CBCharacteristic?
@@ -325,13 +325,16 @@ extension DeviceStore: CBPeripheralDelegate {
             
             for characteristic in characteristics {
                 if characteristic.uuid.isEqual(FILTER1_NAME_CHARACTERISTIC_UUID){
-                    filter1NameCharacteristic = characteristic
+                    //filter1NameCharacteristic = characteristic
+                    peripheral.readValue(for: characteristic)
                 }
                 else if characteristic.uuid.isEqual(FILTER2_NAME_CHARACTERISTIC_UUID) {
-                    filter2NameCharacteristic = characteristic
+                    //filter2NameCharacteristic = characteristic
+                    peripheral.readValue(for: characteristic)
                 }
                 else if characteristic.uuid.isEqual(FILTER3_NAME_CHARACTERISTIC_UUID) {
-                    filter3NameCharacteristic = characteristic
+                    //filter3NameCharacteristic = characteristic
+                    peripheral.readValue(for: characteristic)
                 }
                 else if characteristic.uuid.isEqual(REMAINING_FILTER_LIVES_CHARACTERISTIC_UUID) {
                     filterRemainingLivesCharacteristic = characteristic
@@ -431,6 +434,24 @@ extension DeviceStore: CBPeripheralDelegate {
             let version = String(data: dd, encoding: String.Encoding.ascii)!.filter{ !$0.isWhitespace }
             print(version)
             deviceData.versionStr = version
+        }
+        else if characteristic.uuid.isEqual(FILTER1_NAME_CHARACTERISTIC_UUID)
+        {
+            let dd = characteristic.value!;
+            let filterName = String(data: dd, encoding: String.Encoding.ascii)!
+            deviceData.filterMonitors[0].filterName = filterName
+        }
+        else if characteristic.uuid.isEqual(FILTER2_NAME_CHARACTERISTIC_UUID)
+        {
+            let dd = characteristic.value!;
+            let filterName = String(data: dd, encoding: String.Encoding.ascii)!
+            deviceData.filterMonitors[1].filterName = filterName
+        }
+        else if characteristic.uuid.isEqual(FILTER3_NAME_CHARACTERISTIC_UUID)
+        {
+            let dd = characteristic.value!;
+            let filterName = String(data: dd, encoding: String.Encoding.ascii)!
+            deviceData.filterMonitors[2].filterName = filterName
         }
     }
 
