@@ -21,7 +21,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>To connect with and mainain Evolution Controls Inc. BLE devices</string>
+	<string>Our app used bluetooth to find, connect and transfer data with Evolution Controls Inc. BLE devices</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Our app used bluetooth to find, connect and transfer data with Evolution Controls Inc. BLE devices</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
