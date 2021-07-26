@@ -8,7 +8,9 @@
 import SwiftUI
 import CoreBluetooth
 
-struct DeviceDetail: View {
+struct DeviceDetail: View, IsBLEConnectionAliveListener {
+   
+    @Environment(\.presentationMode) var presentation
     let targetDevice: Device
     @State var deviceNameStr: String
     @ObservedObject var store: DeviceStore
@@ -153,6 +155,9 @@ struct DeviceDetail: View {
         .onAppear(){
             print("DeviceDetail appearing")
             print("")
+            
+            store.isAliveListener = self
+            
             // we know the blutooth is already running since the user was able to scan bluetooth devices
             // and select from the device list
             // connect to device.
@@ -162,6 +167,7 @@ struct DeviceDetail: View {
         }
         .onDisappear(){
             print("DeviceDetail disappearing")
+            store.isAliveListener = nil
             store.disconnect(targetPeripheral: targetDevice.peripheral)
             oneSecTimer?.invalidate()
         }
@@ -190,9 +196,19 @@ struct DeviceDetail: View {
             }
                 
             hideStatusDetails = !(data.IsRPMOrFilterMonitoringEnabled() && version3AndHigher)
+            
+            store.isBLEConectionStillAlive()
         }
     }
     
+    // Implement IsBLEConnectionAliveListener protocol functions
+    func bluetoothLost() {
+       // handle bluetoothLost
+        print("Lost BLE conneciton")
+        self.showStatusDetailsView = false
+        self.showSecuritySettingsView = false
+        self.presentation.wrappedValue.dismiss()
+    }
 }
 
 #if canImport(UIKit)

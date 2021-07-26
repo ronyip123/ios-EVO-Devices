@@ -15,6 +15,8 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     }
     @Published var deviceData: DeviceData
     
+    var isAliveListener : IsBLEConnectionAliveListener?
+    
     //let GENERIC_ACCESS_SERVICE_UUID = CBUUID(string: "00001800-0000-1000-8000-00805f9b34fb");
     let GENERIC_ACCESS_SERVICE_UUID = CBUUID(string: "0x1800")
     let DEVICE_NAME_CHARACTERISTIC_UUID = CBUUID(string: "0x2A00")
@@ -211,10 +213,17 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
         // Successfully disconnected
         print("successfully disconnected from peripheral")
     }
+    
+    func isBLEConectionStillAlive() {
+        if self.targetPeripheral?.state != CBPeripheralState.connected {
+            self.isAliveListener?.bluetoothLost()
+        }
+    }
 }
 
-protocol IsAliveListener {
-    func bluetoothLost(deviceListener: IsAliveListener )
+// protocol to detect ble connection disconnected.
+protocol IsBLEConnectionAliveListener {
+    func bluetoothLost()
 }
 
 extension DeviceStore: CBPeripheralDelegate {

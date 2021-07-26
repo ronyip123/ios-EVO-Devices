@@ -16,11 +16,13 @@ struct StatusDetails: View {
     @State var filter2Enabled = false
     @State var filter3Enabled = false
     @State var filterMonitoringEnabled = false
+    @State var initializing = true;
     
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         NavigationView{
+            ZStack{
             List{
 //                if self.$RPMAlarmEnabled.wrappedValue {
                 if self.RPMAlarmEnabled {
@@ -163,6 +165,13 @@ struct StatusDetails: View {
                 .buttonStyle(RoundedRectangleButtonStyle())
             }
             .navigationBarTitle("Status Details")
+             
+                if self.initializing {
+                     ProgressView()
+                    .accentColor(Color.green)
+                    .scaleEffect(x: 1.5, y: 1.5, anchor: .center)
+                }
+            }
         }
         .onAppear(){
             //store.getFilterEnableStatus()
@@ -171,6 +180,8 @@ struct StatusDetails: View {
             filter2Enabled = data.filterMonitors[1].filterEnabled
             filter3Enabled = data.filterMonitors[2].filterEnabled
             filterMonitoringEnabled = filter1Enabled || filter2Enabled || filter3Enabled
+            
+            self.initializing = false
         }
         .onDisappear(){
             
