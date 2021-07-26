@@ -19,6 +19,7 @@ struct DeviceDetail: View {
     @State var showPasswordView = false
     @State var oneSecTimer: Timer? = nil
     @State var inAlarm = false
+    @State var hideStatusDetails = true
     
     var body: some View {
         
@@ -91,7 +92,24 @@ struct DeviceDetail: View {
 //                    .fontWeight(.bold)
 //                    .font(.title2)
                 
+                Button(action: {
+                        self.showPasswordView.toggle()
+                }){
+                    Text("Unlock")
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background( Color.white )
+                }
+                // disable Unlock button is not user and admin passwords are not used or already verified
+                .disabled((!data.adminPasswordEnabled || data.adminPasswordVerified) && (!data.userPasswordEnabled || data.userPasswordVerified))
+                .buttonStyle(RoundedRectangleButtonStyle())
+                .sheet(isPresented: $showPasswordView, content: {
+                    Password(showViewState: $showPasswordView, store: store)
+                        .animation(.spring())
+                        .transition(.slide)
+                })
                 
+                if !self.$hideStatusDetails.wrappedValue {
                     Button(action: {
                         // set flag to show status details view
                         self.showStatusDetailsView.toggle()
@@ -103,39 +121,12 @@ struct DeviceDetail: View {
                     }
                     .buttonStyle(RoundedRectangleButtonStyle())
                     .sheet(isPresented: $showStatusDetailsView, content: {
-                        if let version = data.getMajorVision() {
-                            if version >= 3 {
-                            StatusDetails(data: self.data, store: self.store, showViewState: $showStatusDetailsView)
-                                .animation(.spring())
-                                .transition(.slide)
-                            }
-                            else
-                            {
-                                FeaturesNotAvailable(showViewState: $showStatusDetailsView)
+                        StatusDetails(data: self.data, store: self.store, showViewState: $showStatusDetailsView )
                                     .animation(.spring())
                                     .transition(.slide)
-                            }
-                        }
                     })
+                }
                     
-                    Button(action: {
-                            self.showPasswordView.toggle()
-                    }){
-                        Text("Unlock")
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background( Color.white )
-                    }
-                    // disable Unlock button is not user and admin passwords are not used or already verified
-                    .disabled((!data.adminPasswordEnabled || data.adminPasswordVerified) && (!data.userPasswordEnabled || data.userPasswordVerified))
-                    .buttonStyle(RoundedRectangleButtonStyle())
-                    .sheet(isPresented: $showPasswordView, content: {
-                        Password(showViewState: $showPasswordView, store: store)
-                            .animation(.spring())
-                            .transition(.slide)
-                    })
-                    
-
 //                    Button(action: {
 //                        // switch to motor setting user interface
 //                    }){
@@ -192,6 +183,13 @@ struct DeviceDetail: View {
                 data.filterMonitors[0].FilterAlarmStatus() == FilterStatus.Bad ||
                 data.filterMonitors[1].FilterAlarmStatus() == FilterStatus.Bad  ||
                 data.filterMonitors[2].FilterAlarmStatus() == FilterStatus.Bad
+            
+            var version3AndHigher = false
+            if let version = data.getMajorVision() {
+                if version >= 3 { version3AndHigher = true }
+            }
+                
+            hideStatusDetails = !(data.IsRPMOrFilterMonitoringEnabled() && version3AndHigher)
         }
     }
     

@@ -19,6 +19,7 @@ class DeviceData: ObservableObject{
     var adminPasswordVerified: Bool
     var userPassword: String
     var adminPassword: String
+    var RPMAlarmEnabled: Bool
     @Published var RPMInAlarm: Bool
     @Published var filterMonitors = [FilterMonitor(), FilterMonitor(), FilterMonitor()]
     let numberOfFilterMonitors = 3
@@ -36,6 +37,7 @@ class DeviceData: ObservableObject{
         self.adminPassword = ""
         self.RPMInAlarm = false
         self.versionStr = ""
+        self.RPMAlarmEnabled = false
     }
     
     func getGOString()->String{
@@ -62,6 +64,13 @@ class DeviceData: ObservableObject{
         }
         print("Index not found")
         return nil
+    }
+    
+    func IsRPMOrFilterMonitoringEnabled() -> Bool {
+        return RPMAlarmEnabled ||
+            filterMonitors[0].filterEnabled ||
+            filterMonitors[1].filterEnabled ||
+            filterMonitors[2].filterEnabled
     }
 }
 

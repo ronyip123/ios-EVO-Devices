@@ -24,6 +24,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     let GO_CHARACTERISTIC_UUID = CBUUID(string: "02f2ec80-ce47-4383-9e41-170fc6fe06fe")
     let FLOW_INDEX_CHARACTERISTIC_UUID = CBUUID(string: "47844164-f734-40bd-8469-c38c02382046")
     let RPM_ALARM_STATUS_CHARACTERISTIC_UUID = CBUUID(string: "809f3fff-41bf-4c72-a6b0-fb88f4218bbe")
+    let GET_MOTOR_SETTINGS_CHARACTERISTIC_UUID = CBUUID(string: "28f4cdcd-5276-4f7c-afdb-16d613ab5e22")
     
     let SECURITY_SERVICE_UUID = CBUUID(string: "3a658e10-af85-4163-9607-094fdaeb3859")
     let GET_ALL_PASSWORD_ENABLE_STATES_CHARACTERISTIC_UUID = CBUUID(string: "ee45ab48-b6b8-4f2a-83db-86e9011fd40a")
@@ -212,6 +213,10 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     }
 }
 
+protocol IsAliveListener {
+    func bluetoothLost(deviceListener: IsAliveListener )
+}
+
 extension DeviceStore: CBPeripheralDelegate {
     //
     // delegate to handle targetPeripheral?.discoverServices(nil) results
@@ -264,6 +269,12 @@ extension DeviceStore: CBPeripheralDelegate {
     // Delegate to handle peripheral.discoverCharacteristics reaults
     //
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+        
+        if let er = error {
+            print(er.localizedDescription)
+            return
+        }
+        
         if service.uuid.isEqual(MOTOR_CONTROL_SERVICE_UUID) {
             guard let characteristics = service.characteristics else { print("no motor control characteristics found"); return }
             
@@ -286,8 +297,13 @@ extension DeviceStore: CBPeripheralDelegate {
                         flowIndexCharacteristic = characteristic
                     }
                     else if characteristic.uuid.isEqual(RPM_ALARM_STATUS_CHARACTERISTIC_UUID){
+                        print("found RPM Alarm status characteristic")
                         RPMAlarmStatusCharacteristic = characteristic
                         peripheral.setNotifyValue(true, for: characteristic)
+                    }
+                    else if characteristic.uuid.isEqual(GET_MOTOR_SETTINGS_CHARACTERISTIC_UUID){
+                        print("found get motor settings characteristic")
+                        peripheral.readValue(for: characteristic)
                     }
             }
         }
@@ -430,28 +446,38 @@ extension DeviceStore: CBPeripheralDelegate {
         else if characteristic.uuid.isEqual(VERSION_CHARACTERISTIC_UUID) {
 //            let nsdataStr = NSData.init(data: (characteristic.value)!)
 //            print(nsdataStr)
-            let dd = characteristic.value!;
-            let version = String(data: dd, encoding: String.Encoding.ascii)!.filter{ !$0.isWhitespace }
-            print(version)
-            deviceData.versionStr = version
+            if let dd = characteristic.value {
+                let version = String(data: dd, encoding: String.Encoding.ascii)!.filter{ !$0.isWhitespace }
+                print(version)
+                deviceData.versionStr = version
+            }
         }
         else if characteristic.uuid.isEqual(FILTER1_NAME_CHARACTERISTIC_UUID)
         {
-            let dd = characteristic.value!;
-            let filterName = String(data: dd, encoding: String.Encoding.ascii)!
-            deviceData.filterMonitors[0].filterName = filterName
+            if let dd = characteristic.value {
+                let filterName = String(data: dd, encoding: String.Encoding.ascii)!
+                deviceData.filterMonitors[0].filterName = filterName
+            }
         }
         else if characteristic.uuid.isEqual(FILTER2_NAME_CHARACTERISTIC_UUID)
         {
-            let dd = characteristic.value!;
-            let filterName = String(data: dd, encoding: String.Encoding.ascii)!
-            deviceData.filterMonitors[1].filterName = filterName
+            if let dd = characteristic.value {
+                let filterName = String(data: dd, encoding: String.Encoding.ascii)!
+                deviceData.filterMonitors[1].filterName = filterName
+            }
         }
         else if characteristic.uuid.isEqual(FILTER3_NAME_CHARACTERISTIC_UUID)
         {
-            let dd = characteristic.value!;
-            let filterName = String(data: dd, encoding: String.Encoding.ascii)!
-            deviceData.filterMonitors[2].filterName = filterName
+            if let dd = characteristic.value {
+                let filterName = String(data: dd, encoding: String.Encoding.ascii)!
+                deviceData.filterMonitors[2].filterName = filterName
+            }
+        }
+        else if characteristic.uuid.isEqual(GET_MOTOR_SETTINGS_CHARACTERISTIC_UUID){
+            if let motorSettings = characteristic.value {
+                // the rest of the settings are not used for now
+                deviceData.RPMAlarmEnabled = ( motorSettings[0] & 0x08 ) != 0
+            }
         }
     }
 
