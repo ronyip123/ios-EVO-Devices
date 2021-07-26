@@ -16,6 +16,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     @Published var deviceData: DeviceData
     
     var isAliveListener : IsBLEConnectionAliveListener?
+    var lostConnectionCount = 0
     
     //let GENERIC_ACCESS_SERVICE_UUID = CBUUID(string: "00001800-0000-1000-8000-00805f9b34fb");
     let GENERIC_ACCESS_SERVICE_UUID = CBUUID(string: "0x1800")
@@ -186,6 +187,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
             centralManager?.cancelPeripheralConnection(peripheral)
             connected = false
             targetPeripheral = nil
+            lostConnectionCount = 0
         }
     }
     
@@ -216,7 +218,12 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     
     func isBLEConectionStillAlive() {
         if self.targetPeripheral?.state != CBPeripheralState.connected {
-            self.isAliveListener?.bluetoothLost()
+            if lostConnectionCount == 5 {
+                self.isAliveListener?.bluetoothLost()
+            }
+            else {
+                lostConnectionCount += 1;
+            }
         }
     }
 }
