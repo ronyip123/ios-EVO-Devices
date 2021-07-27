@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1B0A2D0326B075C900B3777E /* About.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0A2D0226B075C900B3777E /* About.swift */; };
 		1B0A2EAD2675051100A3A8C4 /* SecuritySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0A2EAC2675051100A3A8C4 /* SecuritySettings.swift */; };
 		1B0A2EB52675058B00A3A8C4 /* MotorSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0A2EB42675058B00A3A8C4 /* MotorSettings.swift */; };
 		1B0A2EBD267506CA00A3A8C4 /* StatusDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0A2EBC267506CA00A3A8C4 /* StatusDetails.swift */; };
@@ -42,6 +43,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1B0A2D0226B075C900B3777E /* About.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = About.swift; sourceTree = "<group>"; };
 		1B0A2EAC2675051100A3A8C4 /* SecuritySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecuritySettings.swift; sourceTree = "<group>"; };
 		1B0A2EB42675058B00A3A8C4 /* MotorSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotorSettings.swift; sourceTree = "<group>"; };
 		1B0A2EBC267506CA00A3A8C4 /* StatusDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusDetails.swift; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 		1BB6A9E82625C3410063F378 /* EVO Devices */ = {
 			isa = PBXGroup;
 			children = (
+				1B0A2D0226B075C900B3777E /* About.swift */,
 				1B6AB06726952843003ABA06 /* FeaturesNotAvailable.swift */,
 				1B6AB0652691E1A0003ABA06 /* Password.swift */,
 				1BB6AA21262719AD0063F378 /* DeviceStore.swift */,
@@ -287,6 +290,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1B0A2EB52675058B00A3A8C4 /* MotorSettings.swift in Sources */,
+				1B0A2D0326B075C900B3777E /* About.swift in Sources */,
 				1BB6AA182625C94F0063F378 /* DeviceDetail.swift in Sources */,
 				1BB6A9EC2625C3420063F378 /* ContentView.swift in Sources */,
 				1B0A2EAD2675051100A3A8C4 /* SecuritySettings.swift in Sources */,

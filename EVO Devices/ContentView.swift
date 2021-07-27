@@ -15,6 +15,7 @@ struct ContentView: View {
     @State private var scanTimer = -1
     let scanProgressView = ProgressView("Tap Stop Scan to stop..");
     @State var timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
+    @State var showAbout = false
     
     var body: some View {
         NavigationView{
@@ -57,6 +58,13 @@ struct ContentView: View {
                     }
                 }
                 .navigationBarTitle("EVO Devices")
+                .navigationBarItems(trailing: Menu {
+                    Button ( action: { self.showAbout.toggle() } ){
+                        Text("About")
+                    }
+                } label: {
+                     Image(systemName: "ellipsis.circle")
+                })
                 
                 //show progressView only if scanning
                 if self.scanning {
@@ -100,6 +108,11 @@ struct ContentView: View {
                     cleanup()
                 }
             }
+            .sheet(isPresented: $showAbout, content: {
+                About(showViewState: $showAbout)
+                    .animation(.spring())
+                    .transition(.slide)
+            })
         }
     }
 
