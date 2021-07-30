@@ -43,8 +43,8 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                     })
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                         .font(Font.title2.weight(.heavy))
-                    .disabled(data.adminPasswordEnabled && !data.adminPasswordVerified)
-                    Image(systemName: data.adminPasswordEnabled && !data.adminPasswordVerified ? "lock" : "lock.open")
+                    .disabled(!data.PWEnableStatusReceived || (data.adminPasswordEnabled && !data.adminPasswordVerified))
+                    Image(systemName: !data.PWEnableStatusReceived || (data.adminPasswordEnabled && !data.adminPasswordVerified) ? "lock" : "lock.open")
                 }.padding()
                 
                 HStack{
@@ -67,7 +67,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                         Text("\(store.speed, specifier: "%g") %")
                             .fontWeight(.bold)
                             .font(.title2)
-                        Image(systemName: (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
+                        Image(systemName: !data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
                     }
                     
                     HStack{
@@ -78,7 +78,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                             }
                         }
                         .accentColor(Color.green)
-                        .disabled(data.userPasswordEnabled && !data.userPasswordVerified)
+                        .disabled(!data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified))
                         Image(systemName: "plus")
                     }
                 }.padding()
@@ -91,8 +91,8 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                         .frame(maxWidth: .infinity)
                         .background( Color.white )
                 }
-                // disable Unlock button is not user and admin passwords are not used or already verified
-                .disabled((!data.adminPasswordEnabled || data.adminPasswordVerified) && (!data.userPasswordEnabled || data.userPasswordVerified))
+                // disable Unlock button if user and admin passwords are not used or already verified
+                .disabled(!data.PWEnableStatusReceived || (!data.adminPasswordEnabled || data.adminPasswordVerified) && (!data.userPasswordEnabled || data.userPasswordVerified))
                 .buttonStyle(RoundedRectangleButtonStyle())
                 .sheet(isPresented: $showPasswordView, content: {
                     Password(showViewState: $showPasswordView, store: store, mode: PassWordViewMode.eVerify, data: data)
@@ -142,15 +142,16 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
             .navigationBarTitle("Device Detail")
             .navigationBarItems(trailing: Menu {
                 Button ( action: {
-                    if !data.adminPasswordEnabled || data.adminPasswordVerified {
+                    if data.PWEnableStatusReceived && (!data.adminPasswordEnabled || data.adminPasswordVerified) {
                         self.showSetPassword.toggle()
                     }
                 }){
                     HStack{
-                        Text("Set Passwords")
-                        Image(systemName: data.adminPasswordEnabled && !data.adminPasswordVerified ? "lock" : "lock.open")
+                        Text("Security Settings")
+                        Image(systemName: !data.PWEnableStatusReceived || (data.adminPasswordEnabled && !data.adminPasswordVerified) ? "lock" : "lock.open")
                     }
                 }
+                .buttonStyle(RoundedRectangleButtonStyle())
             } label: {
                  Image(systemName: "ellipsis.circle")
             })
@@ -162,10 +163,8 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
         }
         .onAppear(){
             print("DeviceDetail appearing")
-            print("")
-            data
             store.isAliveListener = self
-            
+            data.PWEnableStatusReceived = false
             // we know the blutooth is already running since the user was able to scan bluetooth devices
             // and select from the device list
             // connect to device.

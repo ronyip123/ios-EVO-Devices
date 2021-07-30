@@ -453,6 +453,7 @@ extension DeviceStore: CBPeripheralDelegate {
             if let passwordEnableStates = characteristic.value {
                 deviceData.userPasswordEnabled = (passwordEnableStates[0] & 0x01) == 0x01
                 deviceData.adminPasswordEnabled = (passwordEnableStates[0] & 0x02) == 0x02
+                deviceData.PWEnableStatusReceived = true
                 
                 if !deviceData.adminPasswordEnabled {
                     readPasswords()

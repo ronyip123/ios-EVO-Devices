@@ -23,6 +23,7 @@ class DeviceData: ObservableObject{
     @Published var RPMInAlarm: Bool
     @Published var filterMonitors = [FilterMonitor(), FilterMonitor(), FilterMonitor()]
     let numberOfFilterMonitors = 3
+    var PWEnableStatusReceived :Bool
     
     init() {
         self.RPM = 0
@@ -38,6 +39,7 @@ class DeviceData: ObservableObject{
         self.RPMInAlarm = false
         self.versionStr = ""
         self.RPMAlarmEnabled = false
+        self.PWEnableStatusReceived = false
     }
     
     func getGOString()->String{

@@ -46,7 +46,12 @@ struct Password: View {
                                     adminPasswordEnabled = true
                                 }
                             }){
-                                userPasswordEnabled ? Text("Disable") : Text("Enable")
+                                userPasswordEnabled ?
+                                    Text("Disable")
+                                        .foregroundColor(colorScheme == .light ? .black : .white)
+                                    :
+                                    Text("Enable")
+                                        .foregroundColor(colorScheme == .light ? .black : .white)
                             }
                             .buttonStyle(RoundedRectangleButtonStyle())
                             .foregroundColor(colorScheme == .light ? .black : .white)
@@ -80,7 +85,12 @@ struct Password: View {
                                     userPasswordEnabled = false
                                 }
                             }){
-                                adminPasswordEnabled ? Text("Disable") : Text("Enable")
+                                adminPasswordEnabled ?
+                                    Text("Disable")
+                                        .foregroundColor(colorScheme == .light ? .black : .white)
+                                    :
+                                    Text("Enable")
+                                        .foregroundColor(colorScheme == .light ? .black : .white)
                             }
                             .buttonStyle(RoundedRectangleButtonStyle())
                             .foregroundColor(colorScheme == .light ? .black : .white)
