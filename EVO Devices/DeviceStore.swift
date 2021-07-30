@@ -35,6 +35,10 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     let ADMIN_PASSWORD_VERIFIED_CHARACTERISTIC_UUID = CBUUID(string: "6d873ad3-8327-4943-9bd5-481daffab853")
     let VERIFY_USER_PASSWORD_CHARACTERISTIC_UUID = CBUUID(string: "2fc0c709-e8b8-45f8-a917-ef9dd902b4cb")
     let VERIFY_ADMIN_PASSWORD_CHARACTERISTIC_UUID = CBUUID(string: "1ffa6379-38b1-4861-be7c-7722dcb6c917");
+    let USER_PASSWORD_CHARACTERISTIC = CBUUID(string: "f756319c-aaa1-4ac1-b7cc-527345b6b423")
+    let ADMIN_PASSWORD_CHARACTERISTIC = CBUUID(string: "63997a5d-5cc1-49d0-bbfc-3637fbd465b9")
+    let ENABLE_USER_PASSWORD_CHARACTERISTIC = CBUUID(string: "dc4688f1-c4b3-4d9f-b6e1-690ed22f58b4")
+    let ENABLE_ADMIN_PASSWORD_CHARACTERISTIC = CBUUID(string: "47fb6cef-a280-4162-b897-7b8fcf5fff48")
     
     let FACTORY_SERVICE_UUID = CBUUID(string: "b7da3a79-a0df-45d9-bd85-f165605e2a04")
     // We need this Write device name through a characteristic in the factory service becuase
@@ -78,7 +82,10 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     var writeDeviceNameThroughGATTCharacteristic: CBCharacteristic?
     var verifyUserPasswordCharacteristic: CBCharacteristic?
     var verifyAdminPasswordCharacteristic: CBCharacteristic?
-    
+    var userPasswordCharacteristic: CBCharacteristic?
+    var adminPasswordCharacteristic: CBCharacteristic?
+    var enableUserPasswordCharacteristic: CBCharacteristic?
+    var enableAdminPasswordCharacteristic: CBCharacteristic?
     
     @Published var speed: Double = 0.0
     
@@ -144,29 +151,33 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         if let data = advertisementData["kCBAdvDataManufacturerData"] as? Data {
             let dataArray = [UInt8](data)
-            if( dataArray[0] == Character("E").asciiValue && dataArray[1] == Character("V").asciiValue && dataArray[2] == Character("O").asciiValue)
+            let rssi = Int(truncating: RSSI)
+            if ( rssi > -95)
             {
-                // ios always uses the cached device name instead of using the name in the kCBAdvDataLocalName key.
-                // This causes big problem after a name change.
-                var DeviceName = ""
-                // In case something is wrong and we cannot get name from kCBAdvDataLocalName key,
-                // we can still display the device with no name and still able to access the control
-                if let Name = advertisementData["kCBAdvDataLocalName"] as? String {
-                    DeviceName = Name
-                }
-                
-                // bit 0 of dataArray[3] is RPM alarm status for all versions
-                // bit 1 is the filter monitor alarm for major version 3 and higher
-                // bit 2 and 3 are reserved for future use
-                // bit 4 to 7 are reserved for device type. 0 is ECM10-BTH1, the developement name for ECM-BCU.
-                
-                if dataArray[3] & 0xF0 == 0 { }  // detect device type. We only have one type for now
-                let newDevice = Device(id: peripheral.identifier, deviceRSSI: Int(truncating: RSSI), peripheral: peripheral, type: Int((dataArray[3] & 0xF0) >> 4), inAlarm: dataArray[3] & 0x03 != 0, deviceName: DeviceName)
-                self.devices.append(newDevice)
-                let count = devices.count
-                print("peripherals count = \(count)")
-                for i in 0...count-1 {
-                    print(devices[i].peripheral)
+                if( dataArray[0] == Character("E").asciiValue && dataArray[1] == Character("V").asciiValue && dataArray[2] == Character("O").asciiValue)
+                {
+                    // ios always uses the cached device name instead of using the name in the kCBAdvDataLocalName key.
+                    // This causes big problem after a name change.
+                    var DeviceName = ""
+                    // In case something is wrong and we cannot get name from kCBAdvDataLocalName key,
+                    // we can still display the device with no name and still able to access the control
+                    if let Name = advertisementData["kCBAdvDataLocalName"] as? String {
+                        DeviceName = Name
+                    }
+                    
+                    // bit 0 of dataArray[3] is RPM alarm status for all versions
+                    // bit 1 is the filter monitor alarm for major version 3 and higher
+                    // bit 2 and 3 are reserved for future use
+                    // bit 4 to 7 are reserved for device type. 0 is ECM10-BTH1, the developement name for ECM-BCU.
+                    
+                    if dataArray[3] & 0xF0 == 0 { }  // detect device type. We only have one type for now
+                    let newDevice = Device(id: peripheral.identifier, deviceRSSI: Int(truncating: RSSI), peripheral: peripheral, type: Int((dataArray[3] & 0xF0) >> 4), inAlarm: dataArray[3] & 0x03 != 0, deviceName: DeviceName)
+                    self.devices.append(newDevice)
+                    let count = devices.count
+                    print("peripherals count = \(count)")
+                    for i in 0...count-1 {
+                        print(devices[i].peripheral)
+                    }
                 }
             }
         }
@@ -344,11 +355,26 @@ extension DeviceStore: CBPeripheralDelegate {
                 else if characteristic.uuid.isEqual(VERIFY_USER_PASSWORD_CHARACTERISTIC_UUID){
                     print("found get user password characteristic")
                     verifyUserPasswordCharacteristic = characteristic
-                    
                 }
                 else if characteristic.uuid.isEqual(VERIFY_ADMIN_PASSWORD_CHARACTERISTIC_UUID){
                     print("found get admin password characteristic")
                     verifyAdminPasswordCharacteristic = characteristic
+                }
+                else if characteristic.uuid.isEqual(USER_PASSWORD_CHARACTERISTIC) {
+                    print("found set user password characteristic")
+                    userPasswordCharacteristic = characteristic
+                }
+                else if characteristic.uuid.isEqual(ADMIN_PASSWORD_CHARACTERISTIC) {
+                    print("found set admin password characteristic")
+                    adminPasswordCharacteristic = characteristic
+                }
+                else if characteristic.uuid.isEqual(ENABLE_USER_PASSWORD_CHARACTERISTIC) {
+                    print("found enable user password characteristic")
+                    enableUserPasswordCharacteristic = characteristic
+                }
+                else if characteristic.uuid.isEqual(ENABLE_ADMIN_PASSWORD_CHARACTERISTIC) {
+                    print("found enable admin password characteristic")
+                    enableAdminPasswordCharacteristic = characteristic
                 }
             }
         }
@@ -427,6 +453,10 @@ extension DeviceStore: CBPeripheralDelegate {
             if let passwordEnableStates = characteristic.value {
                 deviceData.userPasswordEnabled = (passwordEnableStates[0] & 0x01) == 0x01
                 deviceData.adminPasswordEnabled = (passwordEnableStates[0] & 0x02) == 0x02
+                
+                if !deviceData.adminPasswordEnabled {
+                    readPasswords()
+                }
             }
         }
         else if characteristic.uuid.isEqual(REMAINING_FILTER_LIVES_CHARACTERISTIC_UUID) {
@@ -495,6 +525,22 @@ extension DeviceStore: CBPeripheralDelegate {
                 deviceData.RPMAlarmEnabled = ( motorSettings[0] & 0x08 ) != 0
             }
         }
+        else if characteristic.uuid.isEqual(ADMIN_PASSWORD_CHARACTERISTIC) {
+            if let dd = characteristic.value {
+                let adminPWStr = String(data: dd, encoding: String.Encoding.ascii)!
+                deviceData.adminPassword = adminPWStr
+            }
+                
+            if let characteristic = userPasswordCharacteristic{
+                peripheral.readValue(for: characteristic)
+            }
+        }
+        else if characteristic.uuid.isEqual(USER_PASSWORD_CHARACTERISTIC) {
+            if let dd = characteristic.value {
+                let userPWStr = String(data: dd, encoding: String.Encoding.ascii)!
+                deviceData.userPassword = userPWStr
+            }
+        }
     }
 
     
@@ -544,6 +590,18 @@ extension DeviceStore: CBPeripheralDelegate {
         }
     }
     
+    func enableUserPassword( enableState state: Bool )
+    {
+        var bytes: [UInt8] = [1]
+        bytes[0] = state ? 1 : 0
+        let data: NSData = NSData(bytes: bytes, length: bytes.count)
+        if let peripheral = targetPeripheral {
+            if let characteristic = enableUserPasswordCharacteristic {
+                peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
+    }
+    
     func verifyUserPassword( UserPassword password: String )
     {
         print("Verify user assword \(password)." )
@@ -552,6 +610,31 @@ extension DeviceStore: CBPeripheralDelegate {
             let bytes: [UInt8] = Array(password.utf8)
             let data: NSData = NSData(bytes: bytes, length: bytes.count)
             if let peripheral = targetPeripheral {
+                peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
+    }
+    
+    func setUserPassword( UserPassword password: String )
+    {
+        print("set user assword \(password)." )
+        
+        if let characteristic = userPasswordCharacteristic {
+            let bytes: [UInt8] = Array(password.utf8)
+            let data: NSData = NSData(bytes: bytes, length: bytes.count)
+            if let peripheral = targetPeripheral {
+                peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
+    }
+    
+    func enableAdminPassword( enableState state: Bool )
+    {
+        var bytes: [UInt8] = [1]
+        bytes[0] = state ? 1 : 0
+        let data: NSData = NSData(bytes: bytes, length: bytes.count)
+        if let peripheral = targetPeripheral {
+            if let characteristic = enableAdminPasswordCharacteristic {
                 peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
             }
         }
@@ -570,8 +653,30 @@ extension DeviceStore: CBPeripheralDelegate {
         }
     }
     
-    func sendSecurityStuff(characteristicUUID uuid: CBUUID, Data data: NSData ){
+    func setAdminPassword( AdminPassword password: String )
+    {
+        print("set admin assword \(password)." )
         
+        if let characteristic = adminPasswordCharacteristic {
+            let bytes: [UInt8] = Array(password.utf8)
+            let data: NSData = NSData(bytes: bytes, length: bytes.count)
+            if let peripheral = targetPeripheral {
+                peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
+    }
+    
+    // This function will first read the admin password.
+    // after receiving the admin password in didUpdateValueFor delegate,
+    // the admin password read handler in didUpdateValueFor delegate will
+    // read the user password.
+    func readPasswords()
+    {
+        if let peripheral = targetPeripheral {
+            if let characteristic = adminPasswordCharacteristic{
+                peripheral.readValue(for: characteristic)
+            }
+        }
     }
     
     func getFilterEnableStatus()
@@ -615,6 +720,21 @@ extension DeviceStore: CBPeripheralDelegate {
                 print("filter index error")
             }
         }
+    }
+}
+
+extension Bool {
+
+    var data:NSData {
+        var _self = self
+        return NSData(bytes: &_self, length: MemoryLayout.size(ofValue: self))
+    }
+
+    init?(data:NSData) {
+        guard data.length == 1 else { return nil }
+        var value = false
+        data.getBytes(&value, length: MemoryLayout<Bool>.size)
+        self = value
     }
 }
 

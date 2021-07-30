@@ -22,6 +22,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
     @State var oneSecTimer: Timer? = nil
     @State var inAlarm = false
     @State var hideStatusDetails = true
+    @State var showSetPassword = false
     
     var body: some View {
         
@@ -82,18 +83,6 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                     }
                 }.padding()
                 
-//                Text("Status Details")
-//                    .fontWeight(.bold)
-//                    .font(.title2)
-//
-//                Text("Motor Settings")
-//                    .fontWeight(.bold)
-//                    .font(.title2)
-//
-//                Text("Security Settings")
-//                    .fontWeight(.bold)
-//                    .font(.title2)
-                
                 Button(action: {
                         self.showPasswordView.toggle()
                 }){
@@ -106,7 +95,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                 .disabled((!data.adminPasswordEnabled || data.adminPasswordVerified) && (!data.userPasswordEnabled || data.userPasswordVerified))
                 .buttonStyle(RoundedRectangleButtonStyle())
                 .sheet(isPresented: $showPasswordView, content: {
-                    Password(showViewState: $showPasswordView, store: store)
+                    Password(showViewState: $showPasswordView, store: store, mode: PassWordViewMode.eVerify, data: data)
                         .animation(.spring())
                         .transition(.slide)
                 })
@@ -151,11 +140,30 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                 
             }
             .navigationBarTitle("Device Detail")
+            .navigationBarItems(trailing: Menu {
+                Button ( action: {
+                    if !data.adminPasswordEnabled || data.adminPasswordVerified {
+                        self.showSetPassword.toggle()
+                    }
+                }){
+                    HStack{
+                        Text("Set Passwords")
+                        Image(systemName: data.adminPasswordEnabled && !data.adminPasswordVerified ? "lock" : "lock.open")
+                    }
+                }
+            } label: {
+                 Image(systemName: "ellipsis.circle")
+            })
+            .sheet(isPresented: $showSetPassword, content: {
+                Password(showViewState: $showSetPassword, store: store, mode: PassWordViewMode.eEdit, data: data)
+                    .animation(.spring())
+                    .transition(.slide)
+            })
         }
         .onAppear(){
             print("DeviceDetail appearing")
             print("")
-            
+            data
             store.isAliveListener = self
             
             // we know the blutooth is already running since the user was able to scan bluetooth devices
