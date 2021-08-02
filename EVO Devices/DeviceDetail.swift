@@ -169,7 +169,11 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                 }
                 .buttonStyle(RoundedRectangleButtonStyle())
             } label: {
-                 Image(systemName: "ellipsis.circle")
+                HStack{
+                    Text("Options")
+                    Image(systemName: "ellipsis.circle")
+                }
+                
             })
             .sheet(isPresented: $showSetPassword, content: {
                 Password(showViewState: $showSetPassword, store: store, mode: PassWordViewMode.eEdit, data: data)
