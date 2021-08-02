@@ -10,19 +10,20 @@ import CoreBluetooth
 
 struct DeviceDetail: View, IsBLEConnectionAliveListener {
    
-    @Environment(\.presentationMode) var presentation
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     let targetDevice: Device
     @State var deviceNameStr: String
     @ObservedObject var store: DeviceStore
     @StateObject var data = DeviceData()
     @State private var connected = false
-    @State var showSecuritySettingsView = false
+    //@State var showSecuritySettingsView = false  // not used yet
     @State var showStatusDetailsView = false
     @State var showPasswordView = false
     @State var oneSecTimer: Timer? = nil
     @State var inAlarm = false
     @State var hideStatusDetails = true
     @State var showSetPassword = false
+    var uiDevice = UIDevice.current.userInterfaceIdiom
     
     var body: some View {
         
@@ -112,12 +113,27 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                     }
                     .buttonStyle(RoundedRectangleButtonStyle())
                     .sheet(isPresented: $showStatusDetailsView, content: {
-                        StatusDetails(data: self.data, store: self.store, showViewState: $showStatusDetailsView )
+                        StatusDetails(data: self.data, store: self.store, showViewState: $showStatusDetailsView, RPMAlarmEnabled: data.RPMAlarmEnabled, filter1Enabled: data.filterMonitors[0].filterEnabled, filter2Enabled: data.filterMonitors[1].filterEnabled, filter3Enabled: data.filterMonitors[2].filterEnabled, filterMonitoringEnabled: data.filterMonitors[0].filterEnabled || data.filterMonitors[1].filterEnabled || data.filterMonitors[2].filterEnabled  )
                                     .animation(.spring())
                                     .transition(.slide)
                     })
                 }
                     
+                if self.uiDevice == .pad {
+
+                    Button(action: {
+                        //store.isAliveListener = nil
+                        store.disconnect(targetPeripheral: targetDevice.peripheral)
+                        //oneSecTimer?.invalidate()
+                    }) {
+                        Text("Disconnect")
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background( Color.white )
+                    }
+                    .buttonStyle(RoundedRectangleButtonStyle())
+
+                }
 //                    Button(action: {
 //                        // switch to motor setting user interface
 //                    }){
@@ -165,17 +181,17 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
             print("DeviceDetail appearing")
             store.isAliveListener = self
             data.PWEnableStatusReceived = false
-            // we know the blutooth is already running since the user was able to scan bluetooth devices
-            // and select from the device list
-            // connect to device.
-            store.connect(targetPeripheral: targetDevice.peripheral)
+            // we know the blutooth is already running since the user was able to scan bluetooth  // devices and select from the device list connect to device.
+            //store.connect(targetPeripheral: targetDevice.peripheral) //moved to ContentView when the device is tapped in the device list
             store.setData(data)
             startOneSecTimer()
         }
         .onDisappear(){
             print("DeviceDetail disappearing")
             store.isAliveListener = nil
-            store.disconnect(targetPeripheral: targetDevice.peripheral)
+            if self.uiDevice == .phone {
+                store.disconnect(targetPeripheral: targetDevice.peripheral)
+            }
             oneSecTimer?.invalidate()
         }
     }
@@ -204,7 +220,9 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                 
             hideStatusDetails = !(data.IsRPMOrFilterMonitoringEnabled() && version3AndHigher)
             
-            store.isBLEConectionStillAlive()
+            if uiDevice == .phone {
+                store.isBLEConectionStillAlive()
+            }
         }
     }
     
@@ -213,8 +231,9 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
        // handle bluetoothLost
         print("Lost BLE conneciton")
         self.showStatusDetailsView = false
-        self.showSecuritySettingsView = false
-        self.presentation.wrappedValue.dismiss()
+        self.showPasswordView = false
+        self.showSetPassword = false
+        presentationMode.wrappedValue.dismiss()
     }
 }
 

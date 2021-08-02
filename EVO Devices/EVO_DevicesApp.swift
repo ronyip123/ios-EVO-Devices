@@ -32,7 +32,7 @@ struct EVO_DevicesApp: App {
                 break
             case .inactive:
                 print("inactive")
-                cv.cleanup()
+                //cv.cleanup()
                 break
             case .background:
                 print("background")

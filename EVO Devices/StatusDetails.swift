@@ -11,13 +11,12 @@ struct StatusDetails: View {
     @ObservedObject var data: DeviceData
     @ObservedObject var store: DeviceStore
     @Binding var showViewState: Bool
-    @State var RPMAlarmEnabled = false
-    @State var filter1Enabled = false
-    @State var filter2Enabled = false
-    @State var filter3Enabled = false
-    @State var filterMonitoringEnabled = false
-    @State var initializing = true;
-    
+    @State var RPMAlarmEnabled: Bool
+    @State var filter1Enabled: Bool
+    @State var filter2Enabled: Bool
+    @State var filter3Enabled: Bool
+    @State var filterMonitoringEnabled: Bool
+
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
@@ -166,22 +165,10 @@ struct StatusDetails: View {
             }
             .navigationBarTitle("Status Details")
              
-                if self.initializing {
-                     ProgressView()
-                    .accentColor(Color.green)
-                    .scaleEffect(x: 1.5, y: 1.5, anchor: .center)
-                }
             }
         }
         .onAppear(){
-            //store.getFilterEnableStatus()
-            RPMAlarmEnabled = data.RPMAlarmEnabled
-            filter1Enabled = data.filterMonitors[0].filterEnabled
-            filter2Enabled = data.filterMonitors[1].filterEnabled
-            filter3Enabled = data.filterMonitors[2].filterEnabled
-            filterMonitoringEnabled = filter1Enabled || filter2Enabled || filter3Enabled
-            
-            self.initializing = false
+        
         }
         .onDisappear(){
             

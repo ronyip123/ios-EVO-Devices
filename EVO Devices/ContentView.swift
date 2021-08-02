@@ -54,6 +54,7 @@ struct ContentView: View {
                     
                     ForEach(store.devices){device in
                         DeviceCell(device: device, store: store)
+                            .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
                             .background(device.inAlarm ? Color.red : Color.white)
                     }
                 }
@@ -96,6 +97,7 @@ struct ContentView: View {
              })
             .onAppear(){
                 print("ContentView appears")
+                cleanup()
                 scanning.toggle()
                 startScan()
             }
@@ -135,11 +137,7 @@ struct ContentView: View {
     {
         print("in cleanup")
         store.clearStore();
-        //        if scanning {
-        //            scanning.toggle()
-        //        }
-        //        scanning = false
-        //        self.timer.upstream.connect().cancel()
+        self.timer.upstream.connect().cancel()
     }
     
     func getReady() {
@@ -148,18 +146,44 @@ struct ContentView: View {
 }
 
 
+//struct DeviceCell: View {
+//    let device : Device
+//    let store : DeviceStore
+//    var body: some View {
+//        NavigationLink(destination: DeviceDetail(targetDevice: device, deviceNameStr: device.getNameString(), store: store )){
+//            VStack(alignment: .leading){
+//                Text(device.getNameString())
+//                    .font(.headline)
+//                    .foregroundColor(.black)
+//                Text("RSSI: \(device.deviceRSSI) dBm")
+//                    .font(.subheadline)
+//                    .foregroundColor(.black)
+//            }
+//
+//        }
+//    }
+//}
+
 struct DeviceCell: View {
     let device : Device
     let store : DeviceStore
     var body: some View {
-        NavigationLink(destination: DeviceDetail(targetDevice: device, deviceNameStr: device.getNameString(), store: store )){
-            VStack(alignment: .leading){
-                Text(device.getNameString())
-                    .font(.headline)
-                    .foregroundColor(.black)
-                Text("RSSI: \(device.deviceRSSI) dBm")
-                    .font(.subheadline)
-                    .foregroundColor(.black)
+        VStack {
+            NavigationLink(destination: DeviceDetail(targetDevice: device, deviceNameStr: device.getNameString(), store: store )){
+            }
+            
+            Button( action: {
+                print("\(device.deviceName!) is tapped")
+                store.connect(targetPeripheral: device.peripheral)
+            }){
+                VStack(alignment: .leading){
+                    Text(device.getNameString())
+                        .font(.headline)
+                        .foregroundColor(.black)
+                    Text("RSSI: \(device.deviceRSSI) dBm")
+                        .font(.subheadline)
+                        .foregroundColor(.black)
+                }
             }
         }
     }
