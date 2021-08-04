@@ -156,25 +156,42 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                 
             }
             .navigationBarTitle("Device Detail")
-            .navigationBarItems(trailing: Menu {
+//            .navigationBarItems(trailing: Menu {
+//                Button ( action: {
+//                    if data.PWEnableStatusReceived && (!data.adminPasswordEnabled || data.adminPasswordVerified) {
+//                        self.showSetPassword.toggle()
+//                    }
+//                }){
+//                    HStack{
+//                        Text("Security Settings")
+//                        Image(systemName: !data.PWEnableStatusReceived || (data.adminPasswordEnabled && !data.adminPasswordVerified) ? "lock" : "lock.open")
+//                    }
+//                }
+//                .buttonStyle(RoundedRectangleButtonStyle())
+//            } label: {
+//                HStack{
+//                    Text("Options")
+//                    Image(systemName: "ellipsis.circle")
+//                }
+//
+//            })
+//            .sheet(isPresented: $showSetPassword, content: {
+//                Password(showViewState: $showSetPassword, store: store, mode: PassWordViewMode.eEdit, data: data)
+//                    .animation(.spring())
+//                    .transition(.slide)
+//            })
+            .navigationBarItems(trailing:
                 Button ( action: {
                     if data.PWEnableStatusReceived && (!data.adminPasswordEnabled || data.adminPasswordVerified) {
                         self.showSetPassword.toggle()
                     }
                 }){
                     HStack{
-                        Text("Security Settings")
+                        Text("Security")
                         Image(systemName: !data.PWEnableStatusReceived || (data.adminPasswordEnabled && !data.adminPasswordVerified) ? "lock" : "lock.open")
                     }
                 }
-                .buttonStyle(RoundedRectangleButtonStyle())
-            } label: {
-                HStack{
-                    Text("Options")
-                    Image(systemName: "ellipsis.circle")
-                }
-                
-            })
+            )
             .sheet(isPresented: $showSetPassword, content: {
                 Password(showViewState: $showSetPassword, store: store, mode: PassWordViewMode.eEdit, data: data)
                     .animation(.spring())
