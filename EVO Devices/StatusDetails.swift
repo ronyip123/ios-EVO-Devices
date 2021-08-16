@@ -43,10 +43,14 @@ struct StatusDetails: View {
                             // reset rpm alarm
                             store.resetRPMAlarm()
                         }){
-                            Text("Reset Alarm")
-                                .foregroundColor(colorScheme == .light ? .black : .white)
+                            HStack{
+                                Text("Reset Alarm")
+                                    .foregroundColor(colorScheme == .light ? .black : .white)
+                                Image(systemName: !data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
+                            }
                         }
                         .buttonStyle(RoundedRectangleButtonStyle())
+                        .disabled(!data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified))
                     }
                 }
 
@@ -59,13 +63,13 @@ struct StatusDetails: View {
                     if self.filter1Enabled {
                         HStack{
                             if data.filterMonitors[0].filterName.count != 0 {
-                                Text(data.filterMonitors[0].filterName).padding()
+                                Text(data.filterMonitors[0].filterName)
                             }
                             else {
-                                Text("Filter1").padding()
+                                Text("Filter1")
                             }
                     
-                            Text("\(data.filterMonitors[0].filterRemainingLife) %").padding()
+                            Text("\(data.filterMonitors[0].filterRemainingLife) %")
                             // The following Filter Status are to be replaced by images
                             switch data.filterMonitors[0].FilterAlarmStatus(){
                                 case FilterStatus.Normal:
@@ -82,10 +86,14 @@ struct StatusDetails: View {
                                         .aspectRatio(contentMode: .fit)
                             }
                             Button( action: { store.resetFilter(FilterIndes: 0 )}){
-                                Text("Reset")
-                                    .foregroundColor(colorScheme == .light ? .black : .white)
+                                HStack{
+                                    Text("Reset")
+                                        .foregroundColor(colorScheme == .light ? .black : .white)
+                                    Image(systemName: !data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
+                                }
                             }
                             .buttonStyle(RoundedRectangleButtonStyle())
+                            .disabled(!data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified))
                         }
                     }
                 
@@ -93,12 +101,12 @@ struct StatusDetails: View {
                     if self.filter2Enabled {
                         HStack{
                             if data.filterMonitors[1].filterName.count != 0 {
-                                Text(data.filterMonitors[1].filterName).padding()
+                                Text(data.filterMonitors[1].filterName)
                             }
                             else {
-                                Text("Filter2").padding()
+                                Text("Filter2")
                             }
-                            Text("\(data.filterMonitors[1].filterRemainingLife) %").padding()
+                            Text("\(data.filterMonitors[1].filterRemainingLife) %")
                             // The following Filter Status are to be replaced by images
                             switch data.filterMonitors[1].FilterAlarmStatus(){
                                 case FilterStatus.Normal:
@@ -115,10 +123,14 @@ struct StatusDetails: View {
                                         .aspectRatio(contentMode: .fit)
                             }
                             Button( action: { store.resetFilter(FilterIndes: 1) }){
-                                Text("Reset")
-                                    .foregroundColor(colorScheme == .light ? .black : .white)
+                                HStack{
+                                    Text("Reset")
+                                        .foregroundColor(colorScheme == .light ? .black : .white)
+                                    Image(systemName: !data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
+                                }
                             }
                             .buttonStyle(RoundedRectangleButtonStyle())
+                            .disabled(!data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified))
                         }
                     }
                 
@@ -126,12 +138,12 @@ struct StatusDetails: View {
                     if self.filter3Enabled {
                         HStack{
                             if data.filterMonitors[2].filterName.count != 0 {
-                                Text(data.filterMonitors[2].filterName).padding()
+                                Text(data.filterMonitors[2].filterName)
                             }
                             else {
-                                Text("Filter3").padding()
+                                Text("Filter3")
                             }
-                            Text("\(data.filterMonitors[2].filterRemainingLife) %").padding()
+                            Text("\(data.filterMonitors[2].filterRemainingLife) %")
                             // The following Filter Status are to be replaced by images
                             switch data.filterMonitors[2].FilterAlarmStatus(){
                                 case FilterStatus.Normal:
@@ -148,10 +160,14 @@ struct StatusDetails: View {
                                         .aspectRatio(contentMode: .fit)
                             }
                             Button( action: { store.resetFilter(FilterIndes: 2)}){
-                                Text("Reset")
-                                    .foregroundColor(colorScheme == .light ? .black : .white)
+                                HStack{
+                                    Text("Reset")
+                                        .foregroundColor(colorScheme == .light ? .black : .white)
+                                    Image(systemName: !data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
+                                }
                             }
                             .buttonStyle(RoundedRectangleButtonStyle())
+                            .disabled(!data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified))
                         }
                     }
                 }
