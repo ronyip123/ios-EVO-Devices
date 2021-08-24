@@ -13,7 +13,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     let targetDevice: Device
     @State var deviceNameStr: String
-    @ObservedObject var store: DeviceStore
+    @StateObject var store: DeviceStore
     @StateObject var data = DeviceData()
     @State private var connected = false
     //@State var showSecuritySettingsView = false  // not used yet
@@ -50,14 +50,14 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                 
                 HStack{
                     Text("RPM:").font(.subheadline)
-                    Text("\(store.deviceData.RPM)")
+                    Text("\(data.RPM)")
                         .fontWeight(.bold)
                         .font(.title2)
                 }.padding()
                 
                 HStack{
                     Text("Motor Status: ").font(.subheadline)
-                    Text(store.deviceData.getGOString())
+                    Text(data.getGOString())
                         .fontWeight(.bold)
                         .font(.title2)
                 }.padding()
@@ -117,6 +117,30 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                                     .animation(.spring())
                                     .transition(.slide)
                     })
+                }
+                
+                VStack(alignment: .leading){
+                    Text("Device RSSI: \(data.mobileRSSIinDevice) dBm")
+                        .font(.subheadline)
+                
+                    HStack{
+                        Text("Mobile RSSI: \(data.deviceRSSIinMobile) dBm").font(.subheadline)
+                        if data.deviceRSSIinMobile >= -85 {
+                            Text("Strong")
+                                .font(.subheadline)
+                                .foregroundColor(.init(red: 0x00, green: 0x53, blue: 0x00))
+                        }
+                        else if data.deviceRSSIinMobile >= -92 {
+                            Text("Good")
+                                .font(.subheadline)
+                                .foregroundColor(.green)
+                        }
+                        else {
+                            Text("Weak")
+                                .font(.subheadline)
+                                .foregroundColor(.red)
+                        }
+                    }
                 }
                     
                 if self.uiDevice == .pad {
@@ -227,23 +251,24 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
     
     func startOneSecTimer()
     {
-        oneSecTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true){ _ in
-              // 2. Check time to add to H:M:S
+        oneSecTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true){ _ in
               inAlarm = data.RPMInAlarm ||
                 data.filterMonitors[0].FilterAlarmStatus() == FilterStatus.Bad ||
-                data.filterMonitors[1].FilterAlarmStatus() == FilterStatus.Bad  ||
+                data.filterMonitors[1].FilterAlarmStatus() == FilterStatus.Bad ||
                 data.filterMonitors[2].FilterAlarmStatus() == FilterStatus.Bad
             
             var version3AndHigher = false
             if let version = data.getMajorVision() {
                 if version >= 3 { version3AndHigher = true }
             }
-                
+
             hideStatusDetails = !(data.IsRPMOrFilterMonitoringEnabled() && version3AndHigher)
             
             if uiDevice == .phone {
                 store.isBLEConectionStillAlive()
             }
+            
+            store.readRSSI()
         }
     }
     

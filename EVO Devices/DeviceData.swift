@@ -24,6 +24,8 @@ class DeviceData: ObservableObject{
     @Published var filterMonitors = [FilterMonitor(), FilterMonitor(), FilterMonitor()]
     let numberOfFilterMonitors = 3
     var PWEnableStatusReceived :Bool
+    var deviceRSSIinMobile: Int
+    var mobileRSSIinDevice: Int
     
     init() {
         self.RPM = 0
@@ -40,6 +42,8 @@ class DeviceData: ObservableObject{
         self.versionStr = ""
         self.RPMAlarmEnabled = false
         self.PWEnableStatusReceived = false
+        self.deviceRSSIinMobile = 0
+        self.mobileRSSIinDevice = 0
     }
     
     func getGOString()->String{
@@ -73,6 +77,26 @@ class DeviceData: ObservableObject{
             filterMonitors[0].filterEnabled ||
             filterMonitors[1].filterEnabled ||
             filterMonitors[2].filterEnabled
+    }
+    
+    func UpdateDeviceRSSIinMobile( _ newRSSI: Int)
+    {
+        if ( deviceRSSIinMobile == 0 ){
+            deviceRSSIinMobile = newRSSI
+        }
+        else {
+            deviceRSSIinMobile = (deviceRSSIinMobile + newRSSI)/2
+        }
+    }
+    
+    func UpdateMobileRSSIinDevice( _ newRSSI: Int)
+    {
+        if ( mobileRSSIinDevice == 0 ){
+            mobileRSSIinDevice = newRSSI
+        }
+        else {
+            mobileRSSIinDevice = (mobileRSSIinDevice + newRSSI)/2
+        }
     }
 }
 

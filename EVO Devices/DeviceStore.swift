@@ -13,7 +13,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     @Published var devices: [Device]{
         didSet{didChange.send()}
     }
-    @Published var deviceData: DeviceData
+    @Published var deviceData: DeviceData?
     
     var isAliveListener : IsBLEConnectionAliveListener?
     var lostConnectionCount = 0
@@ -47,6 +47,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     let VERSION_CHARACTERISTIC_UUID = CBUUID(string: "fa39dccc-60c4-463a-b8c8-6ec6713923b6")
     
     let RF_SERVICE_UUID = CBUUID(string: "d3ecc05a-5192-43f8-a409-84faca67e7b0")
+    let RSSI_CHARACTERISTIC_UUID = CBUUID(string: "dbd823a0-5f72-4d36-b868-ab5c56301e90")
     
     let FILTER_MONITORING_SERVICE = CBUUID(string: "9f8d8050-9731-4597-85a0-d49fba2db671")
     let RESET_FILTER1_ALARM_CHARACTERISTIC_UUUID = CBUUID(string: "1aaf1b0e-b754-11eb-8529-0242ac130003")
@@ -86,12 +87,13 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     var adminPasswordCharacteristic: CBCharacteristic?
     var enableUserPasswordCharacteristic: CBCharacteristic?
     var enableAdminPasswordCharacteristic: CBCharacteristic?
+    var mobileRSSIinDeviceCharacteristic: CBCharacteristic?
     
     @Published var speed: Double = 0.0
     
     init(devices: [Device] = []){
         self.devices = devices
-        self.deviceData = DeviceData()
+        self.deviceData = nil
         super.init()
         // This will result in CBCentralManager calling
         // func centralManagerDidUpdateState(_ central: CBCentralManager)
@@ -245,6 +247,17 @@ protocol IsBLEConnectionAliveListener {
 }
 
 extension DeviceStore: CBPeripheralDelegate {
+    
+    //
+    // delegate to handle targetPeripheral?.readRSSI results
+    //
+    func peripheral(_ peripheral: CBPeripheral, didReadRSSI RSSI: NSNumber, error: Error?)
+    {
+        if let data = deviceData {
+            data.UpdateDeviceRSSIinMobile(Int(truncating: RSSI))
+        }
+    }
+    
     //
     // delegate to handle targetPeripheral?.discoverServices(nil) results
     //
@@ -276,6 +289,7 @@ extension DeviceStore: CBPeripheralDelegate {
             }
             else if service.uuid.isEqual(RF_SERVICE_UUID) {
                 print("RF service found")
+                peripheral.discoverCharacteristics(nil, for: service)
             }
             else if service.uuid.isEqual(FILTER_MONITORING_SERVICE) {
                 print("Filter monitoring service found")
@@ -426,6 +440,17 @@ extension DeviceStore: CBPeripheralDelegate {
                 }
             }
         }
+        else if service.uuid.isEqual(RF_SERVICE_UUID)
+        {
+            guard let characteristics = service.characteristics else { print("no RF characteristics found"); return }
+            
+            for characteristic in characteristics {
+                if characteristic.uuid.isEqual(RSSI_CHARACTERISTIC_UUID) {
+                    mobileRSSIinDeviceCharacteristic = characteristic
+                    peripheral.setNotifyValue(true, for: characteristic)
+                }
+            }
+        }
     }
     
     //
@@ -434,102 +459,134 @@ extension DeviceStore: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         print(characteristic)
         if characteristic.uuid.isEqual(RPM_CHARACTERISTICS_UUID){
-            deviceData.RPM = Int(convert_Data_to_Int( characteristicData: characteristic.value ))
+            if let data = deviceData{
+                data.RPM = Int(convert_Data_to_Int( characteristicData: characteristic.value ))
+            }
         }
         else if characteristic.uuid.isEqual(GO_CHARACTERISTIC_UUID){
             if let go_data = characteristic.value {
-                    deviceData.go = go_data[0] != 0 // when not 0, the motor is running
+                if let data = deviceData {
+                    data.go = go_data[0] != 0 // when not 0, the motor is running
+                }
+                    
             }
         }
         else if characteristic.uuid.isEqual(FLOW_INDEX_CHARACTERISTIC_UUID ){
             if let flow_index_data = characteristic.value {
-                let temp = flow_index_data[0]
-                deviceData.speed = Int(temp)
-                speed = Double(temp)
-                print(deviceData.speed)
+                if let data = deviceData {
+                    let temp = flow_index_data[0]
+                    data.speed = Int(temp)
+                    speed = Double(temp)
+                    print(data.speed)
+                }
             }
         }
         else if characteristic.uuid.isEqual(GET_ALL_PASSWORD_ENABLE_STATES_CHARACTERISTIC_UUID){
             if let passwordEnableStates = characteristic.value {
-                deviceData.userPasswordEnabled = (passwordEnableStates[0] & 0x01) == 0x01
-                deviceData.adminPasswordEnabled = (passwordEnableStates[0] & 0x02) == 0x02
-                deviceData.PWEnableStatusReceived = true
-                
-                if !deviceData.adminPasswordEnabled {
-                    readPasswords()
+                if let data = deviceData {
+                    data.userPasswordEnabled = (passwordEnableStates[0] & 0x01) == 0x01
+                    data.adminPasswordEnabled = (passwordEnableStates[0] & 0x02) == 0x02
+                    data.PWEnableStatusReceived = true
+                    
+                    if !data.adminPasswordEnabled {
+                        readPasswords()
+                    }
                 }
+               
             }
         }
         else if characteristic.uuid.isEqual(REMAINING_FILTER_LIVES_CHARACTERISTIC_UUID) {
             if let filterRemainingLives = characteristic.value {
-                deviceData.filterMonitors[0].filterRemainingLife = Int(filterRemainingLives[0])
-                deviceData.filterMonitors[1].filterRemainingLife = Int(filterRemainingLives[1])
-                deviceData.filterMonitors[2].filterRemainingLife = Int(filterRemainingLives[2])
+                if let data = deviceData {
+                    data.filterMonitors[0].filterRemainingLife = Int(filterRemainingLives[0])
+                    data.filterMonitors[1].filterRemainingLife = Int(filterRemainingLives[1])
+                    data.filterMonitors[2].filterRemainingLife = Int(filterRemainingLives[2])
+                }
             }
         }
         else if characteristic.uuid.isEqual(FILTER_MONITORING_ENABLE_STATUS_CHARACTERISTIC_UUID)
         {
             if let filterEnableStates = characteristic.value {
-                deviceData.filterMonitors[0].filterEnabled = (filterEnableStates[0] & 0x01) == 0x01
-                deviceData.filterMonitors[1].filterEnabled = (filterEnableStates[0] & 0x02) == 0x02
-                deviceData.filterMonitors[2].filterEnabled = (filterEnableStates[0] & 0x04) == 0x04
+                if let data = deviceData {
+                    data.filterMonitors[0].filterEnabled = (filterEnableStates[0] & 0x01) == 0x01
+                    data.filterMonitors[1].filterEnabled = (filterEnableStates[0] & 0x02) == 0x02
+                    data.filterMonitors[2].filterEnabled = (filterEnableStates[0] & 0x04) == 0x04
+                }
             }
         }
         else if characteristic.uuid.isEqual(RPM_ALARM_STATUS_CHARACTERISTIC_UUID){
             if let RPMAlarmStatus = characteristic.value {
-                deviceData.RPMInAlarm = RPMAlarmStatus[0] == 0x01
+                if let data = deviceData {
+                    data.RPMInAlarm = RPMAlarmStatus[0] == 0x01
+                }
             }
         }
         else if characteristic.uuid.isEqual(ADMIN_PASSWORD_VERIFIED_CHARACTERISTIC_UUID) {
             if let adminPWVerifiedState = characteristic.value{
-                deviceData.adminPasswordVerified = adminPWVerifiedState[0] == 0x01
+                if let data = deviceData {
+                    data.adminPasswordVerified = adminPWVerifiedState[0] == 0x01
+                }
             }
         }
         else if characteristic.uuid.isEqual(USER_PASSWORD_VERIFIED_CHARACTERISTIC_UUID) {
             if let userPWVerifiedState = characteristic.value{
-                deviceData.userPasswordVerified = userPWVerifiedState[0] == 0x01
+                if let data = deviceData {
+                    data.userPasswordVerified = userPWVerifiedState[0] == 0x01
+                }
             }
         }
         else if characteristic.uuid.isEqual(VERSION_CHARACTERISTIC_UUID) {
 //            let nsdataStr = NSData.init(data: (characteristic.value)!)
 //            print(nsdataStr)
             if let dd = characteristic.value {
-                let version = String(data: dd, encoding: String.Encoding.ascii)!.filter{ !$0.isWhitespace }
-                print(version)
-                deviceData.versionStr = version
+                if let data = deviceData {
+                    let version = String(data: dd, encoding: String.Encoding.ascii)!.filter{ !$0.isWhitespace }
+                    print(version)
+                    data.versionStr = version
+                }
             }
         }
         else if characteristic.uuid.isEqual(FILTER1_NAME_CHARACTERISTIC_UUID)
         {
             if let dd = characteristic.value {
-                let filterName = String(data: dd, encoding: String.Encoding.ascii)!
-                deviceData.filterMonitors[0].filterName = filterName
+                if let data = deviceData {
+                    let filterName = String(data: dd, encoding: String.Encoding.ascii)!
+                    data.filterMonitors[0].filterName = filterName
+                }
             }
         }
         else if characteristic.uuid.isEqual(FILTER2_NAME_CHARACTERISTIC_UUID)
         {
             if let dd = characteristic.value {
-                let filterName = String(data: dd, encoding: String.Encoding.ascii)!
-                deviceData.filterMonitors[1].filterName = filterName
+                if let data = deviceData {
+                    let filterName = String(data: dd, encoding: String.Encoding.ascii)!
+                    data.filterMonitors[1].filterName = filterName
+                }
             }
         }
         else if characteristic.uuid.isEqual(FILTER3_NAME_CHARACTERISTIC_UUID)
         {
             if let dd = characteristic.value {
-                let filterName = String(data: dd, encoding: String.Encoding.ascii)!
-                deviceData.filterMonitors[2].filterName = filterName
+                if let data = deviceData {
+                    let filterName = String(data: dd, encoding: String.Encoding.ascii)!
+                    data.filterMonitors[2].filterName = filterName
+                }
             }
         }
         else if characteristic.uuid.isEqual(GET_MOTOR_SETTINGS_CHARACTERISTIC_UUID){
             if let motorSettings = characteristic.value {
-                // the rest of the settings are not used for now
-                deviceData.RPMAlarmEnabled = ( motorSettings[0] & 0x08 ) != 0
+                if let data = deviceData {
+                    // the rest of the settings are not used for now
+                    data.RPMAlarmEnabled = ( motorSettings[0] & 0x08 ) != 0
+                }
             }
         }
         else if characteristic.uuid.isEqual(ADMIN_PASSWORD_CHARACTERISTIC) {
             if let dd = characteristic.value {
-                let adminPWStr = String(data: dd, encoding: String.Encoding.ascii)!
-                deviceData.adminPassword = adminPWStr
+                if let data = deviceData {
+                    let adminPWStr = String(data: dd, encoding: String.Encoding.ascii)!
+                    data.adminPassword = adminPWStr
+                }
             }
                 
             if let characteristic = userPasswordCharacteristic{
@@ -538,8 +595,18 @@ extension DeviceStore: CBPeripheralDelegate {
         }
         else if characteristic.uuid.isEqual(USER_PASSWORD_CHARACTERISTIC) {
             if let dd = characteristic.value {
-                let userPWStr = String(data: dd, encoding: String.Encoding.ascii)!
-                deviceData.userPassword = userPWStr
+                if let data = deviceData {
+                    let userPWStr = String(data: dd, encoding: String.Encoding.ascii)!
+                    data.userPassword = userPWStr
+                }
+            }
+        }
+        else if characteristic.uuid.isEqual(RSSI_CHARACTERISTIC_UUID) {
+            if let dd = characteristic.value {
+                if let data = deviceData {
+                    let temp = dd[0]
+                    data.mobileRSSIinDevice = -(255 - Int(temp))
+                }
             }
         }
     }
@@ -699,6 +766,12 @@ extension DeviceStore: CBPeripheralDelegate {
         }
     }
     
+    func readRSSI()
+    {
+        if let peripheral = targetPeripheral {
+            peripheral.readRSSI()
+        }
+    }
     
     func resetFilter(FilterIndes index: Int){
         let bytes: [UInt8] = [0]
