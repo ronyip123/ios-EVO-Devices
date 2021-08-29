@@ -12,9 +12,9 @@ struct ContentView: View {
     let scanTime = 30 //seconds
     @StateObject var store = DeviceStore()
     @State private var scanning = false
-    @State private var scanTimer = -1
+    @State private var scanTimer = 0
     let scanProgressView = ProgressView("Tap Stop Scan to stop..");
-    @State var timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
+    @State var oneSecTimer: Timer? = nil
     @State var showAbout = false
     
     var body: some View {
@@ -25,12 +25,11 @@ struct ContentView: View {
                         self.scanning.toggle()
                         if self.scanning {
                             //store.clearStore()
+                            self.scanTimer = 0
+                            cleanup()
                             startScan()
-                            //self.timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
                         }
                         else{
-//                            self.timer.upstream.connect().cancel()
-//                            self.scanTimer = 0 //reset scantimer
                             stopScan()
                         }
                     })
@@ -74,40 +73,17 @@ struct ContentView: View {
                         .scaleEffect(x: 1.5, y: 1.5, anchor: .center)
                 }
             }
-            .onReceive(timer, perform: { _ in
-                if scanTimer == -1 {
-                    // Immediately terminate timer after launched
-                    self.timer.upstream.connect().cancel()
-                    scanTimer = 0;
-                    scanning = false
-                    print(".onReceive: scanTimer = -1")
-                }
-                else if self.scanTimer < scanTime {
-                    self.scanTimer += 1
-                    print(".onReceive: \(self.scanTimer)")
-                    
-                }
-                else
-                {
-                    self.scanning.toggle()
-                    self.timer.upstream.connect().cancel()
-                    self.scanTimer = 0
-                    print(".onReceive: scanTimer = 30")
-                }
-             })
             .onAppear(){
                 print("ContentView appears")
                 cleanup()
-                scanning.toggle()
+                self.scanning = true
+                self.scanTimer = 0
                 startScan()
             }
             .onDisappear(){
                 print("ContentView disappears")
                 if scanning {
-                    scanning.toggle()
-                    //self.timer.upstream.connect().cancel()
                     stopScan()
-                    cleanup()
                 }
             }
             .sheet(isPresented: $showAbout, content: {
@@ -117,19 +93,33 @@ struct ContentView: View {
             })
         }
     }
+    
+    func startOneSecTimer()
+    {
+        oneSecTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true){ _ in
+            if self.scanTimer < scanTime {
+                self.scanTimer += 1
+                print(".onReceive: \(self.scanTimer)")
+            }
+            else
+            {
+                self.scanning.toggle()
+                self.oneSecTimer?.invalidate()
+                print(".onReceive: scanTimer = 30")
+            }
+        }
+    }
 
    
     func startScan()
     {
-        store.clearStore()
-        self.timer = Timer.publish(every: 1.0, on: .main, in: .common).autoconnect()
+        startOneSecTimer()
         store.startScan()
     }
 
     func stopScan()
     {
-        self.timer.upstream.connect().cancel()
-        self.scanTimer = 0 //reset scantimer
+        self.oneSecTimer?.invalidate()
         store.stopScan()
     }
     
@@ -137,7 +127,7 @@ struct ContentView: View {
     {
         print("in cleanup")
         store.clearStore();
-        self.timer.upstream.connect().cancel()
+        self.oneSecTimer?.invalidate()
     }
     
     func getReady() {

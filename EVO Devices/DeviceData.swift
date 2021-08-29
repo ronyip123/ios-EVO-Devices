@@ -59,12 +59,12 @@ class DeviceData: ObservableObject{
         return speed
     }
     
-    func getMajorVision()->Int?{
+    func getMajorVersion()->Int?{
         if let index = versionStr.firstIndex(of: "."){
             let substring = versionStr[..<index] // major version characters
-            print(substring)
+            print("Parsed substring \(substring)")
             if let intVal = Int(substring) {
-                print("this is a number -> \(intVal)")
+                print("this is major version -> \(intVal)")
                 return intVal
             }
         }

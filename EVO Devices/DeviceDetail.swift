@@ -19,7 +19,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
     //@State var showSecuritySettingsView = false  // not used yet
     @State var showStatusDetailsView = false
     @State var showPasswordView = false
-    @State var oneSecTimer: Timer? = nil
+    @State var threeSecTimer: Timer? = nil
     @State var inAlarm = false
     @State var hideStatusDetails = true
     @State var showSetPassword = false
@@ -229,7 +229,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
             // we know the blutooth is already running since the user was able to scan bluetooth  // devices and select from the device list connect to device.
             //store.connect(targetPeripheral: targetDevice.peripheral) //moved to ContentView when the device is tapped in the device list
             store.setData(data)
-            startOneSecTimer()
+            startThreeSecTimer()
         }
         .onDisappear(){
             print("DeviceDetail disappearing")
@@ -237,7 +237,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
             if self.uiDevice == .phone {
                 store.disconnect(targetPeripheral: targetDevice.peripheral)
             }
-            oneSecTimer?.invalidate()
+            threeSecTimer?.invalidate()
         }
     }
     
@@ -249,16 +249,16 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
         store.sendDeviceName(NewDeviceName: newName)
     }
     
-    func startOneSecTimer()
+    func startThreeSecTimer()
     {
-        oneSecTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true){ _ in
+        threeSecTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true){ _ in
               inAlarm = data.RPMInAlarm ||
                 data.filterMonitors[0].FilterAlarmStatus() == FilterStatus.Bad ||
                 data.filterMonitors[1].FilterAlarmStatus() == FilterStatus.Bad ||
                 data.filterMonitors[2].FilterAlarmStatus() == FilterStatus.Bad
             
             var version3AndHigher = false
-            if let version = data.getMajorVision() {
+            if let version = data.getMajorVersion() {
                 if version >= 3 { version3AndHigher = true }
             }
 
