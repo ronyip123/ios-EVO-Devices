@@ -16,6 +16,7 @@ struct ContentView: View {
     let scanProgressView = ProgressView("Tap Stop Scan to stop..");
     @State var oneSecTimer: Timer? = nil
     @State var showAbout = false
+    @State var firstTime = true
     
     var body: some View {
         NavigationView{
@@ -75,10 +76,16 @@ struct ContentView: View {
             }
             .onAppear(){
                 print("ContentView appears")
-                cleanup()
-                self.scanning = true
-                self.scanTimer = 0
-                startScan()
+                if firstTime {
+                    // skip scanning if launched the first time after installation
+                    firstTime = false
+                }
+                else {
+                    cleanup()
+                    self.scanning = true
+                    self.scanTimer = 0
+                    startScan()
+                }
             }
             .onDisappear(){
                 print("ContentView disappears")
