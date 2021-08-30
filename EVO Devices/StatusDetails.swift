@@ -89,6 +89,8 @@ struct StatusDetails: View {
                                 HStack{
                                     Text("Reset")
                                         .foregroundColor(colorScheme == .light ? .black : .white)
+                                        .lineLimit(1)
+                                        .scaledToFill()
                                     Image(systemName: !data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
                                 }
                             }
@@ -126,6 +128,8 @@ struct StatusDetails: View {
                                 HStack{
                                     Text("Reset")
                                         .foregroundColor(colorScheme == .light ? .black : .white)
+                                        .lineLimit(1)
+                                        .scaledToFill()
                                     Image(systemName: !data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
                                 }
                             }
@@ -163,6 +167,8 @@ struct StatusDetails: View {
                                 HStack{
                                     Text("Reset")
                                         .foregroundColor(colorScheme == .light ? .black : .white)
+                                        .lineLimit(1)
+                                        .scaledToFill()
                                     Image(systemName: !data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
                                 }
                             }
