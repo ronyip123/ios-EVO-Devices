@@ -11,7 +11,7 @@ class DeviceData: ObservableObject{
     @Published var RPM: Int
     @Published var type: String
     @Published var go: Bool
-    @Published var speed: Int
+    var controlOutput: Int
     var versionStr: String
     var userPasswordEnabled: Bool
     var adminPasswordEnabled: Bool
@@ -31,7 +31,7 @@ class DeviceData: ObservableObject{
         self.RPM = 0
         self.type = ""
         self.go = false
-        self.speed = 0
+        self.controlOutput = 0
         self.userPasswordEnabled = false
         self.adminPasswordEnabled = false
         self.userPasswordVerified = false
@@ -56,7 +56,7 @@ class DeviceData: ObservableObject{
     }
     
     func getSpeed()->Int{
-        return speed
+        return controlOutput
     }
     
     func getMajorVersion()->Int?{

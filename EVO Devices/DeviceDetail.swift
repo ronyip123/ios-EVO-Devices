@@ -23,6 +23,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
     @State var inAlarm = false
     @State var hideStatusDetails = true
     @State var showSetPassword = false
+
     var uiDevice = UIDevice.current.userInterfaceIdiom
     
     var body: some View {
@@ -65,7 +66,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                 VStack{
                     HStack{
                         Text("Motor Speed:").font(.subheadline)
-                        Text("\(store.speed, specifier: "%g") %")
+                        Text("\(store.output, specifier: "%g") %")
                             .fontWeight(.bold)
                             .font(.title2)
                         Image(systemName: !data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
@@ -73,7 +74,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                     
                     HStack{
                         Image(systemName: "minus")
-                        Slider(value: $store.speed, in: 0...100, step: 1 ){
+                        Slider(value: $store.output, in: 0...100, step: 1 ){
                             editing in if !editing {
                                 FlowIndexChanged()
                             }

@@ -89,7 +89,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     var enableAdminPasswordCharacteristic: CBCharacteristic?
     var mobileRSSIinDeviceCharacteristic: CBCharacteristic?
     
-    @Published var speed: Double = 0.0
+    @Published var output: Double = 0.0
     
     init(devices: [Device] = []){
         self.devices = devices
@@ -475,9 +475,9 @@ extension DeviceStore: CBPeripheralDelegate {
             if let flow_index_data = characteristic.value {
                 if let data = deviceData {
                     let temp = flow_index_data[0]
-                    data.speed = Int(temp)
-                    speed = Double(temp)
-                    print(data.speed)
+                    data.controlOutput = Int(temp)
+                    output = Double(temp)
+                    print(data.controlOutput)
                 }
             }
         }
@@ -634,15 +634,18 @@ extension DeviceStore: CBPeripheralDelegate {
     
     func sendFlowIndex()
     {
-        print(speed)
+        print(output)
 
         if let characteristic = flowIndexCharacteristic {
-            let bytes: [UInt8] = [UInt8(speed)]
+            let bytes: [UInt8] = [UInt8(output)]
             let data: NSData = NSData(bytes: bytes, length: bytes.count)
             if let peripheral = targetPeripheral {
                 peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
             }
         }
+        
+        guard let data = deviceData else { return }
+            output = Double(data.controlOutput)
     }
     
     func sendDeviceName(NewDeviceName newName: String )

@@ -64,9 +64,13 @@ struct StatusDetails: View {
                         HStack{
                             if data.filterMonitors[0].filterName.count != 0 {
                                 Text(data.filterMonitors[0].filterName)
+                                    .lineLimit(1)
+                                    .scaledToFill()
                             }
                             else {
                                 Text("Filter1")
+                                    .lineLimit(1)
+                                    .scaledToFill()
                             }
                     
                             Text("\(data.filterMonitors[0].filterRemainingLife) %")
@@ -104,9 +108,13 @@ struct StatusDetails: View {
                         HStack{
                             if data.filterMonitors[1].filterName.count != 0 {
                                 Text(data.filterMonitors[1].filterName)
+                                    .lineLimit(1)
+                                    .scaledToFill()
                             }
                             else {
                                 Text("Filter2")
+                                    .lineLimit(1)
+                                    .scaledToFill()
                             }
                             Text("\(data.filterMonitors[1].filterRemainingLife) %")
                             // The following Filter Status are to be replaced by images
@@ -143,9 +151,13 @@ struct StatusDetails: View {
                         HStack{
                             if data.filterMonitors[2].filterName.count != 0 {
                                 Text(data.filterMonitors[2].filterName)
+                                    .lineLimit(1)
+                                    .scaledToFill()
                             }
                             else {
                                 Text("Filter3")
+                                    .lineLimit(1)
+                                    .scaledToFill()
                             }
                             Text("\(data.filterMonitors[2].filterRemainingLife) %")
                             // The following Filter Status are to be replaced by images
