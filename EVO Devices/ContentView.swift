@@ -17,22 +17,38 @@ struct ContentView: View {
     @State var oneSecTimer: Timer? = nil
     @State var showAbout = false
     @State var firstTime = true
+    @State private var showingSortOptions = false // 1
     
     var body: some View {
         NavigationView{
-            ZStack{
-                List{
+            VStack{
+                HStack
+                {
+                    Button(action: {
+                        // launch sort options dialog
+                        print("sort")
+                        self.showingSortOptions = true
+                    })
+                    {
+                        Image(systemName: "line.3.horizontal.decrease")
+                    }
+                    .alert("Sort Device List By:", isPresented: $showingSortOptions) {
+                        Button("Alphabetical Order", role: .none, action: { store.sort(sortMethod: DeviceStore.DeiceListSortMode.eAlphabeticalOrder)})
+                        Button("Signal Strength", role: .none, action: {store.sort(sortMethod: DeviceStore.DeiceListSortMode.eSignalStrength)})
+                        Button("Cancel", role: .cancel, action: {})
+                    }
+                        
                     Button( action:{
                         self.scanning.toggle()
-                        if self.scanning {
-                            //store.clearStore()
-                            self.scanTimer = 0
-                            cleanup()
-                            startScan()
-                        }
-                        else{
-                            stopScan()
-                        }
+                            if self.scanning {
+                                //store.clearStore()
+                                self.scanTimer = 0
+                                cleanup()
+                                startScan()
+                            }
+                            else{
+                                stopScan()
+                            }
                     })
                     {
                         if self.scanning {
@@ -46,32 +62,41 @@ struct ContentView: View {
                                 .font(.title)
                         }
                     }
-                    .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+                    .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: .infinity)
                     .padding()
                     .background(Color.green)
                     .foregroundColor(.white)
                     .cornerRadius(5.0)
                     
-                    ForEach(store.devices){device in
-                        DeviceCell(device: device, store: store)
-                            .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
-                            .background(device.inAlarm ? Color.red : Color.white)
-                    }
                 }
                 .navigationBarTitle("EVO Devices")
-                .navigationBarItems(trailing: Menu {
-                    Button ( action: { self.showAbout.toggle() } ){
-                        Text("About")
+                .navigationBarItems(trailing: Menu
+                {
+                    Button ( action: { self.showAbout.toggle() } )
+                    {
+                            Text("About")
                     }
                 } label: {
-                     Image(systemName: "ellipsis.circle")
+                    Image(systemName: "ellipsis.circle")
                 })
                 
-                //show progressView only if scanning
-                if self.scanning {
-                    ProgressView("tap Stop Scan to stop")
-                        .accentColor(Color.green)
-                        .scaleEffect(x: 1.5, y: 1.5, anchor: .center)
+                ZStack{
+                    List{
+                        
+                    ForEach(store.devices){device in
+                            DeviceCell(device: device, store: store)
+                                .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+                                .background(device.inAlarm ? Color.red : Color.white)
+                        }
+                    }
+
+                
+                    //show progressView only if scanning
+                    if self.scanning {
+                        ProgressView("tap Stop Scan to stop")
+                            .accentColor(Color.green)
+                            .scaleEffect(x: 1.5, y: 1.5, anchor: .center)
+                    }
                 }
             }
             .onAppear(){
@@ -95,11 +120,12 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showAbout, content: {
                 About(showViewState: $showAbout)
-                    .animation(.spring())
+                  //  .animation(.spring())
                     .transition(.slide)
             })
         }
     }
+    
     
     func startOneSecTimer()
     {

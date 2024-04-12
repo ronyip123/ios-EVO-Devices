@@ -98,7 +98,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                 .buttonStyle(RoundedRectangleButtonStyle())
                 .sheet(isPresented: $showPasswordView, content: {
                     Password(showViewState: $showPasswordView, store: store, mode: PassWordViewMode.eVerify, data: data)
-                        .animation(.spring())
+                      //  .animation(.spring())
                         .transition(.slide)
                 })
                 
@@ -115,7 +115,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                     .buttonStyle(RoundedRectangleButtonStyle())
                     .sheet(isPresented: $showStatusDetailsView, content: {
                         StatusDetails(data: self.data, store: self.store, showViewState: $showStatusDetailsView, RPMAlarmEnabled: data.RPMAlarmEnabled, filter1Enabled: data.filterMonitors[0].filterEnabled, filter2Enabled: data.filterMonitors[1].filterEnabled, filter3Enabled: data.filterMonitors[2].filterEnabled, filterMonitoringEnabled: data.filterMonitors[0].filterEnabled || data.filterMonitors[1].filterEnabled || data.filterMonitors[2].filterEnabled  )
-                                    .animation(.spring())
+                        //            .animation(.spring())
                                     .transition(.slide)
                     })
                 }
@@ -219,7 +219,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
             )
             .sheet(isPresented: $showSetPassword, content: {
                 Password(showViewState: $showSetPassword, store: store, mode: PassWordViewMode.eEdit, data: data)
-                    .animation(.spring())
+                //    .animation(.spring())
                     .transition(.slide)
             })
         }

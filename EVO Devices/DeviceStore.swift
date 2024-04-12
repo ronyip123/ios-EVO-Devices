@@ -15,6 +15,12 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     }
     @Published var deviceData: DeviceData?
     
+    enum DeiceListSortMode
+    {
+        case eAlphabeticalOrder
+        case eSignalStrength
+    }
+    
     var isAliveListener : IsBLEConnectionAliveListener?
     var lostConnectionCount = 0
     
@@ -88,6 +94,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     var enableUserPasswordCharacteristic: CBCharacteristic?
     var enableAdminPasswordCharacteristic: CBCharacteristic?
     var mobileRSSIinDeviceCharacteristic: CBCharacteristic?
+    var getMotorSettingsCharacteristic: CBCharacteristic?
     
     @Published var output: Double = 0.0
     
@@ -154,7 +161,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
         if let data = advertisementData["kCBAdvDataManufacturerData"] as? Data {
             let dataArray = [UInt8](data)
             let rssi = Int(truncating: RSSI)
-            if ( rssi > -95)
+            if ( rssi > -95 )
             {
                 if( dataArray[0] == Character("E").asciiValue && dataArray[1] == Character("V").asciiValue && dataArray[2] == Character("O").asciiValue)
                 {
@@ -167,13 +174,34 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
                         DeviceName = Name
                     }
                     
+                    if (rssi == 127)
+                    {/*!
+                      *  @method centralManager:didDiscoverPeripheral:advertisementData:RSSI:
+                      *
+                      *  @param central              The central manager providing this update.
+                      *  @param peripheral           A <code>CBPeripheral</code> object.
+                      *  @param advertisementData    A dictionary containing any advertisement and scan response data.
+                      *  @param RSSI                 The current RSSI of <i>peripheral</i>, in dBm. A value of <code>127</code> is reserved and indicates the RSSI
+                      * was not available.
+                      *
+                      *  @discussion                 This method is invoked while scanning, upon the discovery of <i>peripheral</i> by <i>central</i>. A discovered peripheral must
+                      *                              be retained in order to use it; otherwise, it is assumed to not be of interest and will be cleaned up by the central manager. For
+                      *                              a list of <i>advertisementData</i> keys, see {@link CBAdvertisementDataLocalNameKey} and other similar constants.
+                      *
+                      *  @seealso                    CBAdvertisementData.h
+                      */
+                        print("RSSI in \(DeviceName)is not available.")
+                        return
+                    }
+                    
                     // bit 0 of dataArray[3] is RPM alarm status for all versions
                     // bit 1 is the filter monitor alarm for major version 3 and higher
                     // bit 2 and 3 are reserved for future use
                     // bit 4 to 7 are reserved for device type. 0 is ECM10-BTH1, the developement name for ECM-BCU.
                     
                     if dataArray[3] & 0xF0 == 0 { }  // detect device type. We only have one type for now
-                    let newDevice = Device(id: peripheral.identifier, deviceRSSI: Int(truncating: RSSI), peripheral: peripheral, type: Int((dataArray[3] & 0xF0) >> 4), inAlarm: dataArray[3] & 0x03 != 0, deviceName: DeviceName)
+                    print("RSSI=\(RSSI)")
+                    let newDevice = Device(id: peripheral.identifier, deviceRSSI: rssi, peripheral: peripheral, type: Int((dataArray[3] & 0xF0) >> 4), inAlarm: dataArray[3] & 0x03 != 0, deviceName: DeviceName)
                     self.devices.append(newDevice)
                     let count = devices.count
                     print("peripherals count = \(count)")
@@ -344,7 +372,11 @@ extension DeviceStore: CBPeripheralDelegate {
                     }
                     else if characteristic.uuid.isEqual(GET_MOTOR_SETTINGS_CHARACTERISTIC_UUID){
                         print("found get motor settings characteristic")
-                        peripheral.readValue(for: characteristic)
+                        getMotorSettingsCharacteristic = characteristic
+                        //Because the motor settings data are packed differently in version 4 and pre-version 4.
+                        //Defer the reading of motor settings to after getting the version so we know how to unpack
+                        //according to the version.
+                        //peripheral.readValue(for: characteristic)
                     }
             }
         }
@@ -436,7 +468,7 @@ extension DeviceStore: CBPeripheralDelegate {
                     writeDeviceNameThroughGATTCharacteristic = characteristic
                 }
                 else if characteristic.uuid.isEqual(VERSION_CHARACTERISTIC_UUID) {
-                    peripheral.setNotifyValue(true, for: characteristic) //This will trigger device to send version
+                    peripheral.readValue(for: characteristic) //This will trigger device to send version
                 }
             }
         }
@@ -543,6 +575,10 @@ extension DeviceStore: CBPeripheralDelegate {
                     let version = String(data: dd, encoding: String.Encoding.ascii)!.filter{ !$0.isWhitespace }
                     print(version)
                     data.versionStr = version
+                    
+                    if let characteristic = getMotorSettingsCharacteristic{
+                        peripheral.readValue(for: characteristic)
+                    }
                 }
             }
         }
@@ -576,8 +612,19 @@ extension DeviceStore: CBPeripheralDelegate {
         else if characteristic.uuid.isEqual(GET_MOTOR_SETTINGS_CHARACTERISTIC_UUID){
             if let motorSettings = characteristic.value {
                 if let data = deviceData {
-                    // the rest of the settings are not used for now
-                    data.RPMAlarmEnabled = ( motorSettings[0] & 0x08 ) != 0
+                    if let majorVersion = data.getMajorVersion(){
+                        if (majorVersion >= 4)
+                        {
+                            // version 4 and later
+                            // the rest of the settings are not used for now
+                            data.RPMAlarmEnabled = ( motorSettings[0] & 0x10 ) != 0
+                        }
+                        else{
+                            // version 3 and earlie version
+                            // the rest of the settings are not used for now
+                            data.RPMAlarmEnabled = ( motorSettings[0] & 0x08 ) != 0
+                        }
+                    }
                 }
             }
         }
@@ -796,6 +843,19 @@ extension DeviceStore: CBPeripheralDelegate {
             default:
                 print("filter index error")
             }
+        }
+    }
+    
+    func sort(sortMethod: DeiceListSortMode)
+    {
+        switch (sortMethod)
+        {
+            case .eAlphabeticalOrder:
+                print("sort by alphabetucal order")
+                devices = devices.sorted{ $0.getNameString() < $1.getNameString() }
+            case .eSignalStrength:
+                print("sort by signal strength")
+                devices = devices.sorted{$0.deviceRSSI > $1.deviceRSSI }
         }
     }
 }
