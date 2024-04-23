@@ -73,16 +73,43 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                     }
                     
                     HStack{
-                        Image(systemName: "minus")
+                        Button(action: {
+                            // launch sort options dialog
+                            print("decrement output by 1 %.")
+                            if (store.output > 0)
+                            {
+                                store.output -= 1;
+                            }
+                        })
+                        {
+                            Image(systemName: "minus")
+                        }
+                        .buttonStyle(BorderlessButtonStyle())
+                                                                
                         Slider(value: $store.output, in: 0...100, step: 1 ){
                             editing in if !editing {
                                 FlowIndexChanged()
                             }
                         }
-                        .accentColor(Color.green)
-                        .disabled(!data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified))
-                        Image(systemName: "plus")
+                        .padding()
+                        .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: .infinity)
+                                                                
+                        Button(action: {
+                            // launch sort options dialog
+                            print("increment output by 1 %.")
+                            if (store.output < 100)
+                            {
+                                store.output += 1;
+                            }
+                        })
+                        {
+                            Image(systemName: "plus")
+                        }
+                        .buttonStyle(BorderlessButtonStyle())
                     }
+                    .accentColor(Color.green)
+                    .disabled(!data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified))
+                    .padding()
                 }.padding()
                 
                 Button(action: {
