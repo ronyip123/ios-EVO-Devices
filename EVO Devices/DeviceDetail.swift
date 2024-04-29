@@ -23,6 +23,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
     @State var inAlarm = false
     @State var hideStatusDetails = true
     @State var showSetPassword = false
+    @State var showMotorSettings = false
 
     var uiDevice = UIDevice.current.userInterfaceIdiom
     
@@ -79,12 +80,14 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                             if (store.output > 0)
                             {
                                 store.output -= 1;
+                                FlowIndexChanged()
                             }
                         })
                         {
                             Image(systemName: "minus")
                         }
-                        .buttonStyle(BorderlessButtonStyle())
+                        .buttonStyle(BorderlessButtonStyle()) // to avoid tap button in HStack activating all button actions
+                        //See https://www.hackingwithswift.com/forums/swiftui/tap-button-in-hstack-activates-all-button-actions-ios-14-swiftui-2/2952
                                                                 
                         Slider(value: $store.output, in: 0...100, step: 1 ){
                             editing in if !editing {
@@ -100,12 +103,13 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                             if (store.output < 100)
                             {
                                 store.output += 1;
+                                FlowIndexChanged()
                             }
                         })
                         {
                             Image(systemName: "plus")
                         }
-                        .buttonStyle(BorderlessButtonStyle())
+                        .buttonStyle(BorderlessButtonStyle()) // to avoid tap button in HStack activating all button actions
                     }
                     .accentColor(Color.green)
                     .disabled(!data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified))
@@ -208,31 +212,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                 
             }
             .navigationBarTitle("Device Detail")
-//            .navigationBarItems(trailing: Menu {
-//                Button ( action: {
-//                    if data.PWEnableStatusReceived && (!data.adminPasswordEnabled || data.adminPasswordVerified) {
-//                        self.showSetPassword.toggle()
-//                    }
-//                }){
-//                    HStack{
-//                        Text("Security Settings")
-//                        Image(systemName: !data.PWEnableStatusReceived || (data.adminPasswordEnabled && !data.adminPasswordVerified) ? "lock" : "lock.open")
-//                    }
-//                }
-//                .buttonStyle(RoundedRectangleButtonStyle())
-//            } label: {
-//                HStack{
-//                    Text("Options")
-//                    Image(systemName: "ellipsis.circle")
-//                }
-//
-//            })
-//            .sheet(isPresented: $showSetPassword, content: {
-//                Password(showViewState: $showSetPassword, store: store, mode: PassWordViewMode.eEdit, data: data)
-//                    .animation(.spring())
-//                    .transition(.slide)
-//            })
-            .navigationBarItems(trailing:
+            .navigationBarItems(trailing: Menu {
                 Button ( action: {
                     if data.PWEnableStatusReceived && (!data.adminPasswordEnabled || data.adminPasswordVerified) {
                         self.showSetPassword.toggle()
@@ -243,12 +223,56 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                         Image(systemName: !data.PWEnableStatusReceived || (data.adminPasswordEnabled && !data.adminPasswordVerified) ? "lock" : "lock.open")
                     }
                 }
-            )
+                .buttonStyle(RoundedRectangleButtonStyle())
+                
+                Button ( action: {
+                        self.showMotorSettings.toggle()
+                }){
+                    HStack{
+                        Text("Motor")
+                        Image(systemName: "gear")
+                    }
+                }
+                .buttonStyle(RoundedRectangleButtonStyle())
+                .disabled(!data.displayMotorSettings())
+            } label: {
+                HStack{
+                    Text("Settings")
+                    Image(systemName: "gear")
+                }
+
+            })
             .sheet(isPresented: $showSetPassword, content: {
                 Password(showViewState: $showSetPassword, store: store, mode: PassWordViewMode.eEdit, data: data)
-                //    .animation(.spring())
+                  //  .animation(.spring())
                     .transition(.slide)
             })
+            .sheet(isPresented: $showMotorSettings, content: {
+                MotorSettings(showViewState: $showMotorSettings, targetDevice: targetDevice, store: store)
+                  //  .animation(.spring())
+                    .transition(.slide)
+            })
+            
+            
+            
+//            .navigationBarItems(trailing:
+//                Button ( action: {
+//                    if data.PWEnableStatusReceived && (!data.adminPasswordEnabled || data.adminPasswordVerified) {
+//                        self.showSetPassword.toggle()
+//                    }
+//                }){
+//                    HStack{
+//                        Text("Security")
+//                        Image(systemName: !data.PWEnableStatusReceived || (data.adminPasswordEnabled && !data.adminPasswordVerified) ? "lock" : "lock.open")
+//                    }
+//                }
+//            )
+//            .sheet(isPresented: $showSetPassword, content: {
+//                Password(showViewState: $showSetPassword, store: store, mode: PassWordViewMode.eEdit, data: data)
+//                //    .animation(.spring())
+//                    .transition(.slide)
+//            })
+            
         }
         .onAppear(){
             print("DeviceDetail appearing")

@@ -8,6 +8,15 @@
 import SwiftUI
 
 class DeviceData: ObservableObject{
+    
+    public enum RPMType: UInt8
+    {
+        case e36ppt
+        case e18ppt
+        case e1ppt
+        case eNone
+    }
+    
     @Published var RPM: Int
     @Published var type: String
     @Published var go: Bool
@@ -26,6 +35,7 @@ class DeviceData: ObservableObject{
     var PWEnableStatusReceived :Bool
     var deviceRSSIinMobile: Int
     var mobileRSSIinDevice: Int
+    @Published var rpmType: RPMType
     
     init() {
         self.RPM = 0
@@ -44,6 +54,7 @@ class DeviceData: ObservableObject{
         self.PWEnableStatusReceived = false
         self.deviceRSSIinMobile = 0
         self.mobileRSSIinDevice = 0
+        self.rpmType = RPMType.e36ppt
     }
     
     func getGOString()->String{
@@ -72,6 +83,16 @@ class DeviceData: ObservableObject{
         return nil
     }
     
+    func displayMotorSettings() -> Bool{
+        var enableDisplay = false
+        if let version = getMajorVersion(){
+            if (version >= 4){
+                enableDisplay = true
+            }
+        }
+        return enableDisplay;
+    }
+    
     func IsRPMOrFilterMonitoringEnabled() -> Bool {
         return RPMAlarmEnabled ||
             filterMonitors[0].filterEnabled ||
@@ -96,6 +117,21 @@ class DeviceData: ObservableObject{
         }
         else {
             mobileRSSIinDevice = (mobileRSSIinDevice + newRSSI)/2
+        }
+    }
+    
+    func getRPMType(value:UInt8) -> RPMType {
+        switch (value)
+        {
+            case 0:
+                return RPMType.e36ppt
+            case 1:
+                return RPMType.e18ppt
+            case 2:
+                return RPMType.e1ppt
+            default:
+                print("invalid RPM Type")
+                return RPMType.eNone
         }
     }
 }

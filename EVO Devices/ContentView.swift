@@ -77,7 +77,7 @@ struct ContentView: View {
                             Text("About")
                     }
                 } label: {
-                    Image(systemName: "ellipsis.circle")
+                    Image(systemName: "info.circle")
                 })
                 
                 ZStack{

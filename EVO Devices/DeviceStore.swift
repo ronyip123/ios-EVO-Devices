@@ -32,8 +32,14 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     let RPM_CHARACTERISTICS_UUID = CBUUID(string: "b1f8b319-fc1c-4756-a391-f56dfa101b24")
     let GO_CHARACTERISTIC_UUID = CBUUID(string: "02f2ec80-ce47-4383-9e41-170fc6fe06fe")
     let FLOW_INDEX_CHARACTERISTIC_UUID = CBUUID(string: "47844164-f734-40bd-8469-c38c02382046")
-    let RPM_ALARM_STATUS_CHARACTERISTIC_UUID = CBUUID(string: "809f3fff-41bf-4c72-a6b0-fb88f4218bbe")
+    let RPM_TYPE_CHARACTERISTIC_UUID = CBUUID(string:"081ed8c6-5d6b-4f29-b822-f53b3c961d8b")
+    let OUTPUTTYPE_CHARACTERISTIC_UUID = CBUUID(string:"6071be7b-fb9b-40a0-bb58-0b8e7148623f")
+    let PILOT_PULSE_CHARACTERISTIC_UUID = CBUUID(string:"89b2c276-c19f-4a68-bf7b-2d8dfb47c869")
     let GET_MOTOR_SETTINGS_CHARACTERISTIC_UUID = CBUUID(string: "28f4cdcd-5276-4f7c-afdb-16d613ab5e22")
+    let RPM_ALARM_HIGH_CHARACTERISTIC_UUID = CBUUID(string:"4795df00-c380-4242-bff3-eaea96684c76")
+    let RPM_ALARM_LOW_CHARACTERISTIC_UUID = CBUUID(string:"fc3b7d82-4cc0-460f-bdea-d5da21ea3a37")
+    let RPM_ALARM_STATUS_CHARACTERISTIC_UUID = CBUUID(string: "809f3fff-41bf-4c72-a6b0-fb88f4218bbe")
+    let OUTPUT_LIMITS_CHARACTERISTIC = CBUUID(string:"42dbad3f-614c-41af-932c-a62a0bad46ed")
     
     let SECURITY_SERVICE_UUID = CBUUID(string: "3a658e10-af85-4163-9607-094fdaeb3859")
     let GET_ALL_PASSWORD_ENABLE_STATES_CHARACTERISTIC_UUID = CBUUID(string: "ee45ab48-b6b8-4f2a-83db-86e9011fd40a")
@@ -83,9 +89,6 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     var filterMonitor2ResetCharacteristic: CBCharacteristic?
     var filterMonitor3ResetCharacteristic: CBCharacteristic?
     var filterRemainingLivesCharacteristic: CBCharacteristic?
-//    var filter1NameCharacteristic: CBCharacteristic?
-//    var filter2NameCharacteristic: CBCharacteristic?
-//    var filter3NameCharacteristic: CBCharacteristic?
     var writeDeviceNameThroughGATTCharacteristic: CBCharacteristic?
     var verifyUserPasswordCharacteristic: CBCharacteristic?
     var verifyAdminPasswordCharacteristic: CBCharacteristic?
@@ -95,6 +98,12 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     var enableAdminPasswordCharacteristic: CBCharacteristic?
     var mobileRSSIinDeviceCharacteristic: CBCharacteristic?
     var getMotorSettingsCharacteristic: CBCharacteristic?
+    var rpmTyptCharacteristic: CBCharacteristic?
+    var outputTypeCharacteristic: CBCharacteristic?
+    var pilotPulseCharacteristic: CBCharacteristic?
+    var rpmAlarmHighCharacteristic:  CBCharacteristic?
+    var rpmAlarmLowCharacteristic:  CBCharacteristic?
+    var outputLimitsCharacteristic:  CBCharacteristic?
     
     @Published var output: Double = 0.0
     
@@ -618,11 +627,15 @@ extension DeviceStore: CBPeripheralDelegate {
                             // version 4 and later
                             // the rest of the settings are not used for now
                             data.RPMAlarmEnabled = ( motorSettings[0] & 0x10 ) != 0
+                            // get RPM Type
+                            data.rpmType = data.getRPMType(value: (motorSettings[0] & 0x06) >> 1)
                         }
                         else{
                             // version 3 and earlie version
                             // the rest of the settings are not used for now
                             data.RPMAlarmEnabled = ( motorSettings[0] & 0x08 ) != 0
+                            // Do not need to parse additional motor setting data.
+                            // Motor settings is not available for firmware 3 and below
                         }
                     }
                 }
