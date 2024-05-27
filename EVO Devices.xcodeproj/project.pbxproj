@@ -11,6 +11,7 @@
 		1B0A2EAD2675051100A3A8C4 /* SecuritySettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0A2EAC2675051100A3A8C4 /* SecuritySettings.swift */; };
 		1B0A2EB52675058B00A3A8C4 /* MotorSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0A2EB42675058B00A3A8C4 /* MotorSettings.swift */; };
 		1B0A2EBD267506CA00A3A8C4 /* StatusDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B0A2EBC267506CA00A3A8C4 /* StatusDetails.swift */; };
+		1B2F32D62BFE909D002F3682 /* MotorHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B2F32D52BFE909D002F3682 /* MotorHistory.swift */; };
 		1B5AAC7A265BC3C6002AAB70 /* DeviceData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */; };
 		1B6AB0662691E1A0003ABA06 /* Password.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6AB0652691E1A0003ABA06 /* Password.swift */; };
 		1B6AB06826952843003ABA06 /* FeaturesNotAvailable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6AB06726952843003ABA06 /* FeaturesNotAvailable.swift */; };
@@ -47,6 +48,7 @@
 		1B0A2EAC2675051100A3A8C4 /* SecuritySettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecuritySettings.swift; sourceTree = "<group>"; };
 		1B0A2EB42675058B00A3A8C4 /* MotorSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotorSettings.swift; sourceTree = "<group>"; };
 		1B0A2EBC267506CA00A3A8C4 /* StatusDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusDetails.swift; sourceTree = "<group>"; };
+		1B2F32D52BFE909D002F3682 /* MotorHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MotorHistory.swift; sourceTree = "<group>"; };
 		1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceData.swift; sourceTree = "<group>"; };
 		1B6AB0652691E1A0003ABA06 /* Password.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Password.swift; sourceTree = "<group>"; };
 		1B6AB06726952843003ABA06 /* FeaturesNotAvailable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesNotAvailable.swift; sourceTree = "<group>"; };
@@ -116,16 +118,17 @@
 			isa = PBXGroup;
 			children = (
 				1B0A2D0226B075C900B3777E /* About.swift */,
-				1B6AB06726952843003ABA06 /* FeaturesNotAvailable.swift */,
-				1B6AB0652691E1A0003ABA06 /* Password.swift */,
-				1BB6AA21262719AD0063F378 /* DeviceStore.swift */,
-				1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */,
-				1BB6AA1C2625C9970063F378 /* Device.swift */,
-				1BB6AA172625C94E0063F378 /* DeviceDetail.swift */,
-				1B0A2EAC2675051100A3A8C4 /* SecuritySettings.swift */,
-				1B0A2EB42675058B00A3A8C4 /* MotorSettings.swift */,
-				1B0A2EBC267506CA00A3A8C4 /* StatusDetails.swift */,
 				1BB6A9EB2625C3420063F378 /* ContentView.swift */,
+				1BB6AA1C2625C9970063F378 /* Device.swift */,
+				1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */,
+				1BB6AA172625C94E0063F378 /* DeviceDetail.swift */,
+				1BB6AA21262719AD0063F378 /* DeviceStore.swift */,
+				1B6AB06726952843003ABA06 /* FeaturesNotAvailable.swift */,
+				1B2F32D52BFE909D002F3682 /* MotorHistory.swift */,
+				1B0A2EB42675058B00A3A8C4 /* MotorSettings.swift */,
+				1B6AB0652691E1A0003ABA06 /* Password.swift */,
+				1B0A2EAC2675051100A3A8C4 /* SecuritySettings.swift */,
+				1B0A2EBC267506CA00A3A8C4 /* StatusDetails.swift */,
 				1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */,
 				1BB6A9ED2625C38B0063F378 /* Assets.xcassets */,
 				1BB6A9F22625C38C0063F378 /* Info.plist */,
@@ -298,6 +301,7 @@
 				1BB6AA1D2625C9970063F378 /* Device.swift in Sources */,
 				1BB6A9EA2625C3420063F378 /* EVO_DevicesApp.swift in Sources */,
 				1B0A2EBD267506CA00A3A8C4 /* StatusDetails.swift in Sources */,
+				1B2F32D62BFE909D002F3682 /* MotorHistory.swift in Sources */,
 				1BB6AA22262719AD0063F378 /* DeviceStore.swift in Sources */,
 				1B6AB0662691E1A0003ABA06 /* Password.swift in Sources */,
 				1B6AB06826952843003ABA06 /* FeaturesNotAvailable.swift in Sources */,
@@ -461,7 +465,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 22;
 				DEVELOPMENT_ASSET_PATHS = "\"EVO Devices/Preview Content\"";
 				DEVELOPMENT_TEAM = Z6VD4H2WH4;
 				ENABLE_PREVIEWS = YES;
@@ -471,7 +475,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gotoevo.EVODevices;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -489,7 +493,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 20;
+				CURRENT_PROJECT_VERSION = 22;
 				DEVELOPMENT_ASSET_PATHS = "\"EVO Devices/Preview Content\"";
 				DEVELOPMENT_TEAM = Z6VD4H2WH4;
 				ENABLE_PREVIEWS = YES;
@@ -499,7 +503,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.gotoevo.EVODevices;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

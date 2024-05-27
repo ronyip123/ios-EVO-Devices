@@ -24,6 +24,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
     @State var hideStatusDetails = true
     @State var showSetPassword = false
     @State var showMotorSettings = false
+    @State var showMotorHistory = false
 
     var uiDevice = UIDevice.current.userInterfaceIdiom
     
@@ -44,8 +45,8 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                     TextField("", text: $deviceNameStr, onCommit: {
                         deviceNameChanged(deviceNameStr)
                     })
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .font(Font.title2.weight(.heavy))
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .font(Font.title2.weight(.heavy))
                     .disabled(!data.PWEnableStatusReceived || (data.adminPasswordEnabled && !data.adminPasswordVerified))
                     Image(systemName: !data.PWEnableStatusReceived || (data.adminPasswordEnabled && !data.adminPasswordVerified) ? "lock" : "lock.open")
                 }.padding()
@@ -94,8 +95,8 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                                 FlowIndexChanged()
                             }
                         }
-                        .padding()
-                        .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: .infinity)
+//                        .padding()
+//                        .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: .infinity)
                                                                 
                         Button(action: {
                             // launch sort options dialog
@@ -113,6 +114,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                     }
                     .accentColor(Color.green)
                     .disabled(!data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified))
+                    .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: .infinity)
                     .padding()
                 }.padding()
                 
@@ -121,12 +123,11 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                 }){
                     Text("Unlock")
                         .padding()
-                        .frame(maxWidth: .infinity)
-                        .background( Color.white )
+                        .font(.title)
                 }
                 // disable Unlock button if user and admin passwords are not used or already verified
                 .disabled(!data.PWEnableStatusReceived || (!data.adminPasswordEnabled || data.adminPasswordVerified) && (!data.userPasswordEnabled || data.userPasswordVerified))
-                .buttonStyle(RoundedRectangleButtonStyle())
+                .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                 .sheet(isPresented: $showPasswordView, content: {
                     Password(showViewState: $showPasswordView, store: store, mode: PassWordViewMode.eVerify, data: data)
                       //  .animation(.spring())
@@ -139,16 +140,35 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                         self.showStatusDetailsView.toggle()
                     }){
                         Text("Status Details")
-                            .frame(maxWidth: .infinity)
                             .padding()
-                            .background( inAlarm ? Color.red : Color.white )
+                            .background( inAlarm ? Color.red : Color.green )
+                            //.foregroundColor(.white)
+                            .font(.title)
                     }
-                    .buttonStyle(RoundedRectangleButtonStyle())
+                    .buttonStyle(RoundedRectangleButtonStyle(alarmstate: inAlarm))
                     .sheet(isPresented: $showStatusDetailsView, content: {
                         StatusDetails(data: self.data, store: self.store, showViewState: $showStatusDetailsView, RPMAlarmEnabled: data.RPMAlarmEnabled, filter1Enabled: data.filterMonitors[0].filterEnabled, filter2Enabled: data.filterMonitors[1].filterEnabled, filter3Enabled: data.filterMonitors[2].filterEnabled, filterMonitoringEnabled: data.filterMonitors[0].filterEnabled || data.filterMonitors[1].filterEnabled || data.filterMonitors[2].filterEnabled  )
                         //            .animation(.spring())
                                     .transition(.slide)
                     })
+                }
+                
+                if (data.totalMotorRevolutionEanble || data.totalMotorRunningHoursEnable)
+                {
+                    Button(action: {
+                        // set flag to show motor history view
+                        self.showMotorHistory.toggle()
+                    }){
+                        Text("Motor History")
+                            .padding()
+                            .font(.title)
+                    }
+                    .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
+//                    .sheet(isPresented: $showStatusDetailsView, content: {
+//                        StatusDetails(data: self.data, store: self.store, showViewState: $showStatusDetailsView, RPMAlarmEnabled: data.RPMAlarmEnabled, filter1Enabled: data.filterMonitors[0].filterEnabled, filter2Enabled: data.filterMonitors[1].filterEnabled, filter3Enabled: data.filterMonitors[2].filterEnabled, filterMonitoringEnabled: data.filterMonitors[0].filterEnabled || data.filterMonitors[1].filterEnabled || data.filterMonitors[2].filterEnabled  )
+//                        //            .animation(.spring())
+//                                    .transition(.slide)
+//                    })
                 }
                 
                 VStack(alignment: .leading){
@@ -184,10 +204,8 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                     }) {
                         Text("Disconnect")
                             .padding()
-                            .frame(maxWidth: .infinity)
-                            .background( Color.white )
                     }
-                    .buttonStyle(RoundedRectangleButtonStyle())
+                    .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
 
                 }
 //                    Button(action: {
@@ -219,22 +237,26 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                     }
                 }){
                     HStack{
-                        Text("Security")
+                        Text("Security Settings")
                         Image(systemName: !data.PWEnableStatusReceived || (data.adminPasswordEnabled && !data.adminPasswordVerified) ? "lock" : "lock.open")
                     }
                 }
-                .buttonStyle(RoundedRectangleButtonStyle())
+                .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                 
-                Button ( action: {
-                        self.showMotorSettings.toggle()
-                }){
-                    HStack{
-                        Text("Motor")
-                        Image(systemName: "gear")
+                if let v = data.getMajorVersion() {
+                    if ( v >= 4)
+                    {
+                        Button ( action: {
+                            self.showMotorSettings.toggle()
+                        }){
+                            HStack{
+                                Text("Motor Settings")
+                                Image(systemName: "gear")
+                            }
+                        }
+                        .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                     }
                 }
-                .buttonStyle(RoundedRectangleButtonStyle())
-                .disabled(!data.displayMotorSettings())
             } label: {
                 HStack{
                     Text("Settings")
@@ -248,8 +270,12 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                     .transition(.slide)
             })
             .sheet(isPresented: $showMotorSettings, content: {
-                MotorSettings(showViewState: $showMotorSettings, targetDevice: targetDevice, store: store)
+                MotorSettings(showViewState: $showMotorSettings, store: self.store, data: self.data, RPMEnableString: data.RPMAlarmEnabled == true ? DeviceData.DISABLE_ENABLE_STATUS[1] : DeviceData.DISABLE_ENABLE_STATUS[0], highlimit: data.highOutputLimit, lowlimit: data.lowOutputLimit, highRPMAlarm: data.highRPMAlarmLimit, lowRPMAlarm: data.lowRPMAlarmLimit )
                   //  .animation(.spring())
+                    .transition(.slide)
+            })
+            .sheet(isPresented: $showMotorHistory, content: {
+                MotorHistory(showViewState: $showMotorHistory, store: self.store, data: self.data )
                     .transition(.slide)
             })
             
@@ -351,17 +377,21 @@ extension View{
 
 
 struct RoundedRectangleButtonStyle: ButtonStyle {
+    var alarmstate: Bool
     func makeBody(configuration: Configuration) -> some View {
         Button(action:{}, label: {
             HStack{
-                Spacer()
-                configuration.label.foregroundColor(.black)
-                Spacer()
+               // Spacer()
+                configuration.label.foregroundColor(.white)
+               // Spacer()
             }
+            .background(alarmstate ? Color.red : Color.green)
+            .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: .infinity)
         })
         // makes all taps go to the original button
         .allowsHitTesting(false)
         .padding(10)
+        .background(alarmstate ? Color.red : Color.green)
         .background(RoundedRectangle(cornerRadius: 5).stroke(lineWidth: 2))
         .scaleEffect(configuration.isPressed ? 0.95 : 1)
     }

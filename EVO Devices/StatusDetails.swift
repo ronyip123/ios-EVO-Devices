@@ -32,12 +32,14 @@ struct StatusDetails: View {
                             Image("RedLED")
 //                            .resizable()
 //                            .aspectRatio(contentMode: .fit)
+                                .padding()
                         }
                         else {
                             // to be replaced by the green LED
                             Image("GreenLED")
 //                              .resizable()
 //                              .aspectRatio(contentMode: .fit)
+                                .padding()
                         }
                         Button(action: {
                             // reset rpm alarm
@@ -45,11 +47,10 @@ struct StatusDetails: View {
                         }){
                             HStack{
                                 Text("Reset Alarm")
-                                    .foregroundColor(colorScheme == .light ? .black : .white)
                                 Image(systemName: !data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
                             }
                         }
-                        .buttonStyle(RoundedRectangleButtonStyle())
+                        .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                         .disabled(!data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified))
                     }
                 }
@@ -92,13 +93,12 @@ struct StatusDetails: View {
                             Button( action: { store.resetFilter(FilterIndes: 0 )}){
                                 HStack{
                                     Text("Reset")
-                                        .foregroundColor(colorScheme == .light ? .black : .white)
                                         .lineLimit(1)
                                         .scaledToFill()
                                     Image(systemName: !data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
                                 }
                             }
-                            .buttonStyle(RoundedRectangleButtonStyle())
+                            .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                             .disabled(!data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified))
                         }
                     }
@@ -135,13 +135,12 @@ struct StatusDetails: View {
                             Button( action: { store.resetFilter(FilterIndes: 1) }){
                                 HStack{
                                     Text("Reset")
-                                        .foregroundColor(colorScheme == .light ? .black : .white)
                                         .lineLimit(1)
                                         .scaledToFill()
                                     Image(systemName: !data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
                                 }
                             }
-                            .buttonStyle(RoundedRectangleButtonStyle())
+                            .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                             .disabled(!data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified))
                         }
                     }
@@ -178,13 +177,12 @@ struct StatusDetails: View {
                             Button( action: { store.resetFilter(FilterIndes: 2)}){
                                 HStack{
                                     Text("Reset")
-                                        .foregroundColor(colorScheme == .light ? .black : .white)
                                         .lineLimit(1)
                                         .scaledToFill()
                                     Image(systemName: !data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified) ? "lock" : "lock.open")
                                 }
                             }
-                            .buttonStyle(RoundedRectangleButtonStyle())
+                            .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                             .disabled(!data.PWEnableStatusReceived || (data.userPasswordEnabled && !data.userPasswordVerified))
                         }
                     }
@@ -193,9 +191,9 @@ struct StatusDetails: View {
                 Button( action:{showViewState.toggle()}){
                     Text("Done")
                         .padding()
-                        .foregroundColor(colorScheme == .light ? .black : .white)
+                        .font(.title)
                 }
-                .buttonStyle(RoundedRectangleButtonStyle())
+                .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
             }
             .navigationBarTitle("Status Details")
              

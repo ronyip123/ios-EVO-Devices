@@ -36,10 +36,11 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     let OUTPUTTYPE_CHARACTERISTIC_UUID = CBUUID(string:"6071be7b-fb9b-40a0-bb58-0b8e7148623f")
     let PILOT_PULSE_CHARACTERISTIC_UUID = CBUUID(string:"89b2c276-c19f-4a68-bf7b-2d8dfb47c869")
     let GET_MOTOR_SETTINGS_CHARACTERISTIC_UUID = CBUUID(string: "28f4cdcd-5276-4f7c-afdb-16d613ab5e22")
+    let RPM_ALARM_ENABLE_CHARACTERISTIC_UUID = CBUUID(string: "cb7d7295-f79e-4b5c-bda3-6209484d737d");
     let RPM_ALARM_HIGH_CHARACTERISTIC_UUID = CBUUID(string:"4795df00-c380-4242-bff3-eaea96684c76")
     let RPM_ALARM_LOW_CHARACTERISTIC_UUID = CBUUID(string:"fc3b7d82-4cc0-460f-bdea-d5da21ea3a37")
     let RPM_ALARM_STATUS_CHARACTERISTIC_UUID = CBUUID(string: "809f3fff-41bf-4c72-a6b0-fb88f4218bbe")
-    let OUTPUT_LIMITS_CHARACTERISTIC = CBUUID(string:"42dbad3f-614c-41af-932c-a62a0bad46ed")
+    let OUTPUT_LIMITS_CHARACTERISTIC_UUID = CBUUID(string:"42dbad3f-614c-41af-932c-a62a0bad46ed")
     
     let SECURITY_SERVICE_UUID = CBUUID(string: "3a658e10-af85-4163-9607-094fdaeb3859")
     let GET_ALL_PASSWORD_ENABLE_STATES_CHARACTERISTIC_UUID = CBUUID(string: "ee45ab48-b6b8-4f2a-83db-86e9011fd40a")
@@ -61,7 +62,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     let RF_SERVICE_UUID = CBUUID(string: "d3ecc05a-5192-43f8-a409-84faca67e7b0")
     let RSSI_CHARACTERISTIC_UUID = CBUUID(string: "dbd823a0-5f72-4d36-b868-ab5c56301e90")
     
-    let FILTER_MONITORING_SERVICE = CBUUID(string: "9f8d8050-9731-4597-85a0-d49fba2db671")
+    let FILTER_MONITORING_SERVICE_UUID = CBUUID(string: "9f8d8050-9731-4597-85a0-d49fba2db671")
     let RESET_FILTER1_ALARM_CHARACTERISTIC_UUUID = CBUUID(string: "1aaf1b0e-b754-11eb-8529-0242ac130003")
     let RESET_FILTER2_ALARM_CHARACTERISTIC_UUID = CBUUID(string: "1aaf1dac-b754-11eb-8529-0242ac130003")
     let RESET_FILTER3_ALARM_CHARACTERISTIC_UUID = CBUUID(string: "1aaf1ea6-b754-11eb-8529-0242ac130003")
@@ -72,6 +73,13 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     let FILTER3_NAME_CHARACTERISTIC_UUID = CBUUID(string: "d08c2d65-c3e1-464d-b2a5-8387959fe5de");
     
     let SILICON_LABS_OTA_SERVICE_UUID = CBUUID(string: "1D14D6EE-FD63-4FA1-BFA4-8F47B42119F0")
+    
+    let MOTOR_HISTORY_SERVICE_UUID = CBUUID(string: "8eb3afd9-2c75-462c-b02b-80c4082a460d")
+    let MOTOR_HISTORY_SETTINGS_CHARACTERISTIC_UUID = CBUUID(string: "cf185d4b-b969-4f42-b65a-bdce81212962")
+    let RESET_ACCUMULATED_REVOLUTIONS_CHARACTERISTIC_UUID = CBUUID(string: "0af5a0fd-ed46-4b8b-b6be-f3971deeac98")
+    let RESET_ACCUMULATED_HOURS_CHARACTERISTIC_UUID = CBUUID(string: "5078ce48-8c61-4931-804f-6e35beec85a4")
+    let ACCUMULATED_REVOLUTIONS_CHARACTERISTIC_UUID = CBUUID(string: "7486dd5e-bbad-4b9b-968f-c9bbd4aa5331")
+    let ACCUMULATED_RUN_HOURS_CHARACTERISTIC_UUID = CBUUID(string: "2f87f7a2-7351-4436-8dfd-bd0ec8916ae5")
     
     //var MOTOR_CONTROL_CHARACTERISTICS_UUIDS = [RPM_CHARACTERISTICS_UUID, ]
 //    @Published var RPM: Int
@@ -98,12 +106,18 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     var enableAdminPasswordCharacteristic: CBCharacteristic?
     var mobileRSSIinDeviceCharacteristic: CBCharacteristic?
     var getMotorSettingsCharacteristic: CBCharacteristic?
-    var rpmTyptCharacteristic: CBCharacteristic?
+    var rpmTypeCharacteristic: CBCharacteristic?
     var outputTypeCharacteristic: CBCharacteristic?
     var pilotPulseCharacteristic: CBCharacteristic?
     var rpmAlarmHighCharacteristic:  CBCharacteristic?
     var rpmAlarmLowCharacteristic:  CBCharacteristic?
     var outputLimitsCharacteristic:  CBCharacteristic?
+    var motorHistorySettingsCharacteristic: CBCharacteristic?
+    var resetAccumulatedRevolutionCharacteristic: CBCharacteristic?
+    var resetAccumulatedHoursCharacteristic: CBCharacteristic?
+    var rpmAlarmEnabledCharacteristic: CBCharacteristic?
+    var totalRevolutionCharacteristic: CBCharacteristic?
+    var totalRunningHoursCharacteristic: CBCharacteristic?
     
     @Published var output: Double = 0.0
     
@@ -328,7 +342,7 @@ extension DeviceStore: CBPeripheralDelegate {
                 print("RF service found")
                 peripheral.discoverCharacteristics(nil, for: service)
             }
-            else if service.uuid.isEqual(FILTER_MONITORING_SERVICE) {
+            else if service.uuid.isEqual(FILTER_MONITORING_SERVICE_UUID) {
                 print("Filter monitoring service found")
                 peripheral.discoverCharacteristics(nil, for: service)
             }
@@ -339,7 +353,10 @@ extension DeviceStore: CBPeripheralDelegate {
             else if service.uuid.isEqual( SILICON_LABS_OTA_SERVICE_UUID ) {
                 print("Silicon Labs OTA Service found")
             }
-            
+            else if service.uuid.isEqual(MOTOR_HISTORY_SERVICE_UUID) {
+                print("Motor History Service found")
+                peripheral.discoverCharacteristics(nil, for: service)
+            }
         }
     }
     
@@ -387,6 +404,41 @@ extension DeviceStore: CBPeripheralDelegate {
                         //according to the version.
                         //peripheral.readValue(for: characteristic)
                     }
+                    else if characteristic.uuid.isEqual(RPM_TYPE_CHARACTERISTIC_UUID)
+                    {
+                        print("found RPM Type characteristic")
+                        rpmTypeCharacteristic = characteristic
+                    }
+                    else if characteristic.uuid.isEqual(OUTPUTTYPE_CHARACTERISTIC_UUID)
+                    {
+                        print("found output Type characteristic")
+                        outputTypeCharacteristic = characteristic
+                    }
+                    else if characteristic.uuid.isEqual(PILOT_PULSE_CHARACTERISTIC_UUID)
+                    {
+                        print("found pilot pulse state characteristic")
+                        pilotPulseCharacteristic = characteristic
+                    }
+                    else if characteristic.uuid.isEqual(OUTPUT_LIMITS_CHARACTERISTIC_UUID)
+                    {
+                        print("found output limits characteristic")
+                        outputLimitsCharacteristic = characteristic
+                    }
+                    else if characteristic.uuid.isEqual(RPM_ALARM_ENABLE_CHARACTERISTIC_UUID)
+                    {
+                        print("found rpm alarm enabled characteristic")
+                        rpmAlarmEnabledCharacteristic = characteristic
+                    }
+                    else if characteristic.uuid.isEqual(RPM_ALARM_HIGH_CHARACTERISTIC_UUID)
+                    {
+                        print("found high rpm alarm characteristic")
+                        rpmAlarmHighCharacteristic = characteristic
+                    }
+                    else if characteristic.uuid.isEqual(RPM_ALARM_LOW_CHARACTERISTIC_UUID)
+                    {
+                        print("found low rpm alarm characteristic")
+                        rpmAlarmLowCharacteristic = characteristic
+                    }
             }
         }
         else if service.uuid.isEqual(SECURITY_SERVICE_UUID) {
@@ -433,7 +485,7 @@ extension DeviceStore: CBPeripheralDelegate {
                 }
             }
         }
-        else if service.uuid.isEqual(FILTER_MONITORING_SERVICE) {
+        else if service.uuid.isEqual(FILTER_MONITORING_SERVICE_UUID) {
             guard let characteristics = service.characteristics else { print("no Filter Monitoring characteristics found"); return }
             
             for characteristic in characteristics {
@@ -492,10 +544,41 @@ extension DeviceStore: CBPeripheralDelegate {
                 }
             }
         }
+        else if service.uuid.isEqual(MOTOR_HISTORY_SERVICE_UUID)
+        {
+            guard let characteristics = service.characteristics else { print("no motor history setting characteristics found"); return }
+            
+            for characteristic in characteristics {
+                
+                if characteristic.uuid.isEqual(MOTOR_HISTORY_SETTINGS_CHARACTERISTIC_UUID)
+                {
+                    motorHistorySettingsCharacteristic = characteristic
+                    peripheral.readValue(for: characteristic)
+                }
+                else if characteristic.uuid.isEqual(RESET_ACCUMULATED_REVOLUTIONS_CHARACTERISTIC_UUID)
+                {
+                    resetAccumulatedRevolutionCharacteristic = characteristic
+                }
+                else if characteristic.uuid.isEqual(RESET_ACCUMULATED_HOURS_CHARACTERISTIC_UUID)
+                {
+                    resetAccumulatedHoursCharacteristic = characteristic
+                }
+                else if characteristic.uuid.isEqual(ACCUMULATED_REVOLUTIONS_CHARACTERISTIC_UUID )
+                {
+                    peripheral.setNotifyValue(true, for: characteristic)
+                    totalRevolutionCharacteristic = characteristic
+                }
+                else if characteristic.uuid.isEqual(ACCUMULATED_RUN_HOURS_CHARACTERISTIC_UUID)
+                {
+                    peripheral.setNotifyValue(true, for: characteristic)
+                    totalRunningHoursCharacteristic = characteristic
+                }
+            }
+        }
     }
     
     //
-    // delegate function to handle notification from pheripheral
+    // delegate function to handle notification and read data from pheripheral
     //
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         print(characteristic)
@@ -509,7 +592,6 @@ extension DeviceStore: CBPeripheralDelegate {
                 if let data = deviceData {
                     data.go = go_data[0] != 0 // when not 0, the motor is running
                 }
-                    
             }
         }
         else if characteristic.uuid.isEqual(FLOW_INDEX_CHARACTERISTIC_UUID ){
@@ -533,7 +615,6 @@ extension DeviceStore: CBPeripheralDelegate {
                         readPasswords()
                     }
                 }
-               
             }
         }
         else if characteristic.uuid.isEqual(REMAINING_FILTER_LIVES_CHARACTERISTIC_UUID) {
@@ -585,7 +666,7 @@ extension DeviceStore: CBPeripheralDelegate {
                     print(version)
                     data.versionStr = version
                     
-                    if let characteristic = getMotorSettingsCharacteristic{
+                    if let characteristic = getMotorSettingsCharacteristic {
                         peripheral.readValue(for: characteristic)
                     }
                 }
@@ -626,14 +707,21 @@ extension DeviceStore: CBPeripheralDelegate {
                         {
                             // version 4 and later
                             // the rest of the settings are not used for now
-                            data.RPMAlarmEnabled = ( motorSettings[0] & 0x10 ) != 0
-                            // get RPM Type
-                            data.rpmType = data.getRPMType(value: (motorSettings[0] & 0x06) >> 1)
+                            data.RPMAlarmEnabled = ( motorSettings[0] & DeviceData.RPM_ALARM_ENABLED_V4 ) != 0
+                            // set RPM Type
+                            data.setRPMType(value: (Int)((motorSettings[0] & DeviceData.RPM_TYPE_V4) >> 1))
+                            data.setOutputType(value: Int((motorSettings[0] & DeviceData.PWM_OUTPUT_TYPE_V4)))
+                            data.setPilotPulseState(value: (motorSettings[0] & DeviceData.PILOT_PULSE_ENABLE_V4) == 0 ? false : true )
+                            data.motorSettingsEditable = ( motorSettings[0] & DeviceData.MOTOR_SETTINGS_EDITABLE_V4) != 0
+                            data.highRPMAlarmLimit = (Int(motorSettings[3]) << 8) | Int(motorSettings[2])
+                            data.lowRPMAlarmLimit = (Int(motorSettings[5]) << 8) | Int(motorSettings[4])
+                            data.highOutputLimit = Int(motorSettings[6])
+                            data.lowOutputLimit = Int(motorSettings[7])
                         }
                         else{
-                            // version 3 and earlie version
+                            // version 3 and earlier version
                             // the rest of the settings are not used for now
-                            data.RPMAlarmEnabled = ( motorSettings[0] & 0x08 ) != 0
+                            data.RPMAlarmEnabled = ( motorSettings[0] & DeviceData.RPM_ALARM_ENABLED_PRE_V4 ) != 0
                             // Do not need to parse additional motor setting data.
                             // Motor settings is not available for firmware 3 and below
                         }
@@ -669,6 +757,86 @@ extension DeviceStore: CBPeripheralDelegate {
                 }
             }
         }
+        else if characteristic.uuid.isEqual(MOTOR_HISTORY_SETTINGS_CHARACTERISTIC_UUID)
+        {
+            if let motorHistorySetttings = characteristic.value {
+                if let data = deviceData {
+                    if (motorHistorySetttings[0] & DeviceData.MOTOR_SENDS_RPM == 0)
+                    {
+                        data.setRPMType(value: DeviceData.PPT_NONE)
+                    }
+                    data.totalMotorRunningHoursEnable = ((motorHistorySetttings[0] & DeviceData.TOTAL_MOTOR_RUNTIME_ENABLE) != 0)
+                    data.totalMotorRevolutionEanble = ((motorHistorySetttings[0] & DeviceData.TOTAL_MOTOR_REVOLUTION_ENABLE) != 0 )
+                    data.motorHistorySettingsEditable = ((motorHistorySetttings[0] & DeviceData.MOTOR_HISTORY_SETTINGS_EDITABLE) != 0 )
+                    
+                    if (data.totalMotorRunningHoursEnable)
+                    {
+                        if let characteristic = totalRunningHoursCharacteristic {
+                            peripheral.readValue(for: characteristic)
+                        }
+                    }
+                    else if (data.totalMotorRevolutionEanble)
+                    {
+                        if let charcteristic = totalRevolutionCharacteristic {
+                            peripheral.readValue(for: charcteristic)
+                        }
+                    }
+                }
+            }
+        }
+        else if characteristic.uuid.isEqual(ACCUMULATED_REVOLUTIONS_CHARACTERISTIC_UUID)
+        {
+            if let dataArray = characteristic.value {
+                if let data = deviceData {
+                    var temp: Int32
+                    temp = Int32(dataArray[0] & 0xFF)
+                    temp |= Int32((dataArray[1] & 0xFF) << 8)
+                    temp |= Int32((dataArray[2] & 0xFF) << 16)
+                    temp |= Int32((dataArray[3] & 0xFF) << 24)
+                    
+                    data.totalMotorRevolutions = temp
+                }
+            }
+        }
+        else if characteristic.uuid.isEqual(ACCUMULATED_RUN_HOURS_CHARACTERISTIC_UUID)
+        {
+            if let dataArray = characteristic.value {
+                if let data = deviceData {
+                    var temp: Int32
+                    temp = Int32(dataArray[0] & 0xFF)
+                    temp |= Int32((dataArray[1] & 0xFF) << 8)
+                    temp |= Int32((dataArray[2] & 0xFF) << 16)
+                    temp |= Int32((dataArray[3] & 0xFF) << 24)
+                    
+                    data.totalMotorRunningHours = temp
+                }
+            }
+        }
+    }
+    
+    //
+    // delegate to receive the result after the peripheral tried to set a value for the characteristic.
+    //
+    func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: (any Error)?) {
+        
+        if (error == nil)
+        {
+            // write successfully
+            if (characteristic.uuid.isEqual(RPM_TYPE_CHARACTERISTIC_UUID))
+            {
+                // update motor returns RPM flag to true after updated RPM Type. See sendRPMType
+                guard let data = deviceData else { return }
+                
+                if let characteristic = motorHistorySettingsCharacteristic {
+                    let b = data.getMotorHistorySettings() | DeviceData.MOTOR_SENDS_RPM
+                    let bytes = [b]
+                    let data: NSData = NSData(bytes: bytes, length: bytes.count)
+                    if let peripheral = targetPeripheral {
+                        peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+                    }
+                }
+            }
+        }
     }
 
     
@@ -695,6 +863,8 @@ extension DeviceStore: CBPeripheralDelegate {
     func sendFlowIndex()
     {
         print(output)
+        
+        guard let data = deviceData else { return }
 
         if let characteristic = flowIndexCharacteristic {
             let bytes: [UInt8] = [UInt8(output)]
@@ -704,8 +874,129 @@ extension DeviceStore: CBPeripheralDelegate {
             }
         }
         
+        output = Double(data.controlOutput)
+    }
+    
+    func sendRPMType()
+    {
         guard let data = deviceData else { return }
-            output = Double(data.controlOutput)
+        
+        let type = data.getRPMType()
+        
+        if (type == -1 ) {return}
+        
+        if (type == DeviceData.PPT_NONE)
+        {
+            // selected none RPM Type, set the motor provides RPM feedback bit
+            // in motor history settings to 0 (false)
+            if let characteristic = motorHistorySettingsCharacteristic {
+                let b = data.getMotorHistorySettings()
+                let bytes = [b]
+                let data: NSData = NSData(bytes: bytes, length: bytes.count)
+                if let peripheral = targetPeripheral {
+                    peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+                }
+            }
+        }
+        else
+        {
+            // type = 0(36ppt), 1(18 ppt), 2(1 ppt)
+            // After writing the RPM Type successfully, we also need to set the motor provides RPM feedback bit
+            // in motor history settings to true
+            if let characteristic = rpmTypeCharacteristic {
+                let bytes = [UInt8(type)]
+                let data: NSData = NSData(bytes: bytes, length: bytes.count)
+                if let peripheral = targetPeripheral {
+                    peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+                }
+            }
+        }
+    }
+    
+    func sendOutputType()
+    {
+        guard let data = deviceData else { return }
+        
+        let type = data.getOutputType()
+        
+        if (type == -1 ) {return}
+        
+        if let characteristic = outputTypeCharacteristic {
+            let bytes = [UInt8(type)]
+            let data: NSData = NSData(bytes: bytes, length: bytes.count)
+            if let peripheral = targetPeripheral {
+                peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
+    }
+    
+    func sendPilotPulseState()
+    {
+        guard let data = deviceData else { return }
+        
+        let type = data.getPilotPulseState()
+        
+        if (type == -1 ) {return}
+        
+        if let characteristic = pilotPulseCharacteristic {
+            let bytes = [UInt8(type)]
+            let data: NSData = NSData(bytes: bytes, length: bytes.count)
+            if let peripheral = targetPeripheral {
+                peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
+    }
+    
+    func sendOutputLimits()
+    {
+        guard let data = deviceData else { return }
+        
+        if let characteristic = outputLimitsCharacteristic {
+            let bytes = [UInt8(data.lowOutputLimit), UInt8(data.highOutputLimit)]
+            let data: NSData = NSData(bytes: bytes, length: bytes.count)
+            if let peripheral = targetPeripheral {
+                peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
+    }
+    
+    func sendRPMALarmEnableStatus()
+    {
+        guard let data = deviceData else { return }
+        
+        if let characteristic = rpmAlarmEnabledCharacteristic {
+            let bytes = [UInt8(data.RPMAlarmEnabled == true ? 1 : 0)]
+            let data: NSData = NSData(bytes: bytes, length: bytes.count)
+            if let peripheral = targetPeripheral {
+                peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
+    }
+    
+    func sendRPMAlarmLowLimit()
+    {
+        guard let data = deviceData else { return }
+        
+        if let characteristic = rpmAlarmLowCharacteristic {
+            let bytes = [UInt8((data.lowRPMAlarmLimit & 0xFF00) >> 8), UInt8(data.lowRPMAlarmLimit & 0x00FF)]
+            let data: NSData = NSData(bytes: bytes, length: bytes.count)
+            if let peripheral = targetPeripheral {
+                peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
+    }
+    
+    func sendRPMAlarmHighLimit()
+    {
+        guard let data = deviceData else { return }
+        
+        if let characteristic = rpmAlarmHighCharacteristic {
+            let bytes = [UInt8((data.highRPMAlarmLimit & 0xFF00) >> 8), UInt8(data.highRPMAlarmLimit & 0x00FF)]
+            let data: NSData = NSData(bytes: bytes, length: bytes.count)
+            if let peripheral = targetPeripheral {
+                peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
     }
     
     func sendDeviceName(NewDeviceName newName: String )
@@ -720,6 +1011,7 @@ extension DeviceStore: CBPeripheralDelegate {
             }
         }
     }
+    
     
     func enableUserPassword( enableState state: Bool )
     {
@@ -820,11 +1112,33 @@ extension DeviceStore: CBPeripheralDelegate {
     }
     
     func resetRPMAlarm(){
-        let bytes: [UInt8] = [0]
+        let bytes: [UInt8] = [0] // The content of the write is not used
         let data: NSData = NSData(bytes: bytes, length: bytes.count)
         if let peripheral = targetPeripheral {
             if let characteristic = RPMAlarmStatusCharacteristic {
                 peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
+    }
+    
+    func resetTotalRevolutionCounts()
+    {
+        let bytes: [UInt8] = [0] // The content of the write is not used
+        let data: NSData = NSData(bytes: bytes, length: bytes.count)
+        if let p = targetPeripheral {
+            if let characteristic = resetAccumulatedRevolutionCharacteristic {
+                p.writeValue(data as Data, for: characteristic, type: .withResponse)
+            }
+        }
+    }
+    
+    func resetTotalRunningHours()
+    {
+        let bytes: [UInt8] = [0] // The content of the write is not used
+        let data: NSData = NSData(bytes: bytes, length: bytes.count)
+        if let p = targetPeripheral {
+            if let characteristic = resetAccumulatedHoursCharacteristic {
+                p.writeValue(data as Data, for: characteristic, type: .withResponse)
             }
         }
     }

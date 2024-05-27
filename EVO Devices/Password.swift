@@ -48,15 +48,12 @@ struct Password: View {
                             }){
                                 userPasswordEnabled ?
                                     Text("Disable")
-                                        .foregroundColor(colorScheme == .light ? .black : .white)
                                     :
                                     Text("Enable")
-                                        .foregroundColor(colorScheme == .light ? .black : .white)
                             }
-                            .buttonStyle(RoundedRectangleButtonStyle())
+                            .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                             .foregroundColor(colorScheme == .light ? .black : .white)
                         }
-                        
                     }
                     HStack{
                         Image(systemName: userPasswordEnabled ?  "lock" : "lock.open")
@@ -87,12 +84,10 @@ struct Password: View {
                             }){
                                 adminPasswordEnabled ?
                                     Text("Disable")
-                                        .foregroundColor(colorScheme == .light ? .black : .white)
                                     :
                                     Text("Enable")
-                                        .foregroundColor(colorScheme == .light ? .black : .white)
                             }
-                            .buttonStyle(RoundedRectangleButtonStyle())
+                            .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                             .foregroundColor(colorScheme == .light ? .black : .white)
                         }
                     }
@@ -102,7 +97,7 @@ struct Password: View {
                              .foregroundColor(.gray)
                         SecureField("Max 20 characters", text: $adminPassword)
                              .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
-                            .foregroundColor(.black)
+                             .foregroundColor(.black)
                     }
                     .frame(height: 60)
                     //.padding(.horizontal, 20)
@@ -151,16 +146,16 @@ struct Password: View {
                     }){
                         Text("Submit")
                             .padding()
-                            .foregroundColor( colorScheme == .light ? .black : .white)
+                            .font(.title)
                     }
-                    .buttonStyle(RoundedRectangleButtonStyle())
+                    .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                     
                     Button( action:{showViewState = false}){
                         Text("Cancel")
                             .padding()
-                            .foregroundColor( colorScheme == .light ? .black : .white)
+                            .font(.title)
                     }
-                    .buttonStyle(RoundedRectangleButtonStyle())
+                    .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                 }
             
                 Spacer()

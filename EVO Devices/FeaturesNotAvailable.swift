@@ -16,7 +16,7 @@ struct FeaturesNotAvailable: View {
             Button (action: { self.showViewState.toggle()}){
                 Text("Done")
             }
-            .buttonStyle(RoundedRectangleButtonStyle())
+            .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
         }
         
     }

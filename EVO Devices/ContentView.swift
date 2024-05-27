@@ -74,11 +74,16 @@ struct ContentView: View {
                 {
                     Button ( action: { self.showAbout.toggle() } )
                     {
+                        HStack{
                             Text("About")
+                            Image(systemName: "info.circle")
+                        }
                     }
-                } label: {
-                    Image(systemName: "info.circle")
+                }
+                label: {
+                    Image(systemName: "ellipsis")
                 })
+                
                 
                 ZStack{
                     List{

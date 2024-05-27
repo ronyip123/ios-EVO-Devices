@@ -30,14 +30,14 @@ struct SecuritySettings: View {
             List{
                 HStack{
                     Text("User Password: ").font(.subheadline)
-                    if userPasswordEnabled {
-                        Text("Enabled")
-                            .font(Font.title2.weight(.heavy))
-                    }
-                    else{
-                        Text("Disabled")
-                            .font(Font.title2.weight(.heavy))
-                    }
+//                    if userPasswordEnabled {
+//                        Text("Enabled")
+//                            .font(Font.title2.weight(.heavy))
+//                    }
+//                    else{
+//                        Text("Disabled")
+//                            .font(Font.title2.weight(.heavy))
+//                    }
                     Button(action: { userPasswordEnabled.toggle() }){
                         if userPasswordEnabled {
                             Text("Disable")
@@ -47,7 +47,7 @@ struct SecuritySettings: View {
                         }
                         
                     }
-                    .buttonStyle(RoundedRectangleButtonStyle())
+                    .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                 }
                 .padding()
                 
@@ -64,14 +64,14 @@ struct SecuritySettings: View {
                 
                 HStack{
                     Text("Admin Password: ").font(.subheadline)
-                    if adminPasswordEnabled {
-                        Text("Enabled")
-                            .font(Font.title2.weight(.heavy))
-                    }
-                    else{
-                        Text("Disabled")
-                            .font(Font.title2.weight(.heavy))
-                    }
+//                    if adminPasswordEnabled {
+//                        Text("Enabled")
+//                            .font(Font.title2.weight(.heavy))
+//                    }
+//                    else{
+//                        Text("Disabled")
+//                            .font(Font.title2.weight(.heavy))
+//                    }
                     Button(action: { adminPasswordEnabled.toggle() }){
                         if adminPasswordEnabled {
                             Text("Disable")
@@ -81,7 +81,7 @@ struct SecuritySettings: View {
                         }
                         
                     }
-                    .buttonStyle(RoundedRectangleButtonStyle())
+                    .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                 }
                 .padding()
                 
@@ -99,7 +99,7 @@ struct SecuritySettings: View {
                     Text("Done")
                         .padding()
                 }
-                .buttonStyle(RoundedRectangleButtonStyle())
+                .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                 
             }
                 .navigationBarTitle("Security Settings")
