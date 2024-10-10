@@ -15,10 +15,11 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     }
     @Published var deviceData: DeviceData?
     
-    enum DeiceListSortMode
+    enum DeiceListSortMode: Int
     {
-        case eAlphabeticalOrder
-        case eSignalStrength
+        case eNone = 0
+        case eAlphabeticalOrder = 1
+        case eSignalStrength = 2
     }
     
     var isAliveListener : IsBLEConnectionAliveListener?
@@ -1177,6 +1178,9 @@ extension DeviceStore: CBPeripheralDelegate {
     {
         switch (sortMethod)
         {
+            case .eNone:
+                // do nothing
+                break;
             case .eAlphabeticalOrder:
                 print("sort by alphabetucal order")
                 devices = devices.sorted{ $0.getNameString() < $1.getNameString() }

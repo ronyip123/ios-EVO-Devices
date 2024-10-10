@@ -7,8 +7,12 @@
 
 import SwiftUI
 import CoreBluetooth
+import BackgroundTasks
 
 struct ContentView: View {
+    
+    let sortKey = "MySortListMethod"
+    static let filteredNameArrayKey = "UserDefaults.standard"
     let scanTime = 30 //seconds
     @StateObject var store = DeviceStore()
     @State private var scanning = false
@@ -16,8 +20,14 @@ struct ContentView: View {
     let scanProgressView = ProgressView("Tap Stop Scan to stop..");
     @State var oneSecTimer: Timer? = nil
     @State var showAbout = false
+    @State var showBackgroundAlarmSettings = false
     @State var firstTime = true
-    @State private var showingSortOptions = false // 1
+    @State private var showingSortOptions = false
+    @State var sortMethod: DeviceStore.DeiceListSortMode?
+    @State private var showingFilterOptions = false
+    @State var filteredNameArray = UserDefaults.standard.object(forKey: filteredNameArrayKey) as? [String] ?? [String]()
+    @State var showFilterDeviceEdit = false
+    @State var showNoDeviceInFilterNameArrayMsg = false
     
     var body: some View {
         NavigationView{
@@ -30,12 +40,31 @@ struct ContentView: View {
                         self.showingSortOptions = true
                     })
                     {
-                        Image(systemName: "line.3.horizontal.decrease")
+                        //Image(systemName: "line.3.horizontal.decrease")
+                        Image(systemName: "text.justify.left")
                     }
                     .alert("Sort Device List By:", isPresented: $showingSortOptions) {
-                        Button("Alphabetical Order", role: .none, action: { store.sort(sortMethod: DeviceStore.DeiceListSortMode.eAlphabeticalOrder)})
-                        Button("Signal Strength", role: .none, action: {store.sort(sortMethod: DeviceStore.DeiceListSortMode.eSignalStrength)})
-                        Button("Cancel", role: .cancel, action: {})
+                        Button("Alphabetical Order", role: .none, action: {
+                            self.sortMethod = DeviceStore.DeiceListSortMode.eAlphabeticalOrder
+                            if let s = self.sortMethod {
+                                UserDefaults.standard.setValue(s.rawValue, forKey: sortKey)
+                                store.sort(sortMethod: s)
+                            }
+                        })
+                        Button("Signal Strength", role: .none, action: {
+                            self.sortMethod = DeviceStore.DeiceListSortMode.eSignalStrength
+                            if let s = self.sortMethod {
+                                UserDefaults.standard.setValue(s.rawValue, forKey: sortKey)
+                                store.sort(sortMethod: s)
+                            }
+                        })
+                        Button("None", role: .none, action: {
+                            self.sortMethod = DeviceStore.DeiceListSortMode.eNone
+                            if let s = self.sortMethod {
+                                UserDefaults.standard.setValue(s.rawValue, forKey: sortKey)
+                                store.sort(sortMethod: s)
+                            }
+                        })
                     }
                         
                     Button( action:{
@@ -48,6 +77,9 @@ struct ContentView: View {
                             }
                             else{
                                 stopScan()
+                                if let s = sortMethod {
+                                    store.sort(sortMethod: s)
+                                }
                             }
                     })
                     {
@@ -68,15 +100,50 @@ struct ContentView: View {
                     .foregroundColor(.white)
                     .cornerRadius(5.0)
                     
+                    Button(action: {
+                        // launch filter options dialog
+                        print("device filter")
+                        self.showingFilterOptions = true
+                    })
+                    {
+                        //Image(systemName: "line.3.horizontal.decrease")
+                        Image(systemName: "line.3.horizontal.decrease")
+                    }
+                    .alert("Device Filter:", isPresented: $showingFilterOptions) {
+                        Button("Edit Device Filter", role: .none, action: {
+                            if (!store.devices.isEmpty)
+                            {
+                                showFilterDeviceEdit = true
+                            }
+                            else
+                            {
+                                showNoDeviceInFilterNameArrayMsg = true
+                            }
+                        })
+                        Button("Remove Device Filter", role: .none, action: {
+                            filteredNameArray.removeAll()
+                        })
+                        Button("Cancel", role: .none, action: {})
+                    }
+                    
                 }
                 .navigationBarTitle("EVO Devices")
                 .navigationBarItems(trailing: Menu
                 {
-                    Button ( action: { self.showAbout.toggle() } )
-                    {
-                        HStack{
-                            Text("About")
-                            Image(systemName: "info.circle")
+                    VStack{
+                        Button( action: {self.showBackgroundAlarmSettings.toggle()})
+                        {
+                            HStack{
+                                Text("Background Alarm Scanning")
+                                Image(systemName: "gear")
+                            }
+                        }
+                        Button ( action: { self.showAbout.toggle() } )
+                        {
+                            HStack{
+                                Text("About")
+                                Image(systemName: "info.circle")
+                            }
                         }
                     }
                 }
@@ -89,13 +156,15 @@ struct ContentView: View {
                     List{
                         
                     ForEach(store.devices){device in
-                            DeviceCell(device: device, store: store)
-                                .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
-                                .background(device.inAlarm ? Color.red : Color.white)
+                        if (filteredNameArray.isEmpty || filteredNameArray.contains(device.getNameString()))
+                            {
+                                DeviceCell(device: device, store: store)
+                                    .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+                                    .background(device.inAlarm ? Color.red : Color.white)
+                            }
                         }
                     }
 
-                
                     //show progressView only if scanning
                     if self.scanning {
                         ProgressView("tap Stop Scan to stop")
@@ -116,6 +185,16 @@ struct ContentView: View {
                     self.scanTimer = 0
                     startScan()
                 }
+                
+                if ( UserDefaults.standard.object(forKey: sortKey) == nil)
+                {
+                    UserDefaults.standard.setValue(DeviceStore.DeiceListSortMode.eNone.rawValue, forKey: sortKey)
+                }
+                else
+                {
+                    // userDefault has a value
+                    self.sortMethod = DeviceStore.DeiceListSortMode(rawValue: UserDefaults.standard.integer(forKey: sortKey))
+                }
             }
             .onDisappear(){
                 print("ContentView disappears")
@@ -128,6 +207,18 @@ struct ContentView: View {
                   //  .animation(.spring())
                     .transition(.slide)
             })
+            .sheet(isPresented: $showBackgroundAlarmSettings, content: {
+               BackgroundAlarmTaskSettings()
+                    .transition(.slide)
+            })
+            .sheet(isPresented: $showFilterDeviceEdit, content: {
+                EditFilteredDeviceList(showViewState: $showFilterDeviceEdit, filteredDeviceNameArray: $filteredNameArray, store: store)
+                  //  .animation(.spring())
+                    .transition(.slide)
+            })
+            .alert("No scanned device ", isPresented: $showNoDeviceInFilterNameArrayMsg) {
+                Button("OK") { }
+            }
         }
     }
     

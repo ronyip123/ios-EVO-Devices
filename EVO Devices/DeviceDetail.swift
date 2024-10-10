@@ -259,7 +259,7 @@ struct DeviceDetail: View, IsBLEConnectionAliveListener {
                 }
             } label: {
                 HStack{
-                    Text("Settings")
+                    Text("Device Settings")
                     Image(systemName: "gear")
                 }
 
@@ -378,6 +378,8 @@ extension View{
 
 struct RoundedRectangleButtonStyle: ButtonStyle {
     var alarmstate: Bool
+    @Environment(\.isEnabled) var isEnabled
+    
     func makeBody(configuration: Configuration) -> some View {
         Button(action:{}, label: {
             HStack{
@@ -385,13 +387,13 @@ struct RoundedRectangleButtonStyle: ButtonStyle {
                 configuration.label.foregroundColor(.white)
                // Spacer()
             }
-            .background(alarmstate ? Color.red : Color.green)
+            .background(alarmstate ? Color.red : (isEnabled ? Color.green : Color.gray))
             .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: .infinity)
         })
         // makes all taps go to the original button
         .allowsHitTesting(false)
         .padding(10)
-        .background(alarmstate ? Color.red : Color.green)
+        .background(alarmstate ? Color.red : (isEnabled ? Color.green : Color.gray))
         .background(RoundedRectangle(cornerRadius: 5).stroke(lineWidth: 2))
         .scaleEffect(configuration.isPressed ? 0.95 : 1)
     }

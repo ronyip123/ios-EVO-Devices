@@ -9,7 +9,7 @@ import SwiftUI
 import CoreBluetooth
 
 struct Device : Identifiable{
-    var id : UUID
+    var id = UUID()
     var deviceRSSI : Int
     var peripheral : CBPeripheral
     var type : Int
