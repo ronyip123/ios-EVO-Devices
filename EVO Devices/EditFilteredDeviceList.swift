@@ -35,12 +35,9 @@ struct EditFilteredDeviceList: View {
                 {
                     Button( action: {
                         filteredDeviceNameArray.removeAll()
-                        for device in store.devices
+                        for device in store.devices where multiSelection.contains(device.id)
                         {
-                            if (multiSelection.contains(device.id))
-                            {
-                                filteredDeviceNameArray.append(device.getNameString())
-                            }
+                            filteredDeviceNameArray.append(device.getNameString())
                         }
                         
                         showViewState = false
