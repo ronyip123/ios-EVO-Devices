@@ -10,14 +10,13 @@ import SwiftUI
 struct EditFilteredDeviceList: View {
     @Binding var showViewState: Bool
     @Binding var filteredDeviceNameArray: [String]
-    @StateObject var store : DeviceStore
-    
-    @State private var multiSelection = Set<UUID>()
+    var devices : [Device]
+    @State private var deviceSelections = Set<Device>()//Set<UUID>()
     
     var body: some View {
         NavigationView {
             VStack {
-                List(store.devices, selection: $multiSelection) { device in
+                List(devices, id: \.self, selection: $deviceSelections) { device in
                     VStack{
                         Text(device.getNameString())
                             .font(.headline)
@@ -29,13 +28,13 @@ struct EditFilteredDeviceList: View {
                 }
                 .navigationTitle("Edit Device Filter")
                 .toolbar {
-                    EditButton()
+                    EditModeView(itemSelection: $deviceSelections, devices: devices, filteredDeviceNameArray: filteredDeviceNameArray)
                 }
                 HStack
                 {
                     Button( action: {
                         filteredDeviceNameArray.removeAll()
-                        for device in store.devices where multiSelection.contains(device.id)
+                        for device in devices where deviceSelections.contains(device)
                         {
                             filteredDeviceNameArray.append(device.getNameString())
                         }
@@ -51,7 +50,7 @@ struct EditFilteredDeviceList: View {
                         }
                     }
                     .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
-                    .disabled(multiSelection.isEmpty)
+                    .disabled(deviceSelections.isEmpty)
                     Button( action: {showViewState = false})
                     {
                         HStack{
@@ -72,4 +71,21 @@ struct EditFilteredDeviceList: View {
 //    FilteredDeviceDiscovery( filteredDeviceNameArray: <#Binding<[String]>#>, store: <#DeviceStore#>)
 //}
 
-
+struct EditModeView: View {
+    
+    @Environment(\.editMode) var editMode
+    @Binding var itemSelection: Set<Device>
+    var devices : [Device]
+    var filteredDeviceNameArray : [String]
+    
+    var body: some View {
+        EditButton()
+            .onChange(of: editMode?.wrappedValue.isEditing, perform: { newValue in
+                
+                for device in devices where filteredDeviceNameArray.contains(device.getNameString())
+                {
+                    itemSelection.insert(device)
+                }
+            })
+    }
+}

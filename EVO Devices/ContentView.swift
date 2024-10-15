@@ -212,7 +212,7 @@ struct ContentView: View {
                     .transition(.slide)
             })
             .sheet(isPresented: $showFilterDeviceEdit, content: {
-                EditFilteredDeviceList(showViewState: $showFilterDeviceEdit, filteredDeviceNameArray: $filteredNameArray, store: store)
+                EditFilteredDeviceList(showViewState: $showFilterDeviceEdit, filteredDeviceNameArray: $filteredNameArray, devices: store.devices)
                   //  .animation(.spring())
                     .transition(.slide)
             })
