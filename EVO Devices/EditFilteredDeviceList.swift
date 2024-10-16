@@ -12,6 +12,37 @@ struct EditFilteredDeviceList: View {
     @Binding var filteredDeviceNameArray: [String]
     var devices : [Device]
     @State private var deviceSelections = Set<Device>()//Set<UUID>()
+    @State var inEditMode = false
+    @State var changeNotSaved = false
+    
+    static func UserMadeChanges(filterNameArray: [String], deviceSet : Set<Device>) -> Bool{
+        
+        if (filterNameArray.count != deviceSet.count)
+        {
+            return true;
+        }
+        
+        for device in deviceSet where !filterNameArray.contains(device.getNameString())
+        {
+            return true
+        }
+        
+        return false
+    }
+    
+    func disableSaveButton() -> Bool {
+        
+        if (inEditMode)
+        {
+            return EditFilteredDeviceList.UserMadeChanges(filterNameArray: filteredDeviceNameArray, deviceSet: deviceSelections) ? false : true
+        }
+        else
+        {
+            // not in edit mode
+            return changeNotSaved ? false : true
+        }
+    }
+    
     
     var body: some View {
         NavigationView {
@@ -28,7 +59,7 @@ struct EditFilteredDeviceList: View {
                 }
                 .navigationTitle("Edit Device Filter")
                 .toolbar {
-                    EditModeView(itemSelection: $deviceSelections, devices: devices, filteredDeviceNameArray: filteredDeviceNameArray)
+                    EditModeView(itemSelection: $deviceSelections, devices: devices, filteredDeviceNameArray: filteredDeviceNameArray, inEditMode: $inEditMode, changeNotSaved: $changeNotSaved)
                 }
                 HStack
                 {
@@ -38,7 +69,7 @@ struct EditFilteredDeviceList: View {
                         {
                             filteredDeviceNameArray.append(device.getNameString())
                         }
-                        
+                        UserDefaults.standard.set(filteredDeviceNameArray, forKey: ContentView.filteredDeviceNamesArrayKey)
                         showViewState = false
                     })
                     {
@@ -50,7 +81,7 @@ struct EditFilteredDeviceList: View {
                         }
                     }
                     .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
-                    .disabled(deviceSelections.isEmpty)
+                    .disabled( disableSaveButton() )
                     Button( action: {showViewState = false})
                     {
                         HStack{
@@ -77,15 +108,29 @@ struct EditModeView: View {
     @Binding var itemSelection: Set<Device>
     var devices : [Device]
     var filteredDeviceNameArray : [String]
+    @Binding var inEditMode : Bool
+    @Binding var changeNotSaved : Bool
     
     var body: some View {
         EditButton()
             .onChange(of: editMode?.wrappedValue.isEditing, perform: { newValue in
                 
-                for device in devices where filteredDeviceNameArray.contains(device.getNameString())
+                if (newValue == true)
                 {
-                    itemSelection.insert(device)
+                    for device in devices where filteredDeviceNameArray.contains(device.getNameString())
+                    {
+                        itemSelection.insert(device)
+                    }
+                    
+                    inEditMode = true
+                    changeNotSaved = false
                 }
-            })
+                else
+                {
+                    inEditMode = false
+                    changeNotSaved = EditFilteredDeviceList.UserMadeChanges(filterNameArray: filteredDeviceNameArray, deviceSet: itemSelection)
+                }
+            }
+        )
     }
 }

@@ -12,7 +12,7 @@ import BackgroundTasks
 struct ContentView: View {
     
     let sortKey = "MySortListMethod"
-    static let filteredNameArrayKey = "UserDefaults.standard"
+    static let filteredDeviceNamesArrayKey = "FilteredDeviceNamesArrayKey"
     let scanTime = 30 //seconds
     @StateObject var store = DeviceStore()
     @State private var scanning = false
@@ -25,7 +25,7 @@ struct ContentView: View {
     @State private var showingSortOptions = false
     @State var sortMethod: DeviceStore.DeiceListSortMode?
     @State private var showingFilterOptions = false
-    @State var filteredNameArray = UserDefaults.standard.object(forKey: filteredNameArrayKey) as? [String] ?? [String]()
+    @State var filteredDeviceNamesArray = UserDefaults.standard.object(forKey: filteredDeviceNamesArrayKey) as? [String] ?? [String]()
     @State var showFilterDeviceEdit = false
     @State var showNoDeviceInFilterNameArrayMsg = false
     
@@ -121,7 +121,8 @@ struct ContentView: View {
                             }
                         })
                         Button("Remove Device Filter", role: .none, action: {
-                            filteredNameArray.removeAll()
+                            filteredDeviceNamesArray.removeAll()
+                            UserDefaults.standard.set(filteredDeviceNamesArray, forKey: ContentView.filteredDeviceNamesArrayKey)
                         })
                         Button("Cancel", role: .none, action: {})
                     }
@@ -156,7 +157,7 @@ struct ContentView: View {
                     List{
                         
                     ForEach(store.devices){device in
-                        if (filteredNameArray.isEmpty || filteredNameArray.contains(device.getNameString()))
+                        if (filteredDeviceNamesArray.isEmpty || filteredDeviceNamesArray.contains(device.getNameString()))
                             {
                                 DeviceCell(device: device, store: store)
                                     .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
@@ -212,7 +213,7 @@ struct ContentView: View {
                     .transition(.slide)
             })
             .sheet(isPresented: $showFilterDeviceEdit, content: {
-                EditFilteredDeviceList(showViewState: $showFilterDeviceEdit, filteredDeviceNameArray: $filteredNameArray, devices: store.devices)
+                EditFilteredDeviceList(showViewState: $showFilterDeviceEdit, filteredDeviceNameArray: $filteredDeviceNamesArray, devices: store.devices)
                   //  .animation(.spring())
                     .transition(.slide)
             })
