@@ -789,13 +789,15 @@ extension DeviceStore: CBPeripheralDelegate {
         {
             if let dataArray = characteristic.value {
                 if let data = deviceData {
-                    var temp: Int32
-                    temp = Int32(dataArray[0] & 0xFF)
-                    temp |= Int32((dataArray[1] & 0xFF) << 8)
-                    temp |= Int32((dataArray[2] & 0xFF) << 16)
-                    temp |= Int32((dataArray[3] & 0xFF) << 24)
+                    var temp: Int32 = 0
+                    
+                    temp = Int32(dataArray[3])
+                    temp = (temp << 8) | Int32(dataArray[2])
+                    temp = (temp << 8) | Int32(dataArray[1])
+                    temp = (temp << 8) | Int32(dataArray[0])
                     
                     data.totalMotorRevolutions = temp
+                                                         
                 }
             }
         }
@@ -803,11 +805,12 @@ extension DeviceStore: CBPeripheralDelegate {
         {
             if let dataArray = characteristic.value {
                 if let data = deviceData {
-                    var temp: Int32
-                    temp = Int32(dataArray[0] & 0xFF)
-                    temp |= Int32((dataArray[1] & 0xFF) << 8)
-                    temp |= Int32((dataArray[2] & 0xFF) << 16)
-                    temp |= Int32((dataArray[3] & 0xFF) << 24)
+                    
+                    var temp: Int32 = 0
+                    temp = Int32(dataArray[3])
+                    temp = (temp << 8) | Int32(dataArray[2])
+                    temp = (temp << 8) | Int32(dataArray[1])
+                    temp = (temp << 8) | Int32(dataArray[0])
                     
                     data.totalMotorRunningHours = temp
                 }
