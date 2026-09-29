@@ -9,6 +9,7 @@ import SwiftUI
 import CoreBluetooth
 import BackgroundTasks
 
+@MainActor
 struct ContentView: View {
     
     let sortKey = "MySortListMethod"
@@ -17,8 +18,9 @@ struct ContentView: View {
     @StateObject var store = DeviceStore()
     @State private var scanning = false
     @State private var scanTimer = 0
+    private let scanTimerPublisher =
+        Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     let scanProgressView = ProgressView("Tap Stop Scan to stop..");
-    @State var oneSecTimer: Timer? = nil
     @State var showAbout = false
     @State var showBackgroundAlarmSettings = false
     @State var firstTime = true
@@ -71,7 +73,7 @@ struct ContentView: View {
                         self.scanning.toggle()
                             if self.scanning {
                                 //store.clearStore()
-                                self.scanTimer = 0
+                                //self.scanTimer = 0
                                 cleanup()
                                 startScan()
                             }
@@ -174,6 +176,18 @@ struct ContentView: View {
                     }
                 }
             }
+            .onReceive(scanTimerPublisher) { _ in
+                if scanning {
+                    scanTimer += 1
+                    print(".onReceive: \(scanTimer)")
+
+                    if scanTimer >= scanTime {
+                        scanning = false
+                        stopScan()
+                        print(".onReceive: scanTimer = \(scanTimer)")
+                    }
+                }
+            }
             .onAppear(){
                 print("ContentView appears")
                 if firstTime {
@@ -222,34 +236,15 @@ struct ContentView: View {
             }
         }
     }
-    
-    
-    func startOneSecTimer()
-    {
-        oneSecTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true){ _ in
-            if self.scanTimer < scanTime {
-                self.scanTimer += 1
-                print(".onReceive: \(self.scanTimer)")
-            }
-            else
-            {
-                self.scanning.toggle()
-                self.oneSecTimer?.invalidate()
-                print(".onReceive: scanTimer = 30")
-            }
-        }
-    }
-
    
     func startScan()
     {
-        startOneSecTimer()
+        scanTimer = 0
         store.startScan()
     }
 
     func stopScan()
     {
-        self.oneSecTimer?.invalidate()
         store.stopScan()
     }
     
@@ -257,11 +252,9 @@ struct ContentView: View {
     {
         print("in cleanup")
         store.clearStore();
-        self.oneSecTimer?.invalidate()
     }
     
     func getReady() {
-//        self.scanTimer = scanTime
     }
 }
 
@@ -297,9 +290,15 @@ struct DeviceCell: View {
                 store.connect(targetPeripheral: device.peripheral)
             }){
                 VStack(alignment: .leading){
-                    Text(device.getNameString())
-                        .font(.headline)
-                        .foregroundColor(.black)
+                    let flow_index = device.getFlowIndex()
+                    HStack(){
+                        Text(device.getNameString())
+                            .font(.headline)
+                            .foregroundColor(.black)
+                        Text(Device.NO_FLOW_INDEX_IN_ADVERTISEMENT == flow_index ? "" : "F=" + String(flow_index) + "%")
+                            .font(.headline)
+                            .foregroundColor(.black)
+                    }
                     Text("RSSI: \(device.deviceRSSI) dBm")
                         .font(.subheadline)
                         .foregroundColor(.black)

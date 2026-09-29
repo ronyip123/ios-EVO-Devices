@@ -9,12 +9,16 @@ import SwiftUI
 import CoreBluetooth
 
 struct Device : Identifiable, Hashable{
+    
+    static let NO_FLOW_INDEX_IN_ADVERTISEMENT : UInt8 = 127
+    
     var id = UUID()
-    var deviceRSSI : Int
+    var deviceRSSI : Int8
     var peripheral : CBPeripheral
-    var type : Int
+    var type : UInt8
     var inAlarm : Bool
     var deviceName: String?
+    var flow_index: UInt8
     
     func getNameString() -> String {
         if let name = deviceName{
@@ -34,6 +38,10 @@ struct Device : Identifiable, Hashable{
         else{
             return "Unkown Type"
         }
+    }
+    
+    func getFlowIndex() -> UInt8 {
+        return flow_index;
     }
 }
 

@@ -8,7 +8,7 @@
 import SwiftUI
 import CoreBluetooth
 
-struct DeviceDetail: View, IsBLEConnectionAliveListener {
+struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
    
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     let targetDevice: Device

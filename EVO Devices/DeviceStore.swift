@@ -184,11 +184,27 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String : Any], rssi RSSI: NSNumber) {
         if let data = advertisementData["kCBAdvDataManufacturerData"] as? Data {
             let dataArray = [UInt8](data)
-            let rssi = Int(truncating: RSSI)
+            let rssi : Int8 = (Int8)(truncating: RSSI)
             if ( rssi > -95 )
             {
                 if( dataArray[0] == Character("E").asciiValue && dataArray[1] == Character("V").asciiValue && dataArray[2] == Character("O").asciiValue)
                 {
+                    let NumberOfManufacturerDataBytes = dataArray.count;
+                    let flow_index : UInt8
+                    if 5 == NumberOfManufacturerDataBytes {
+                        // For ECM-BCU 4.151 and later version, the manufacturer data is 5 byte long.
+                        // The last byte added to contain the curent flow index
+                        flow_index = dataArray[4];
+                    }
+                    else if 4 == NumberOfManufacturerDataBytes
+                    {
+                        // For ECM-BCU 4.147 and earlier version, the manufacturuer data is only 4 byte long
+                        flow_index = Device.NO_FLOW_INDEX_IN_ADVERTISEMENT
+                    }
+                    else {
+                        // something is not right here. exit.
+                        return;
+                    }
                     // ios always uses the cached device name instead of using the name in the kCBAdvDataLocalName key.
                     // This causes big problem after a name change.
                     var DeviceName = ""
@@ -217,7 +233,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
                         print("RSSI in \(DeviceName)is not available.")
                         return
                     }
-                    
+                    // bit assignments for the third byte in the manufacturer data in the advertisement
                     // bit 0 of dataArray[3] is RPM alarm status for all versions
                     // bit 1 is the filter monitor alarm for major version 3 and higher
                     // bit 2 and 3 are reserved for future use
@@ -225,7 +241,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
                     
                     if dataArray[3] & 0xF0 == 0 { }  // detect device type. We only have one type for now
                     print("RSSI=\(RSSI)")
-                    let newDevice = Device(id: peripheral.identifier, deviceRSSI: rssi, peripheral: peripheral, type: Int((dataArray[3] & 0xF0) >> 4), inAlarm: dataArray[3] & 0x03 != 0, deviceName: DeviceName)
+                    let newDevice = Device(id: peripheral.identifier, deviceRSSI: rssi, peripheral: peripheral, type: UInt8(Int((dataArray[3] & 0xF0) >> 4)), inAlarm: dataArray[3] & 0x03 != 0, deviceName: DeviceName, flow_index: flow_index)
                     self.devices.append(newDevice)
                     let count = devices.count
                     print("peripherals count = \(count)")

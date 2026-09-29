@@ -78,17 +78,15 @@ struct BackgroundAlarmTaskSettings: View {
         }
         .onAppear(){
             //check if background task is running
-            BGTaskScheduler.shared.getPendingTaskRequests{ requests in
-                print("\(requests.count) BGTasks pending...")
-                
-                guard requests.isEmpty else
-                {
-                    backgroundTaskEnabled = true
-                    return
-                } //enabled
-                
-                backgroundTaskEnabled = false
-            }
+            BGTaskScheduler.shared.getPendingTaskRequests { requests in
+                    print("\(requests.count) BGTasks pending...")
+
+                    let hasPendingTask = !requests.isEmpty
+
+                    Task { @MainActor in
+                        backgroundTaskEnabled = hasPendingTask
+                    }
+                }
         }
     }
 }
