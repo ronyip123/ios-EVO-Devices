@@ -19,12 +19,14 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
     //@State var showSecuritySettingsView = false  // not used yet
     @State var showStatusDetailsView = false
     @State var showPasswordView = false
-    @State var threeSecTimer: Timer? = nil
+    //@State var threeSecTimer: Timer? = nil
     @State var inAlarm = false
     @State var hideStatusDetails = true
     @State var showSetPassword = false
     @State var showMotorSettings = false
     @State var showMotorHistory = false
+    private let refreshTimerPublisher =
+        Timer.publish(every: 3, on: .main, in: .common).autoconnect()
 
     var uiDevice = UIDevice.current.userInterfaceIdiom
     
@@ -199,7 +201,7 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
 
                     Button(action: {
                         //store.isAliveListener = nil
-                        store.disconnect(targetPeripheral: targetDevice.peripheral)
+                        store.disconnect(targetPeripheral: targetDevice.peripheral!)
                         //oneSecTimer?.invalidate()
                     }) {
                         Text("Disconnect")
@@ -307,15 +309,34 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
             // we know the blutooth is already running since the user was able to scan bluetooth  // devices and select from the device list connect to device.
             //store.connect(targetPeripheral: targetDevice.peripheral) //moved to ContentView when the device is tapped in the device list
             store.setData(data)
-            startThreeSecTimer()
+//            startThreeSecTimer()
         }
         .onDisappear(){
             print("DeviceDetail disappearing")
             store.isAliveListener = nil
             if self.uiDevice == .phone {
-                store.disconnect(targetPeripheral: targetDevice.peripheral)
+                store.disconnect(targetPeripheral: targetDevice.peripheral!)
             }
-            threeSecTimer?.invalidate()
+            //threeSecTimer?.invalidate()
+        }
+        .onReceive(refreshTimerPublisher) { _ in
+            inAlarm = data.RPMInAlarm ||
+                data.filterMonitors[0].FilterAlarmStatus() == FilterStatus.Bad ||
+                data.filterMonitors[1].FilterAlarmStatus() == FilterStatus.Bad ||
+                data.filterMonitors[2].FilterAlarmStatus() == FilterStatus.Bad
+                
+            var version3AndHigher = false
+            if let version = data.getMajorVersion() {
+                if version >= 3 { version3AndHigher = true }
+            }
+
+            hideStatusDetails = !(data.IsRPMOrFilterMonitoringEnabled() && version3AndHigher)
+                
+            if uiDevice == .phone {
+                store.isBLEConectionStillAlive()
+            }
+                
+            store.readRSSI()
         }
     }
     
@@ -327,28 +348,28 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
         store.sendDeviceName(NewDeviceName: newName)
     }
     
-    func startThreeSecTimer()
-    {
-        threeSecTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true){ _ in
-              inAlarm = data.RPMInAlarm ||
-                data.filterMonitors[0].FilterAlarmStatus() == FilterStatus.Bad ||
-                data.filterMonitors[1].FilterAlarmStatus() == FilterStatus.Bad ||
-                data.filterMonitors[2].FilterAlarmStatus() == FilterStatus.Bad
-            
-            var version3AndHigher = false
-            if let version = data.getMajorVersion() {
-                if version >= 3 { version3AndHigher = true }
-            }
-
-            hideStatusDetails = !(data.IsRPMOrFilterMonitoringEnabled() && version3AndHigher)
-            
-            if uiDevice == .phone {
-                store.isBLEConectionStillAlive()
-            }
-            
-            store.readRSSI()
-        }
-    }
+//    func startThreeSecTimer()
+//    {
+//        threeSecTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true){ _ in
+//              inAlarm = data.RPMInAlarm ||
+//                data.filterMonitors[0].FilterAlarmStatus() == FilterStatus.Bad ||
+//                data.filterMonitors[1].FilterAlarmStatus() == FilterStatus.Bad ||
+//                data.filterMonitors[2].FilterAlarmStatus() == FilterStatus.Bad
+//            
+//            var version3AndHigher = false
+//            if let version = data.getMajorVersion() {
+//                if version >= 3 { version3AndHigher = true }
+//            }
+//
+//            hideStatusDetails = !(data.IsRPMOrFilterMonitoringEnabled() && version3AndHigher)
+//            
+//            if uiDevice == .phone {
+//                store.isBLEConectionStillAlive()
+//            }
+//            
+//            store.readRSSI()
+//        }
+//    }
     
     // Implement IsBLEConnectionAliveListener protocol functions
     func bluetoothLost() {

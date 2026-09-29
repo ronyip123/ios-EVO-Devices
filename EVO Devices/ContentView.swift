@@ -9,14 +9,13 @@ import SwiftUI
 import CoreBluetooth
 import BackgroundTasks
 
-@MainActor
 struct ContentView: View {
     
     let sortKey = "MySortListMethod"
     static let filteredDeviceNamesArrayKey = "FilteredDeviceNamesArrayKey"
-    let scanTime = 30 //seconds
+    let scanTime = 10 //seconds
     @StateObject var store = DeviceStore()
-    @State private var scanning = false
+    @State var scanning = false
     @State private var scanTimer = 0
     private let scanTimerPublisher =
         Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -26,7 +25,7 @@ struct ContentView: View {
     @State var firstTime = true
     @State private var showingSortOptions = false
     @State var sortMethod: DeviceStore.DeiceListSortMode?
-    @State private var showingFilterOptions = false
+    //@State private var showingFilterOptions = false
     @State var filteredDeviceNamesArray = UserDefaults.standard.object(forKey: filteredDeviceNamesArrayKey) as? [String] ?? [String]()
     @State var showFilterDeviceEdit = false
     @State var showNoDeviceInFilterNameArrayMsg = false
@@ -36,37 +35,50 @@ struct ContentView: View {
             VStack{
                 HStack
                 {
-                    Button(action: {
-                        // launch sort options dialog
-                        print("sort")
-                        self.showingSortOptions = true
-                    })
-                    {
-                        //Image(systemName: "line.3.horizontal.decrease")
+                    Menu {
+                        Button(action: {
+                            selectSortMethod(.eAlphabeticalOrder)
+                        }) {
+                            Label(
+                                "Alphabetical Order",
+                                systemImage: sortMethod == .eAlphabeticalOrder
+                                    ? "checkmark"
+                                    : ""
+                            )
+                        }
+
+                        Button(action: {
+                            selectSortMethod(.eSignalStrength)
+                        }) {
+                            Label(
+                                "Signal Strength",
+                                systemImage: sortMethod == .eSignalStrength
+                                    ? "checkmark"
+                                    : ""
+                            )
+                        }
+
+                        Button(action: {
+                            selectSortMethod(.eNone)
+                        }) {
+                            Label(
+                                "None",
+                                systemImage: sortMethod == .eNone
+                                    ? "checkmark"
+                                    : ""
+                            )
+                        }
+                        
+                        Button( action: {
+                            
+                        }) {
+                            Label(
+                                "Cancel",
+                                systemImage: "xmark"
+                            )
+                        }
+                    } label: {
                         Image(systemName: "text.justify.left")
-                    }
-                    .alert("Sort Device List By:", isPresented: $showingSortOptions) {
-                        Button("Alphabetical Order", role: .none, action: {
-                            self.sortMethod = DeviceStore.DeiceListSortMode.eAlphabeticalOrder
-                            if let s = self.sortMethod {
-                                UserDefaults.standard.setValue(s.rawValue, forKey: sortKey)
-                                store.sort(sortMethod: s)
-                            }
-                        })
-                        Button("Signal Strength", role: .none, action: {
-                            self.sortMethod = DeviceStore.DeiceListSortMode.eSignalStrength
-                            if let s = self.sortMethod {
-                                UserDefaults.standard.setValue(s.rawValue, forKey: sortKey)
-                                store.sort(sortMethod: s)
-                            }
-                        })
-                        Button("None", role: .none, action: {
-                            self.sortMethod = DeviceStore.DeiceListSortMode.eNone
-                            if let s = self.sortMethod {
-                                UserDefaults.standard.setValue(s.rawValue, forKey: sortKey)
-                                store.sort(sortMethod: s)
-                            }
-                        })
                     }
                         
                     Button( action:{
@@ -102,17 +114,8 @@ struct ContentView: View {
                     .foregroundColor(.white)
                     .cornerRadius(5.0)
                     
-                    Button(action: {
-                        // launch filter options dialog
-                        print("device filter")
-                        self.showingFilterOptions = true
-                    })
-                    {
-                        //Image(systemName: "line.3.horizontal.decrease")
-                        Image(systemName: "line.3.horizontal.decrease")
-                    }
-                    .alert("Device Filter:", isPresented: $showingFilterOptions) {
-                        Button("Edit Device Filter", role: .none, action: {
+                    Menu {
+                        Button("Add Device Group"){
                             if (!store.devices.isEmpty)
                             {
                                 showFilterDeviceEdit = true
@@ -121,14 +124,23 @@ struct ContentView: View {
                             {
                                 showNoDeviceInFilterNameArrayMsg = true
                             }
-                        })
-                        Button("Remove Device Filter", role: .none, action: {
+                        }
+                        Button("Remove Device Group") {
                             filteredDeviceNamesArray.removeAll()
                             UserDefaults.standard.set(filteredDeviceNamesArray, forKey: ContentView.filteredDeviceNamesArrayKey)
-                        })
-                        Button("Cancel", role: .none, action: {})
+                        }
+
+                        Button(action: {
+                            selectSortMethod(.eNone)
+                        }) {
+                            Label(
+                                "Cancel",
+                                systemImage: "xmark"
+                            )
+                        }
+                    } label: {
+                        Image(systemName: "line.3.horizontal.decrease")
                     }
-                    
                 }
                 .navigationBarTitle("EVO Devices")
                 .navigationBarItems(trailing: Menu
@@ -161,16 +173,23 @@ struct ContentView: View {
                     ForEach(store.devices){device in
                         if (filteredDeviceNamesArray.isEmpty || filteredDeviceNamesArray.contains(device.getNameString()))
                             {
-                                DeviceCell(device: device, store: store)
+                            DeviceCell(device: device, store: store, scanning: $scanning)
                                     .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
                                     .background(device.inAlarm ? Color.red : Color.white)
                             }
                         }
                     }
+                    .refreshable{
+                        await MainActor.run {
+                                cleanup()
+                                self.scanning = true
+                                startScan()
+                            }
+                    }
 
                     //show progressView only if scanning
                     if self.scanning {
-                        ProgressView("tap Stop Scan to stop")
+                        scanProgressView
                             .accentColor(Color.green)
                             .scaleEffect(x: 1.5, y: 1.5, anchor: .center)
                     }
@@ -185,6 +204,10 @@ struct ContentView: View {
                         scanning = false
                         stopScan()
                         print(".onReceive: scanTimer = \(scanTimer)")
+                        
+                        if let s = sortMethod {
+                            store.sort(sortMethod: s)
+                        }
                     }
                 }
             }
@@ -214,6 +237,7 @@ struct ContentView: View {
             .onDisappear(){
                 print("ContentView disappears")
                 if scanning {
+                    scanning = false
                     stopScan()
                 }
             }
@@ -236,10 +260,17 @@ struct ContentView: View {
             }
         }
     }
+    
+    private func selectSortMethod(_ method: DeviceStore.DeiceListSortMode)
+    {
+        sortMethod = method
+        UserDefaults.standard.setValue(method.rawValue, forKey: sortKey)
+        store.sort(sortMethod: method)
+    }
    
     func startScan()
     {
-        scanTimer = 0
+        self.scanTimer = 0
         store.startScan()
     }
 
@@ -280,14 +311,21 @@ struct ContentView: View {
 struct DeviceCell: View {
     let device : Device
     let store : DeviceStore
+    @Binding var scanning : Bool
     var body: some View {
         VStack {
             NavigationLink(destination: DeviceDetail(targetDevice: device, deviceNameStr: device.getNameString(), store: store )){
             }
             
             Button( action: {
+                
+                if scanning {
+                    scanning = false
+                    store.stopScan()
+                }
+                
                 print("\(device.deviceName!) is tapped")
-                store.connect(targetPeripheral: device.peripheral)
+                store.connect(targetPeripheral: device.peripheral!)
             }){
                 VStack(alignment: .leading){
                     let flow_index = device.getFlowIndex()

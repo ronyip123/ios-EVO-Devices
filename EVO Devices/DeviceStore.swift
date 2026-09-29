@@ -241,12 +241,12 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
                     
                     if dataArray[3] & 0xF0 == 0 { }  // detect device type. We only have one type for now
                     print("RSSI=\(RSSI)")
-                    let newDevice = Device(id: peripheral.identifier, deviceRSSI: rssi, peripheral: peripheral, type: UInt8(Int((dataArray[3] & 0xF0) >> 4)), inAlarm: dataArray[3] & 0x03 != 0, deviceName: DeviceName, flow_index: flow_index)
+                    let newDevice = Device(peripheral.identifier, rssi, peripheral, UInt8(Int((dataArray[3] & 0xF0) >> 4)), dataArray[3] & 0x03 != 0, DeviceName, flow_index)
                     self.devices.append(newDevice)
                     let count = devices.count
                     print("peripherals count = \(count)")
                     for i in 0...count-1 {
-                        print(devices[i].peripheral)
+                        print(devices[i].peripheral as Any)
                     }
                 }
             }
