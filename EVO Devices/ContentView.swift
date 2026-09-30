@@ -233,6 +233,9 @@ struct ContentView: View {
                     // userDefault has a value
                     self.sortMethod = DeviceStore.DeiceListSortMode(rawValue: UserDefaults.standard.integer(forKey: sortKey))
                 }
+                
+                store.loadGroups()
+//                store.test_persisting_Groups()
             }
             .onDisappear(){
                 print("ContentView disappears")
@@ -328,7 +331,7 @@ struct DeviceCell: View {
                 store.connect(targetPeripheral: device.peripheral!)
             }){
                 VStack(alignment: .leading){
-                    let flow_index = device.getFlowIndex()
+                    let flow_index = device.getFlowIndexInAdvertisement()
                     
                     let alarmStr: String = {
                         if device.inRPMAlarm && device.inFilterAlarm {

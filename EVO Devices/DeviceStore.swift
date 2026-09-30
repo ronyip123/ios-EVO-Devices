@@ -15,6 +15,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
         didSet{didChange.send()}
     }
     @Published var deviceData: DeviceData?
+    @Published var deviceGroups: Set<Device_Group> = []
     
     enum DeiceListSortMode: Int
     {
@@ -308,6 +309,72 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
             }
         }
     }
+    
+    private let groupsKey = "DeviceGroups"
+
+    func saveGroups() {
+        do {
+            let data = try JSONEncoder().encode(Array(deviceGroups))
+            UserDefaults.standard.set(data, forKey: groupsKey)
+        } catch {
+            print("Failed to save groups: \(error)")
+        }
+    }
+
+    func loadGroups() {
+        guard let data = UserDefaults.standard.data(forKey: groupsKey) else {
+            self.deviceGroups = []
+            return
+        }
+
+        do {
+            let savedGroups = try JSONDecoder().decode(
+                [Device_Group].self,
+                from: data
+            )
+
+            deviceGroups = Set(savedGroups)
+        } catch {
+            print("Failed to load groups: \(error)")
+            deviceGroups = []
+        }
+    }
+    
+//    func test_persisting_Groups(){
+//        let group1 : Device_Group = Device_Group("Test Group 4")
+//        let group2 : Device_Group = Device_Group("Test Group 5")
+//        let group3 : Device_Group = Device_Group("Test Group 6")
+//        
+//        var device1 : Device = Device("device1")
+//        var device2 : Device = Device("device2")
+//        var device3 : Device = Device("device3")
+//
+//        group1.addDeviceToGroup(device1)
+//        group1.addDeviceToGroup(device2)
+//        group1.addDeviceToGroup(device3)
+//        
+//        var device4 : Device = Device("device4")
+//        var device5 : Device = Device("device5")
+//        var device6 : Device = Device("device6")
+//        
+//        group2.addDeviceToGroup(device4)
+//        group2.addDeviceToGroup(device5)
+//        group2.addDeviceToGroup(device6)
+//        
+//        var device7 : Device = Device("device7")
+//        var device8 : Device = Device("device8")
+//        var device9 : Device = Device("device9")
+//        
+//        group3.addDeviceToGroup(device7)
+//        group3.addDeviceToGroup(device8)
+//        group3.addDeviceToGroup(device9)
+//        
+//        deviceGroups.insert(group1)
+//        deviceGroups.insert(group2)
+//        deviceGroups.insert(group3)
+//        
+//        saveGroups()
+//    }
 }
 
 // protocol to detect ble connection disconnected.
