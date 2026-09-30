@@ -9,6 +9,7 @@ import SwiftUI
 import Combine
 import CoreBluetooth
 
+
 class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     @Published var devices: [Device]{
         didSet{didChange.send()}
@@ -241,7 +242,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
                     
                     if dataArray[3] & 0xF0 == 0 { }  // detect device type. We only have one type for now
                     print("RSSI=\(RSSI)")
-                    let newDevice = Device(peripheral.identifier, rssi, peripheral, UInt8(Int((dataArray[3] & 0xF0) >> 4)), dataArray[3] & 0x03 != 0, DeviceName, flow_index)
+                    let newDevice = Device(peripheral.identifier, rssi, peripheral, UInt8(Int((dataArray[3] & 0xF0) >> 4)), dataArray[3] & 0x01 != 0, dataArray[3] & 0x02 != 0, DeviceName, flow_index)
                     self.devices.append(newDevice)
                     let count = devices.count
                     print("peripherals count = \(count)")

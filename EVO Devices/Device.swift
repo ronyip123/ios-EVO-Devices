@@ -24,14 +24,16 @@ class Device : Identifiable, Hashable{
     var deviceRSSI : Int8
     var peripheral : CBPeripheral? = nil
     var type : UInt8
-    var inAlarm : Bool
+    var inRPMAlarm : Bool
+    var inFilterAlarm : Bool
     var deviceName: String?
     var flow_index: UInt8
     
-    init(_ iPeripheralID : UUID, _ iRSSI : Int8, _ iPeripheral : CBPeripheral, _ iType : UInt8, _ iAlarm : Bool, _ iName : String, _ iFlowIndex : UInt8 ){
-        flow_index = iFlowIndex;
-        deviceName = iName;
-        inAlarm = iAlarm;
+    init(_ iPeripheralID : UUID, _ iRSSI : Int8, _ iPeripheral : CBPeripheral, _ iType : UInt8, _ iRPMAlarm : Bool, _ iFilterAlarm : Bool, _ iName : String, _ iFlowIndex : UInt8 ){
+        flow_index = iFlowIndex
+        deviceName = iName
+        inRPMAlarm = iRPMAlarm
+        inFilterAlarm = iFilterAlarm
         type = iType;
         deviceRSSI = iRSSI
         id = iPeripheralID

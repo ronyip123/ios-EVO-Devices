@@ -26,7 +26,8 @@ class Device_Group{
         {
             gd.deviceRSSI = Device_Group.NO_SIGNAL
             gd.flow_index = Device.NO_FLOW_INDEX_IN_ADVERTISEMENT
-            
+            gd.inRPMAlarm = false
+            gd.inFilterAlarm = false
             
         }
     }

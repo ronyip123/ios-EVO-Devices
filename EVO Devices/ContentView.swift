@@ -175,7 +175,7 @@ struct ContentView: View {
                             {
                             DeviceCell(device: device, store: store, scanning: $scanning)
                                     .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
-                                    .background(device.inAlarm ? Color.red : Color.white)
+                                    .background(device.inRPMAlarm || device.inFilterAlarm ? Color.red : Color.white)
                             }
                         }
                     }
@@ -329,6 +329,19 @@ struct DeviceCell: View {
             }){
                 VStack(alignment: .leading){
                     let flow_index = device.getFlowIndex()
+                    
+                    let alarmStr: String = {
+                        if device.inRPMAlarm && device.inFilterAlarm {
+                            return "RPM and Filter Alarm"
+                        } else if device.inRPMAlarm {
+                            return "RPM Alarm"
+                        } else if device.inFilterAlarm {
+                            return "Filter Alarm"
+                        } else {
+                            return ""
+                        }
+                    }()
+                    
                     HStack(){
                         Text(device.getNameString())
                             .font(.headline)
@@ -337,9 +350,18 @@ struct DeviceCell: View {
                             .font(.headline)
                             .foregroundColor(.black)
                     }
-                    Text("RSSI: \(device.deviceRSSI) dBm")
-                        .font(.subheadline)
-                        .foregroundColor(.black)
+                    HStack(){
+                        Text("RSSI: \(device.deviceRSSI) dBm")
+                            .font(.subheadline)
+                            .foregroundColor(.black)
+                        
+                        Text("  ") // 2 character space
+                        
+                        Text(alarmStr)
+                            .font(.subheadline)
+                            .foregroundColor(.black)
+                        
+                    }
                 }
             }
         }
