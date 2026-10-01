@@ -15,7 +15,7 @@
 		1B5AAC7A265BC3C6002AAB70 /* DeviceData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */; };
 		1B6AB0662691E1A0003ABA06 /* Password.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6AB0652691E1A0003ABA06 /* Password.swift */; };
 		1B6AB06826952843003ABA06 /* FeaturesNotAvailable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B6AB06726952843003ABA06 /* FeaturesNotAvailable.swift */; };
-		1B7523822CB5B0D400805167 /* EditFilteredDeviceList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B7523812CB5B0D400805167 /* EditFilteredDeviceList.swift */; };
+		1B7523822CB5B0D400805167 /* AddDeviceGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B7523812CB5B0D400805167 /* AddDeviceGroup.swift */; };
 		1BA6E5232C17AF4500C86981 /* BackgroundAlarmTaskSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BA6E5222C17AF4500C86981 /* BackgroundAlarmTaskSettings.swift */; };
 		1BB6A9EA2625C3420063F378 /* EVO_DevicesApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */; };
 		1BB6A9EC2625C3420063F378 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6A9EB2625C3420063F378 /* ContentView.swift */; };
@@ -55,7 +55,7 @@
 		1B5AAC79265BC3C6002AAB70 /* DeviceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceData.swift; sourceTree = "<group>"; };
 		1B6AB0652691E1A0003ABA06 /* Password.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Password.swift; sourceTree = "<group>"; };
 		1B6AB06726952843003ABA06 /* FeaturesNotAvailable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesNotAvailable.swift; sourceTree = "<group>"; };
-		1B7523812CB5B0D400805167 /* EditFilteredDeviceList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditFilteredDeviceList.swift; sourceTree = "<group>"; };
+		1B7523812CB5B0D400805167 /* AddDeviceGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddDeviceGroup.swift; sourceTree = "<group>"; };
 		1BA6E5222C17AF4500C86981 /* BackgroundAlarmTaskSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundAlarmTaskSettings.swift; sourceTree = "<group>"; };
 		1BB6A9E62625C3410063F378 /* EVO Devices.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "EVO Devices.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1BB6A9E92625C3420063F378 /* EVO_DevicesApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EVO_DevicesApp.swift; sourceTree = "<group>"; };
@@ -131,7 +131,7 @@
 				1BB6AA172625C94E0063F378 /* DeviceDetail.swift */,
 				1BB6AA21262719AD0063F378 /* DeviceStore.swift */,
 				1B6AB06726952843003ABA06 /* FeaturesNotAvailable.swift */,
-				1B7523812CB5B0D400805167 /* EditFilteredDeviceList.swift */,
+				1B7523812CB5B0D400805167 /* AddDeviceGroup.swift */,
 				1B2F32D52BFE909D002F3682 /* MotorHistory.swift */,
 				1B0A2EB42675058B00A3A8C4 /* MotorSettings.swift */,
 				1B6AB0652691E1A0003ABA06 /* Password.swift */,
@@ -306,7 +306,7 @@
 				1B0A2D0326B075C900B3777E /* About.swift in Sources */,
 				1BDAB0BF306C353D00608660 /* Device_Group.swift in Sources */,
 				1BB6AA182625C94F0063F378 /* DeviceDetail.swift in Sources */,
-				1B7523822CB5B0D400805167 /* EditFilteredDeviceList.swift in Sources */,
+				1B7523822CB5B0D400805167 /* AddDeviceGroup.swift in Sources */,
 				1BB6A9EC2625C3420063F378 /* ContentView.swift in Sources */,
 				1B0A2EAD2675051100A3A8C4 /* SecuritySettings.swift in Sources */,
 				1BB6AA1D2625C9970063F378 /* Device.swift in Sources */,

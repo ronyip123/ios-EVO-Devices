@@ -25,64 +25,65 @@ struct ContentView: View {
     @State var firstTime = true
     @State private var showingSortOptions = false
     @State var sortMethod: DeviceStore.DeiceListSortMode?
-    //@State private var showingFilterOptions = false
     @State var filteredDeviceNamesArray = UserDefaults.standard.object(forKey: filteredDeviceNamesArrayKey) as? [String] ?? [String]()
-    @State var showFilterDeviceEdit = false
+    @State var showAddDeviceGroup = false
     @State var showNoDeviceInFilterNameArrayMsg = false
+    @State private var selectedGroupID: UUID?
     
     var body: some View {
         NavigationView{
             VStack{
-                HStack
-                {
-                    Menu {
-                        Button(action: {
-                            selectSortMethod(.eAlphabeticalOrder)
-                        }) {
-                            Label(
-                                "Alphabetical Order",
-                                systemImage: sortMethod == .eAlphabeticalOrder
+                VStack {
+                    HStack
+                    {
+                        Menu {
+                            Button(action: {
+                                selectSortMethod(.eAlphabeticalOrder)
+                            }) {
+                                Label(
+                                    "Alphabetical Order",
+                                    systemImage: sortMethod == .eAlphabeticalOrder
                                     ? "checkmark"
                                     : ""
-                            )
-                        }
-
-                        Button(action: {
-                            selectSortMethod(.eSignalStrength)
-                        }) {
-                            Label(
-                                "Signal Strength",
-                                systemImage: sortMethod == .eSignalStrength
-                                    ? "checkmark"
-                                    : ""
-                            )
-                        }
-
-                        Button(action: {
-                            selectSortMethod(.eNone)
-                        }) {
-                            Label(
-                                "None",
-                                systemImage: sortMethod == .eNone
-                                    ? "checkmark"
-                                    : ""
-                            )
-                        }
-                        
-                        Button( action: {
+                                )
+                            }
                             
-                        }) {
-                            Label(
-                                "Cancel",
-                                systemImage: "xmark"
-                            )
+                            Button(action: {
+                                selectSortMethod(.eSignalStrength)
+                            }) {
+                                Label(
+                                    "Signal Strength",
+                                    systemImage: sortMethod == .eSignalStrength
+                                    ? "checkmark"
+                                    : ""
+                                )
+                            }
+                            
+                            Button(action: {
+                                selectSortMethod(.eNone)
+                            }) {
+                                Label(
+                                    "None",
+                                    systemImage: sortMethod == .eNone
+                                    ? "checkmark"
+                                    : ""
+                                )
+                            }
+                            
+                            Button( action: {
+                                
+                            }) {
+                                Label(
+                                    "Cancel",
+                                    systemImage: "xmark"
+                                )
+                            }
+                        } label: {
+                            Image(systemName: "text.justify.left")
                         }
-                    } label: {
-                        Image(systemName: "text.justify.left")
-                    }
                         
-                    Button( action:{
-                        self.scanning.toggle()
+                        Button( action:{
+                            self.scanning.toggle()
                             if self.scanning {
                                 //store.clearStore()
                                 //self.scanTimer = 0
@@ -95,52 +96,81 @@ struct ContentView: View {
                                     store.sort(sortMethod: s)
                                 }
                             }
-                    })
-                    {
-                        if self.scanning {
-                            Text("Stop Scan")
-                                .fontWeight(.bold)
-                                .font(.title)
+                        })
+                        {
+                            if self.scanning {
+                                Text("Stop Scan")
+                                    .fontWeight(.bold)
+                                    .font(.title)
+                            }
+                            else {
+                                Text("Start Scan")
+                                    .fontWeight(.bold)
+                                    .font(.title)
+                            }
                         }
-                        else {
-                            Text("Start Scan")
-                                .fontWeight(.bold)
-                                .font(.title)
+                        .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: .infinity)
+                        .padding()
+                        .background(Color.green)
+                        .foregroundColor(.white)
+                        .cornerRadius(5.0)
+                        
+                        Menu {
+                            Button("Add Device Group"){
+                                if (!store.devices.isEmpty)
+                                {
+                                    showAddDeviceGroup = true
+                                }
+                                else
+                                {
+                                    showNoDeviceInFilterNameArrayMsg = true
+                                }
+                            }
+                            Button("Remove Device Group") {
+                                filteredDeviceNamesArray.removeAll()
+                                UserDefaults.standard.set(filteredDeviceNamesArray, forKey: ContentView.filteredDeviceNamesArrayKey)
+                            }
+                            
+                            Button(action: {
+                                selectSortMethod(.eNone)
+                            }) {
+                                Label(
+                                    "Cancel",
+                                    systemImage: "xmark"
+                                )
+                            }
+                        } label: {
+                            Image(systemName: "line.3.horizontal.decrease")
                         }
                     }
-                    .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: .infinity)
-                    .padding()
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(5.0)
                     
-                    Menu {
-                        Button("Add Device Group"){
-                            if (!store.devices.isEmpty)
-                            {
-                                showFilterDeviceEdit = true
-                            }
-                            else
-                            {
-                                showNoDeviceInFilterNameArrayMsg = true
-                            }
-                        }
-                        Button("Remove Device Group") {
-                            filteredDeviceNamesArray.removeAll()
-                            UserDefaults.standard.set(filteredDeviceNamesArray, forKey: ContentView.filteredDeviceNamesArrayKey)
-                        }
+                    HStack {
+                        Text("Device Group:")
 
-                        Button(action: {
-                            selectSortMethod(.eNone)
-                        }) {
-                            Label(
-                                "Cancel",
-                                systemImage: "xmark"
-                            )
+                        Picker("", selection: $selectedGroupID) {
+                            Text("Select a group")
+                                .tag(nil as UUID?)
+                            ForEach(
+                                Array(store.deviceGroups)
+                                    .sorted { $0.groupName < $1.groupName }
+                            ) { group in
+                                Text(group.groupName)
+                                    .tag(group.groupID as UUID?)
+                            }
                         }
-                    } label: {
-                        Image(systemName: "line.3.horizontal.decrease")
+                        .pickerStyle(.menu)
+                        .labelsHidden()
+                        .onChange(of: selectedGroupID) { newGroupID in
+                            if let groupID = newGroupID {
+                                print("Selected group: \(groupID)")
+                            } else {
+                                print("No group selected")
+                            }
+                        }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    //.frame(height: 50)
+                    .padding(.horizontal)
                 }
                 .navigationBarTitle("EVO Devices")
                 .navigationBarItems(trailing: Menu
@@ -165,7 +195,6 @@ struct ContentView: View {
                 label: {
                     Image(systemName: "ellipsis")
                 })
-                
                 
                 ZStack{
                     List{
@@ -253,8 +282,8 @@ struct ContentView: View {
                BackgroundAlarmTaskSettings()
                     .transition(.slide)
             })
-            .sheet(isPresented: $showFilterDeviceEdit, content: {
-                EditFilteredDeviceList(showViewState: $showFilterDeviceEdit, filteredDeviceNameArray: $filteredDeviceNamesArray, devices: store.devices)
+            .sheet(isPresented: $showAddDeviceGroup, content: {
+                AddDeviceGroup(showViewState: $showAddDeviceGroup, filteredDeviceNameArray: $filteredDeviceNamesArray, store: store)
                   //  .animation(.spring())
                     .transition(.slide)
             })

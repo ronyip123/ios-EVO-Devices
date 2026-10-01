@@ -192,16 +192,16 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
                 if( dataArray[0] == Character("E").asciiValue && dataArray[1] == Character("V").asciiValue && dataArray[2] == Character("O").asciiValue)
                 {
                     let NumberOfManufacturerDataBytes = dataArray.count;
-                    let flow_index : UInt8
+                    let advertised_flow_index : UInt8
                     if 5 == NumberOfManufacturerDataBytes {
                         // For ECM-BCU 4.151 and later version, the manufacturer data is 5 byte long.
                         // The last byte added to contain the curent flow index
-                        flow_index = dataArray[4];
+                        advertised_flow_index = dataArray[4];
                     }
                     else if 4 == NumberOfManufacturerDataBytes
                     {
                         // For ECM-BCU 4.147 and earlier version, the manufacturuer data is only 4 byte long
-                        flow_index = Device.NO_FLOW_INDEX_IN_ADVERTISEMENT
+                        advertised_flow_index = Device.NO_FLOW_INDEX_IN_ADVERTISEMENT
                     }
                     else {
                         // something is not right here. exit.
@@ -243,12 +243,33 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
                     
                     if dataArray[3] & 0xF0 == 0 { }  // detect device type. We only have one type for now
                     print("RSSI=\(RSSI)")
-                    let newDevice = Device(peripheral.identifier, rssi, peripheral, UInt8(Int((dataArray[3] & 0xF0) >> 4)), dataArray[3] & 0x01 != 0, dataArray[3] & 0x02 != 0, DeviceName, flow_index)
+                    let rpm_alarm = dataArray[3] & 0x01 != 0
+                    let filter_alarm = dataArray[3] & 0x02 != 0
+                    let device_type : UInt8 = UInt8(Int((dataArray[3] & 0xF0) >> 4))
+                    let newDevice = Device(peripheral.identifier, rssi, peripheral, device_type, rpm_alarm, filter_alarm, DeviceName, advertised_flow_index)
                     self.devices.append(newDevice)
                     let count = devices.count
                     print("peripherals count = \(count)")
                     for i in 0...count-1 {
                         print(devices[i].peripheral as Any)
+                    }
+                    
+                    // update advertised data in group devices
+                    for dg in deviceGroups
+                    {
+                        for device in dg.devices
+                        {
+                            if device.id == peripheral.identifier
+                            {
+                                device.deviceRSSI = rssi
+                                device.peripheral = peripheral
+                                device.type = device_type
+                                device.inFilterAlarm = rpm_alarm
+                                device.inFilterAlarm = filter_alarm
+                                device.deviceName = DeviceName
+                                device.flow_index_In_Advertisement = advertised_flow_index
+                            }
+                        }
                     }
                 }
             }

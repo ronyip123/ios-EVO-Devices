@@ -34,16 +34,17 @@ class Device : Codable, Identifiable, Hashable{
         case DeviceName
     }
     
-    init(_ ideviceName : String)
-    {
-        self.id = UUID()
-        self.deviceName = ideviceName
-        self.deviceRSSI = Device_Group.NO_SIGNAL
-        self.type = 0
-        self.flow_index_In_Advertisement =  Device.NO_FLOW_INDEX_IN_ADVERTISEMENT
-        self.inRPMAlarm = false
-        self.inFilterAlarm = false
-    }
+// This init is for test only
+//    init(_ ideviceName : String)
+//    {
+//        self.id = UUID()
+//        self.deviceName = ideviceName
+//        self.deviceRSSI = Device_Group.NO_SIGNAL
+//        self.type = 0
+//        self.flow_index_In_Advertisement =  Device.NO_FLOW_INDEX_IN_ADVERTISEMENT
+//        self.inRPMAlarm = false
+//        self.inFilterAlarm = false
+//    }
     
     init(_ iPeripheralID : UUID, _ iRSSI : Int8, _ iPeripheral : CBPeripheral, _ iType : UInt8, _ iRPMAlarm : Bool, _ iFilterAlarm : Bool, _ iName : String, _ iFlowIndex : UInt8 ){
         self.flow_index_In_Advertisement = iFlowIndex
