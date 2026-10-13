@@ -9,8 +9,8 @@ import SwiftUI
 
 struct AddDeviceGroup: View {
     @Binding var showViewState: Bool
-    @Binding var filteredDeviceNameArray: [String]
     var store : DeviceStore
+    var sortMethod :DeviceStore.DeviceListSortMode
     @State private var selectedDevices = Set<Device>()//Set<UUID>()
     //@State var inEditMode = false
     //@State var changeNotSaved = false
@@ -73,6 +73,7 @@ struct AddDeviceGroup: View {
                         }
                         store.deviceGroups.insert(newGroup)
                         store.saveGroups()
+                        store.sort(sortMethod: sortMethod)
                         showViewState = false
                     })
                     {

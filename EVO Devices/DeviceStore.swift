@@ -17,7 +17,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     @Published var deviceData: DeviceData?
     @Published var deviceGroups: Set<Device_Group> = []
     
-    enum DeiceListSortMode: Int
+    enum DeviceListSortMode: Int
     {
         case eNone = 0
         case eAlphabeticalOrder = 1
@@ -264,7 +264,7 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
                                 device.deviceRSSI = rssi
                                 device.peripheral = peripheral
                                 device.type = device_type
-                                device.inFilterAlarm = rpm_alarm
+                                device.inRPMAlarm = rpm_alarm
                                 device.inFilterAlarm = filter_alarm
                                 device.deviceName = DeviceName
                                 device.flow_index_In_Advertisement = advertised_flow_index
@@ -1282,7 +1282,7 @@ extension DeviceStore: CBPeripheralDelegate {
         }
     }
     
-    func sort(sortMethod: DeiceListSortMode)
+    func sort(sortMethod: DeviceListSortMode)
     {
         switch (sortMethod)
         {
@@ -1292,9 +1292,17 @@ extension DeviceStore: CBPeripheralDelegate {
             case .eAlphabeticalOrder:
                 print("sort by alphabetucal order")
                 devices = devices.sorted{ $0.getNameString() < $1.getNameString() }
+                for group in deviceGroups
+                {
+                    group.devices = group.devices.sorted{ $0.getNameString() < $1.getNameString() }
+                }
             case .eSignalStrength:
                 print("sort by signal strength")
                 devices = devices.sorted{$0.deviceRSSI > $1.deviceRSSI }
+                for group in deviceGroups
+                {
+                    group.devices = group.devices.sorted{$0.deviceRSSI > $1.deviceRSSI }
+                }
         }
     }
 }

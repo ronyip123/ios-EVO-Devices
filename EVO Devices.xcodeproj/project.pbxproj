@@ -26,6 +26,7 @@
 		1BB6AA182625C94F0063F378 /* DeviceDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6AA172625C94E0063F378 /* DeviceDetail.swift */; };
 		1BB6AA1D2625C9970063F378 /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6AA1C2625C9970063F378 /* Device.swift */; };
 		1BB6AA22262719AD0063F378 /* DeviceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6AA21262719AD0063F378 /* DeviceStore.swift */; };
+		1BC5473D3076C2F00008B777 /* GroupDetails.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC5473C3076C2DF0008B777 /* GroupDetails.swift */; };
 		1BDAB0BF306C353D00608660 /* Device_Group.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BDAB0BE306C351C00608660 /* Device_Group.swift */; };
 /* End PBXBuildFile section */
 
@@ -72,6 +73,7 @@
 		1BB6AA172625C94E0063F378 /* DeviceDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDetail.swift; sourceTree = "<group>"; };
 		1BB6AA1C2625C9970063F378 /* Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
 		1BB6AA21262719AD0063F378 /* DeviceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceStore.swift; sourceTree = "<group>"; };
+		1BC5473C3076C2DF0008B777 /* GroupDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupDetails.swift; sourceTree = "<group>"; };
 		1BDAB0BE306C351C00608660 /* Device_Group.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device_Group.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -123,6 +125,7 @@
 		1BB6A9E82625C3410063F378 /* EVO Devices */ = {
 			isa = PBXGroup;
 			children = (
+				1BC5473C3076C2DF0008B777 /* GroupDetails.swift */,
 				1BDAB0BE306C351C00608660 /* Device_Group.swift */,
 				1B0A2D0226B075C900B3777E /* About.swift */,
 				1BB6A9EB2625C3420063F378 /* ContentView.swift */,
@@ -305,6 +308,7 @@
 				1B0A2EB52675058B00A3A8C4 /* MotorSettings.swift in Sources */,
 				1B0A2D0326B075C900B3777E /* About.swift in Sources */,
 				1BDAB0BF306C353D00608660 /* Device_Group.swift in Sources */,
+				1BC5473D3076C2F00008B777 /* GroupDetails.swift in Sources */,
 				1BB6AA182625C94F0063F378 /* DeviceDetail.swift in Sources */,
 				1B7523822CB5B0D400805167 /* AddDeviceGroup.swift in Sources */,
 				1BB6A9EC2625C3420063F378 /* ContentView.swift in Sources */,

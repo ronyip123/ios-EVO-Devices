@@ -12,23 +12,26 @@ import BackgroundTasks
 struct ContentView: View {
     
     let sortKey = "MySortListMethod"
-    static let filteredDeviceNamesArrayKey = "FilteredDeviceNamesArrayKey"
-    let scanTime = 10 //seconds
+    static let savedSelectedGroupIDKey = "SavedSelectedGroupIDKey"
+    public static let scanTime = 10 //seconds
     @StateObject var store = DeviceStore()
-    @State var scanning = false
-    @State private var scanTimer = 0
-    private let scanTimerPublisher =
+    @State var scanningAll = false
+    @State private var scanAllTimer = 0
+    private let scanAllTimerPublisher =
         Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    let scanProgressView = ProgressView("Tap Stop Scan to stop..");
+    let scanAllProgressView = ProgressView("Tap Stop Scan to stop..");
     @State var showAbout = false
     @State var showBackgroundAlarmSettings = false
     @State var firstTime = true
     @State private var showingSortOptions = false
-    @State var sortMethod: DeviceStore.DeiceListSortMode?
-    @State var filteredDeviceNamesArray = UserDefaults.standard.object(forKey: filteredDeviceNamesArrayKey) as? [String] ?? [String]()
+    @State var sortMethod: DeviceStore.DeviceListSortMode?
     @State var showAddDeviceGroup = false
     @State var showNoDeviceInFilterNameArrayMsg = false
-    @State private var selectedGroupID: UUID?
+    @State private var selectedGroupID: UUID? =
+        UserDefaults.standard.string(forKey: savedSelectedGroupIDKey)
+            .flatMap { UUID(uuidString: $0) }
+    @State private var selectedGroup: Device_Group?
+    @State private var showGroupDetail = false
     
     var body: some View {
         NavigationView{
@@ -81,10 +84,11 @@ struct ContentView: View {
                         } label: {
                             Image(systemName: "text.justify.left")
                         }
+                        .padding()
                         
                         Button( action:{
-                            self.scanning.toggle()
-                            if self.scanning {
+                            self.scanningAll.toggle()
+                            if self.scanningAll {
                                 //store.clearStore()
                                 //self.scanTimer = 0
                                 cleanup()
@@ -95,10 +99,12 @@ struct ContentView: View {
                                 if let s = sortMethod {
                                     store.sort(sortMethod: s)
                                 }
+                                
+                                openSelectedGroupDetails()
                             }
                         })
                         {
-                            if self.scanning {
+                            if self.scanningAll {
                                 Text("Stop Scan")
                                     .fontWeight(.bold)
                                     .font(.title)
@@ -127,8 +133,8 @@ struct ContentView: View {
                                 }
                             }
                             Button("Remove Device Group") {
-                                filteredDeviceNamesArray.removeAll()
-                                UserDefaults.standard.set(filteredDeviceNamesArray, forKey: ContentView.filteredDeviceNamesArrayKey)
+//                                filteredDeviceNamesArray.removeAll()
+//                                UserDefaults.standard.set(filteredDeviceNamesArray, forKey: ContentView.filteredDeviceNamesArrayKey)
                             }
                             
                             Button(action: {
@@ -143,6 +149,7 @@ struct ContentView: View {
                             Image(systemName: "line.3.horizontal.decrease")
                         }
                     }
+                    .padding()
                     
                     HStack {
                         Text("Device Group:")
@@ -160,11 +167,42 @@ struct ContentView: View {
                         }
                         .pickerStyle(.menu)
                         .labelsHidden()
+                        .font(.body)
                         .onChange(of: selectedGroupID) { newGroupID in
+                            selectedGroupID = newGroupID
                             if let groupID = newGroupID {
                                 print("Selected group: \(groupID)")
+                                UserDefaults.standard.set(
+                                    groupID.uuidString,
+                                    forKey: ContentView.savedSelectedGroupIDKey
+                                )
+                                
+                                // Open immediately only if not scanning
+                                if !scanningAll {
+                                    openSelectedGroupDetails()
+                                }
                             } else {
+                                UserDefaults.standard.removeObject(
+                                    forKey: ContentView.savedSelectedGroupIDKey
+                                )
                                 print("No group selected")
+                            }
+                        }
+                        
+                        if let group = selectedGroup {
+                            NavigationLink(
+                                destination: GroupDetails(group: group, store: store, sort: sortMethod),
+                                isActive: $showGroupDetail
+                            ) {
+                                EmptyView()
+                            }
+                            .onChange(of: showGroupDetail) { isActive in
+                                if !isActive {
+                                    selectedGroupID = nil
+                                    selectedGroup = nil
+                                    UserDefaults.standard.removeObject(
+                                        forKey: ContentView.savedSelectedGroupIDKey)
+                                }
                             }
                         }
                     }
@@ -200,43 +238,45 @@ struct ContentView: View {
                     List{
                         
                     ForEach(store.devices){device in
-                        if (filteredDeviceNamesArray.isEmpty || filteredDeviceNamesArray.contains(device.getNameString()))
-                            {
-                            DeviceCell(device: device, store: store, scanning: $scanning)
+                            DeviceCell(device: device, store: store, scanning: $scanningAll)
                                     .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
                                     .background(device.inRPMAlarm || device.inFilterAlarm ? Color.red : Color.white)
-                            }
                         }
                     }
                     .refreshable{
                         await MainActor.run {
                                 cleanup()
-                                self.scanning = true
+                                self.scanningAll = true
                                 startScan()
                             }
                     }
 
                     //show progressView only if scanning
-                    if self.scanning {
-                        scanProgressView
-                            .accentColor(Color.green)
+                    if self.scanningAll {
+                        scanAllProgressView
+                            //.accentColor(Color.green)
+                            .progressViewStyle(.circular)
+                            .tint(.green)
+                            .foregroundColor(.green)
                             .scaleEffect(x: 1.5, y: 1.5, anchor: .center)
                     }
                 }
             }
-            .onReceive(scanTimerPublisher) { _ in
-                if scanning {
-                    scanTimer += 1
-                    print(".onReceive: \(scanTimer)")
+            .onReceive(scanAllTimerPublisher) { _ in
+                if scanningAll {
+                    scanAllTimer += 1
+                    print(".onReceive: \(scanAllTimer)")
 
-                    if scanTimer >= scanTime {
-                        scanning = false
+                    if scanAllTimer >= ContentView.scanTime {
+                        scanningAll = false
                         stopScan()
-                        print(".onReceive: scanTimer = \(scanTimer)")
+                        print(".onReceive: scanAllTimer = \(scanAllTimer)")
                         
                         if let s = sortMethod {
                             store.sort(sortMethod: s)
                         }
+                        
+                        openSelectedGroupDetails()
                     }
                 }
             }
@@ -248,19 +288,20 @@ struct ContentView: View {
                 }
                 else {
                     cleanup()
-                    self.scanning = true
-                    self.scanTimer = 0
+                    self.scanningAll = true
+                    self.scanAllTimer = 0
                     startScan()
                 }
                 
                 if ( UserDefaults.standard.object(forKey: sortKey) == nil)
                 {
-                    UserDefaults.standard.setValue(DeviceStore.DeiceListSortMode.eNone.rawValue, forKey: sortKey)
+                    UserDefaults.standard.setValue(DeviceStore.DeviceListSortMode.eAlphabeticalOrder.rawValue, forKey: sortKey)
+                    self.sortMethod = DeviceStore.DeviceListSortMode.eAlphabeticalOrder
                 }
                 else
                 {
                     // userDefault has a value
-                    self.sortMethod = DeviceStore.DeiceListSortMode(rawValue: UserDefaults.standard.integer(forKey: sortKey))
+                    self.sortMethod = DeviceStore.DeviceListSortMode(rawValue: UserDefaults.standard.integer(forKey: sortKey)) ?? .eAlphabeticalOrder
                 }
                 
                 store.loadGroups()
@@ -268,8 +309,8 @@ struct ContentView: View {
             }
             .onDisappear(){
                 print("ContentView disappears")
-                if scanning {
-                    scanning = false
+                if scanningAll {
+                    scanningAll = false
                     stopScan()
                 }
             }
@@ -283,7 +324,7 @@ struct ContentView: View {
                     .transition(.slide)
             })
             .sheet(isPresented: $showAddDeviceGroup, content: {
-                AddDeviceGroup(showViewState: $showAddDeviceGroup, filteredDeviceNameArray: $filteredDeviceNamesArray, store: store)
+                AddDeviceGroup(showViewState: $showAddDeviceGroup, store: store, sortMethod: sortMethod ?? DeviceStore.DeviceListSortMode.eAlphabeticalOrder)
                   //  .animation(.spring())
                     .transition(.slide)
             })
@@ -293,7 +334,19 @@ struct ContentView: View {
         }
     }
     
-    private func selectSortMethod(_ method: DeviceStore.DeiceListSortMode)
+    private func openSelectedGroupDetails() {
+        guard let groupID = selectedGroupID,
+              let group = store.deviceGroups.first(where: {
+                  $0.groupID == groupID
+              }) else {
+            return
+        }
+
+        selectedGroup = group
+        showGroupDetail = true
+    }
+    
+    private func selectSortMethod(_ method: DeviceStore.DeviceListSortMode)
     {
         sortMethod = method
         UserDefaults.standard.setValue(method.rawValue, forKey: sortKey)
@@ -302,7 +355,7 @@ struct ContentView: View {
    
     func startScan()
     {
-        self.scanTimer = 0
+        self.scanAllTimer = 0
         store.startScan()
     }
 
@@ -396,6 +449,12 @@ struct DeviceCell: View {
                     }
                 }
             }
+        }
+        .onAppear {
+            print(">>> DeviceCell appeared: \(device.getNameString()), ID: \(device.id)")
+        }
+        .onDisappear {
+            print(">>> DeviceCell disappeared: \(device.getNameString()), ID: \(device.id)")
         }
     }
 }

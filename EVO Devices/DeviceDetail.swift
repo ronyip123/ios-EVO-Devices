@@ -13,7 +13,7 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     let targetDevice: Device
     @State var deviceNameStr: String
-    @StateObject var store: DeviceStore
+    @ObservedObject var store: DeviceStore
     @StateObject var data = DeviceData()
     @State private var connected = false
     //@State var showSecuritySettingsView = false  // not used yet
@@ -303,7 +303,7 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
             
         }
         .onAppear(){
-            print("DeviceDetail appearing")
+            print(">>> DeviceDetail.onAppear")
             store.isAliveListener = self
             data.PWEnableStatusReceived = false
             // we know the blutooth is already running since the user was able to scan bluetooth  // devices and select from the device list connect to device.
@@ -312,7 +312,7 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
 //            startThreeSecTimer()
         }
         .onDisappear(){
-            print("DeviceDetail disappearing")
+            print(">>> DeviceDetail.onDisappear")
             store.isAliveListener = nil
             if self.uiDevice == .phone {
                 store.disconnect(targetPeripheral: targetDevice.peripheral!)
@@ -374,7 +374,7 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
     // Implement IsBLEConnectionAliveListener protocol functions
     func bluetoothLost() {
        // handle bluetoothLost
-        print("Lost BLE conneciton")
+        print(">>> DeviceDetail.bluetoothLost - dismissing view")
         self.showStatusDetailsView = false
         self.showPasswordView = false
         self.showSetPassword = false

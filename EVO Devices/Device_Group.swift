@@ -96,7 +96,7 @@ class Device_Group : Codable, Identifiable, Hashable {
     }
     
     func addDeviceToGroup(_ device : Device ) {
-        var newDevice = Device(device)
+        let newDevice = Device(device)
         devices.append(newDevice)
     }
     
