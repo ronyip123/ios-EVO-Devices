@@ -335,8 +335,14 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
 
     func saveGroups() {
         do {
-            let data = try JSONEncoder().encode(Array(deviceGroups))
-            UserDefaults.standard.set(data, forKey: groupsKey)
+            if !deviceGroups.isEmpty
+            {
+                let data = try JSONEncoder().encode(Array(deviceGroups))
+                UserDefaults.standard.set(data, forKey: groupsKey)
+            }
+            else{
+                UserDefaults.standard.removeObject(forKey: groupsKey)
+            }
         } catch {
             print("Failed to save groups: \(error)")
         }
@@ -1282,7 +1288,7 @@ extension DeviceStore: CBPeripheralDelegate {
         }
     }
     
-    func sort(sortMethod: DeviceListSortMode)
+    func sortDevices(sortMethod: DeviceListSortMode)
     {
         switch (sortMethod)
         {

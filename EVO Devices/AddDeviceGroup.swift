@@ -40,11 +40,11 @@ struct AddDeviceGroup: View {
                             VStack(alignment: .leading) {
                                 Text(device.getNameString())
                                     .font(.headline)
-                                    .foregroundColor(.black)
+                                    //.foregroundColor(.black)
 
                                 Text("RSSI: \(device.deviceRSSI) dBm")
                                     .font(.subheadline)
-                                    .foregroundColor(.black)
+                                    //.foregroundColor(.black)
                             }
 
                             Spacer()
@@ -73,7 +73,7 @@ struct AddDeviceGroup: View {
                         }
                         store.deviceGroups.insert(newGroup)
                         store.saveGroups()
-                        store.sort(sortMethod: sortMethod)
+                        store.sortDevices(sortMethod: sortMethod)
                         showViewState = false
                     })
                     {

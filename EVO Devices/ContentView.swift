@@ -26,7 +26,9 @@ struct ContentView: View {
     @State private var showingSortOptions = false
     @State var sortMethod: DeviceStore.DeviceListSortMode?
     @State var showAddDeviceGroup = false
-    @State var showNoDeviceInFilterNameArrayMsg = false
+    @State var showRemoveDeviceGroup = false
+    @State var showNoScannedDeviceMsg = false
+    @State var showNoDeviceGroupMsg = false
     @State private var selectedGroupID: UUID? =
         UserDefaults.standard.string(forKey: savedSelectedGroupIDKey)
             .flatMap { UUID(uuidString: $0) }
@@ -97,7 +99,7 @@ struct ContentView: View {
                             else{
                                 stopScan()
                                 if let s = sortMethod {
-                                    store.sort(sortMethod: s)
+                                    store.sortDevices(sortMethod: s)
                                 }
                                 
                                 openSelectedGroupDetails()
@@ -129,12 +131,18 @@ struct ContentView: View {
                                 }
                                 else
                                 {
-                                    showNoDeviceInFilterNameArrayMsg = true
+                                    showNoScannedDeviceMsg = true
                                 }
                             }
                             Button("Remove Device Group") {
-//                                filteredDeviceNamesArray.removeAll()
-//                                UserDefaults.standard.set(filteredDeviceNamesArray, forKey: ContentView.filteredDeviceNamesArrayKey)
+                                if (!store.deviceGroups.isEmpty)
+                                {
+                                    showRemoveDeviceGroup = true
+                                }
+                                else
+                                {
+                                    showNoDeviceGroupMsg = true
+                                }
                             }
                             
                             Button(action: {
@@ -276,7 +284,7 @@ struct ContentView: View {
                         print(".onReceive: scanAllTimer = \(scanAllTimer)")
                         
                         if let s = sortMethod {
-                            store.sort(sortMethod: s)
+                            store.sortDevices(sortMethod: s)
                         }
                         
                         openSelectedGroupDetails()
@@ -333,7 +341,15 @@ struct ContentView: View {
                   //  .animation(.spring())
                     .transition(.slide)
             })
-            .alert("No scanned device ", isPresented: $showNoDeviceInFilterNameArrayMsg) {
+            .sheet(isPresented: $showRemoveDeviceGroup, content: {
+                RemoveDeviceGroup(showViewState: $showRemoveDeviceGroup, store: store)
+                  //  .animation(.spring())
+                    .transition(.slide)
+            })
+            .alert("No scanned device ", isPresented: $showNoScannedDeviceMsg) {
+                Button("OK") { }
+            }
+            .alert("No Device Group", isPresented: $showNoDeviceGroupMsg) {
                 Button("OK") { }
             }
         }
@@ -355,7 +371,7 @@ struct ContentView: View {
     {
         sortMethod = method
         UserDefaults.standard.setValue(method.rawValue, forKey: sortKey)
-        store.sort(sortMethod: method)
+        store.sortDevices(sortMethod: method)
     }
    
     func startScan()
@@ -396,7 +412,9 @@ struct DeviceCell: View {
                 }
                 
                 print("\(device.deviceName!) is tapped")
-                store.connect(targetPeripheral: device.peripheral!)
+                if device.deviceRSSI != Device_Group.NO_SIGNAL{
+                    store.connect(targetPeripheral: device.peripheral!)
+                }
             }){
                 VStack(alignment: .leading){
                     let flow_index = device.getFlowIndexInAdvertisement()
@@ -422,9 +440,18 @@ struct DeviceCell: View {
                             .foregroundColor(.black)
                     }
                     HStack(){
-                        Text("RSSI: \(device.deviceRSSI) dBm")
-                            .font(.subheadline)
-                            .foregroundColor(.black)
+                        if (device.deviceRSSI == Device_Group.NO_SIGNAL)
+                        {
+                            Text("offline")
+                                .font(.subheadline)
+                                .foregroundColor(.red)
+                        }
+                        else
+                        {
+                            Text("RSSI: \(device.deviceRSSI) dBm")
+                                .font(.subheadline)
+                                .foregroundColor(.black)
+                        }
                         
                         Text("  ") // 2 character space
                         
@@ -447,6 +474,10 @@ struct DeviceCell: View {
 
 // This view is for isolating GroupDetails from ContentView so that GroupDetails is not re-created
 // when DeviceStore refreshes causing ContentView re-evlaute
+//ContentView (@StateObject DeviceStore)
+//    └── GroupNavigationLink
+//          └── GroupDetails
+//                └── DeviceDetail
 struct GroupNavigationLink: View {
     let group: Device_Group?
     let store: DeviceStore

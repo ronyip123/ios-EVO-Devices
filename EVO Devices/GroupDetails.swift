@@ -105,12 +105,10 @@ struct GroupDetails: View {
             ZStack{
                 // Device list
                 List {
-                    ForEach(group.devices) { device in
-                        ForEach(group.devices){device in
-                            DeviceCell(device: device, store: store, scanning: $scanningGroup)
-                                .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
-                                .background(device.inRPMAlarm || device.inFilterAlarm ? Color.red : Color.white)
-                        }
+                    ForEach(group.devices){device in
+                        DeviceCell(device: device, store: store, scanning: $scanningGroup)
+                            .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+                            .background(device.inRPMAlarm || device.inFilterAlarm ? Color.red : Color.white)
                     }
                 }
                 .refreshable{

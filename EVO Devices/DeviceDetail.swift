@@ -320,7 +320,9 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
             print("DeviceData identity: \(ObjectIdentifier(data))")
             store.isAliveListener = nil
             if self.uiDevice == .phone {
-                store.disconnect(targetPeripheral: targetDevice.peripheral!)
+                if targetDevice.deviceRSSI != Device_Group.NO_SIGNAL {
+                    store.disconnect(targetPeripheral: targetDevice.peripheral!)
+                }
             }
             //threeSecTimer?.invalidate()
         }
