@@ -399,10 +399,23 @@ struct DeviceCell: View {
     let device : Device
     let store : DeviceStore
     @Binding var scanning : Bool
+    
+    @State private var showDeviceDetail = false
+    @State private var showDeviceOfflineMsg = false;
+    
     var body: some View {
         VStack {
-            NavigationLink(destination: DeviceDetail(targetDevice: device, deviceNameStr: device.getNameString(), store: store )){
+            NavigationLink(
+                destination: DeviceDetail(
+                    targetDevice: device,
+                    deviceNameStr: device.getNameString(),
+                    store: store
+                ),
+                isActive: $showDeviceDetail
+            ) {
+                EmptyView()
             }
+            .hidden()
             
             Button( action: {
                 
@@ -412,8 +425,16 @@ struct DeviceCell: View {
                 }
                 
                 print("\(device.deviceName!) is tapped")
-                if device.deviceRSSI != Device_Group.NO_SIGNAL{
-                    store.connect(targetPeripheral: device.peripheral!)
+                if device.deviceRSSI != Device_Group.NO_SIGNAL {
+                    // Device is online: connect via BLE
+                    if let peripheral = device.peripheral {
+                        store.connect(targetPeripheral: peripheral)
+                        // Navigate regardless of whether device is online
+                        showDeviceDetail = true
+                    }
+                }
+               else {
+                   showDeviceOfflineMsg = true
                 }
             }){
                 VStack(alignment: .leading){
@@ -468,6 +489,9 @@ struct DeviceCell: View {
         }
         .onDisappear {
             print(">>> DeviceCell disappeared: \(device.getNameString()), ID: \(device.id)")
+        }
+        .alert("Device is Offline ", isPresented: $showDeviceOfflineMsg) {
+            Button("OK") { }
         }
     }
 }
