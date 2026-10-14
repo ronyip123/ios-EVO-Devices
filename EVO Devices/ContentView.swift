@@ -169,6 +169,8 @@ struct ContentView: View {
                         .labelsHidden()
                         .font(.body)
                         .onChange(of: selectedGroupID) { newGroupID in
+                            
+                            print(">>> selectedGroupID = \(String(describing: newGroupID))")
                             selectedGroupID = newGroupID
                             if let groupID = newGroupID {
                                 print("Selected group: \(groupID)")
@@ -188,27 +190,28 @@ struct ContentView: View {
                                 print("No group selected")
                             }
                         }
-                        
-                        if let group = selectedGroup {
-                            NavigationLink(
-                                destination: GroupDetails(group: group, store: store, sort: sortMethod),
-                                isActive: $showGroupDetail
-                            ) {
-                                EmptyView()
-                            }
-                            .onChange(of: showGroupDetail) { isActive in
-                                if !isActive {
-                                    selectedGroupID = nil
-                                    selectedGroup = nil
-                                    UserDefaults.standard.removeObject(
-                                        forKey: ContentView.savedSelectedGroupIDKey)
-                                }
-                            }
-                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     //.frame(height: 50)
                     .padding(.horizontal)
+                    
+                    GroupNavigationLink(
+                        group: selectedGroup,
+                        store: store,
+                        isActive: $showGroupDetail
+                    )
+                    .onChange(of: showGroupDetail) { isActive in
+                        print(">>> ContentView.showGroupDetail = \(isActive)")
+
+                        if !isActive {
+                            selectedGroupID = nil
+                            selectedGroup = nil
+
+                            UserDefaults.standard.removeObject(
+                                forKey: ContentView.savedSelectedGroupIDKey
+                            )
+                        }
+                    }
                 }
                 .navigationBarTitle("EVO Devices")
                 .navigationBarItems(trailing: Menu
@@ -281,10 +284,25 @@ struct ContentView: View {
                 }
             }
             .onAppear(){
-                print("ContentView appears")
+                print(">>> ContentView.onAppear")
+                print("showGroupDetail = \(showGroupDetail)")
+                print("selectedGroupID = \(String(describing: selectedGroupID))")
                 if firstTime {
                     // skip scanning if launched the first time after installation
                     firstTime = false
+                    
+                    store.loadGroups()
+                    
+                    if ( UserDefaults.standard.object(forKey: sortKey) == nil)
+                    {
+                        UserDefaults.standard.setValue(DeviceStore.DeviceListSortMode.eAlphabeticalOrder.rawValue, forKey: sortKey)
+                        self.sortMethod = DeviceStore.DeviceListSortMode.eAlphabeticalOrder
+                    }
+                    else
+                    {
+                        // userDefault has a value
+                        self.sortMethod = DeviceStore.DeviceListSortMode(rawValue: UserDefaults.standard.integer(forKey: sortKey)) ?? .eAlphabeticalOrder
+                    }
                 }
                 else {
                     cleanup()
@@ -292,19 +310,6 @@ struct ContentView: View {
                     self.scanAllTimer = 0
                     startScan()
                 }
-                
-                if ( UserDefaults.standard.object(forKey: sortKey) == nil)
-                {
-                    UserDefaults.standard.setValue(DeviceStore.DeviceListSortMode.eAlphabeticalOrder.rawValue, forKey: sortKey)
-                    self.sortMethod = DeviceStore.DeviceListSortMode.eAlphabeticalOrder
-                }
-                else
-                {
-                    // userDefault has a value
-                    self.sortMethod = DeviceStore.DeviceListSortMode(rawValue: UserDefaults.standard.integer(forKey: sortKey)) ?? .eAlphabeticalOrder
-                }
-                
-                store.loadGroups()
 //                store.test_persisting_Groups()
             }
             .onDisappear(){
@@ -374,25 +379,6 @@ struct ContentView: View {
     }
 }
 
-
-//struct DeviceCell: View {
-//    let device : Device
-//    let store : DeviceStore
-//    var body: some View {
-//        NavigationLink(destination: DeviceDetail(targetDevice: device, deviceNameStr: device.getNameString(), store: store )){
-//            VStack(alignment: .leading){
-//                Text(device.getNameString())
-//                    .font(.headline)
-//                    .foregroundColor(.black)
-//                Text("RSSI: \(device.deviceRSSI) dBm")
-//                    .font(.subheadline)
-//                    .foregroundColor(.black)
-//            }
-//
-//        }
-//    }
-//}
-
 struct DeviceCell: View {
     let device : Device
     let store : DeviceStore
@@ -456,5 +442,33 @@ struct DeviceCell: View {
         .onDisappear {
             print(">>> DeviceCell disappeared: \(device.getNameString()), ID: \(device.id)")
         }
+    }
+}
+
+// This view is for isolating GroupDetails from ContentView so that GroupDetails is not re-created
+// when DeviceStore refreshes causing ContentView re-evlaute
+struct GroupNavigationLink: View {
+    let group: Device_Group?
+    let store: DeviceStore
+
+    @Binding var isActive: Bool
+
+    var body: some View {
+        NavigationLink(
+            destination: Group {
+                if let group = group {
+                    GroupDetails(
+                        group: group,
+                        store: store
+                    )
+                } else {
+                    EmptyView()
+                }
+            },
+            isActive: $isActive
+        ) {
+            EmptyView()
+        }
+        .hidden()
     }
 }

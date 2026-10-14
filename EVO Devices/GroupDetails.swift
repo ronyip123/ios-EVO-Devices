@@ -11,14 +11,12 @@ import SwiftUI
 struct GroupDetails: View {
     
     let group: Device_Group
-    @ObservedObject var store: DeviceStore
-    @State var sortMethod: DeviceStore.DeviceListSortMode?
+//    @ObservedObject var store: DeviceStore
+    let store: DeviceStore
     
     @State private var groupName: String
     @State private var offLineDeviceCount : Int
     @State private var alarmDeviceCount: Int
-    
-//    @State private var hasStartedInitialScan = false
     
     @State var scanningGroup = false
     @State private var scanGroupTimer = 0
@@ -28,10 +26,10 @@ struct GroupDetails: View {
     
     // DeviceStore is actually not used in this View. It is passed in so that we can use
     // DeviceCell to display the Group devices in the list
-    init(group: Device_Group, store: DeviceStore, sort: DeviceStore.DeviceListSortMode?) {
+    init(group: Device_Group, store: DeviceStore ) {
         self.group = group
         self.store = store
-        self.sortMethod = sort
+
         _groupName = State(initialValue: group.groupName)
         alarmDeviceCount = group.devices.filter { device in
                     device.inFilterAlarm || device.inRPMAlarm
@@ -83,9 +81,6 @@ struct GroupDetails: View {
                     }
                     else{
                         stopScan()
-//                        if let s = sortMethod {
-//                            sort(sortMethod: s)
-//                        }
                     }
                 })
                 {
@@ -110,13 +105,14 @@ struct GroupDetails: View {
             ZStack{
                 // Device list
                 List {
-                    
-                    ForEach(group.devices){device in
+                    ForEach(group.devices) { device in
+                        ForEach(group.devices){device in
                             DeviceCell(device: device, store: store, scanning: $scanningGroup)
-                                    .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
-                                    .background(device.inRPMAlarm || device.inFilterAlarm ? Color.red : Color.white)
+                                .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/)
+                                .background(device.inRPMAlarm || device.inFilterAlarm ? Color.red : Color.white)
                         }
                     }
+                }
                 .refreshable{
                     await MainActor.run {
                         cleanup()
@@ -147,10 +143,6 @@ struct GroupDetails: View {
                     scanningGroup = false
                     stopScan()
                     print(".onReceive: scanGroupTimer = \(scanGroupTimer)")
-                    
-//                    if let s = sortMethod {
-//                        sort(sortMethod: s)
-//                    }
                 }
             }
         }
@@ -166,22 +158,6 @@ struct GroupDetails: View {
             print(">>> GroupDetails.onDisappear")
         }
     }
-    
-//    func sort(sortMethod: DeviceStore.DeviceListSortMode)
-//    {
-//        switch (sortMethod)
-//        {
-//            case .eNone:
-//                // do nothing
-//                break;
-//            case .eAlphabeticalOrder:
-//                print("sort by alphabetucal order")
-//            group.devices = group.devices.sorted{ $0.getNameString() < $1.getNameString() }
-//            case .eSignalStrength:
-//                print("sort by signal strength")
-//            group.devices = group.devices.sorted{$0.deviceRSSI > $1.deviceRSSI }
-//        }
-//    }
     
     func startScan()
     {

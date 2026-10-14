@@ -182,7 +182,8 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
                         if data.deviceRSSIinMobile >= -85 {
                             Text("Strong")
                                 .font(.subheadline)
-                                .foregroundColor(.init(red: 0x00, green: 0x53, blue: 0x00))
+                                //.foregroundColor(.init(red: 0x00, green: 0x53, blue: 0x00))
+                                .foregroundColor(Color(red: 0.0, green: 83.0 / 255.0, blue: 0.0))
                         }
                         else if data.deviceRSSIinMobile >= -92 {
                             Text("Good")
@@ -309,10 +310,14 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
             // we know the blutooth is already running since the user was able to scan bluetooth  // devices and select from the device list connect to device.
             //store.connect(targetPeripheral: targetDevice.peripheral) //moved to ContentView when the device is tapped in the device list
             store.setData(data)
+            
 //            startThreeSecTimer()
+            print(">>> DeviceDetail.setData completed")
+            print("Stored data identity: \(ObjectIdentifier(store.deviceData!))")
         }
         .onDisappear(){
             print(">>> DeviceDetail.onDisappear")
+            print("DeviceData identity: \(ObjectIdentifier(data))")
             store.isAliveListener = nil
             if self.uiDevice == .phone {
                 store.disconnect(targetPeripheral: targetDevice.peripheral!)
