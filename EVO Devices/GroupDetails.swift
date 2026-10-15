@@ -92,6 +92,7 @@ struct GroupDetails: View {
                     }
                     else{
                         stopScan()
+                        evaluateaAlarmOfflineCount()
                         if (inEditMode){
                             showEditDeviceGroup = true
                         }
@@ -164,6 +165,7 @@ struct GroupDetails: View {
 
                 if scanGroupTimer >= ContentView.scanTime {
                     scanningGroup = false
+                    evaluateaAlarmOfflineCount()
                     stopScan()
                     if inEditMode{
                         showEditDeviceGroup = true
@@ -200,5 +202,15 @@ struct GroupDetails: View {
     {
         print("in cleanup")
         store.clearStore();
+    }
+    
+    func evaluateaAlarmOfflineCount()
+    {
+        alarmDeviceCount = group.devices.filter { device in
+                    device.inFilterAlarm || device.inRPMAlarm
+                }.count
+        offLineDeviceCount = group.devices.filter { device in
+                    device.deviceRSSI == Device_Group.NO_SIGNAL
+                }.count
     }
 }
