@@ -41,53 +41,6 @@ struct ContentView: View {
                 VStack {
                     HStack
                     {
-                        Menu {
-                            Button(action: {
-                                selectSortMethod(.eAlphabeticalOrder)
-                            }) {
-                                Label(
-                                    "Alphabetical Order",
-                                    systemImage: sortMethod == .eAlphabeticalOrder
-                                    ? "checkmark"
-                                    : ""
-                                )
-                            }
-                            
-                            Button(action: {
-                                selectSortMethod(.eSignalStrength)
-                            }) {
-                                Label(
-                                    "Signal Strength",
-                                    systemImage: sortMethod == .eSignalStrength
-                                    ? "checkmark"
-                                    : ""
-                                )
-                            }
-                            
-                            Button(action: {
-                                selectSortMethod(.eNone)
-                            }) {
-                                Label(
-                                    "None",
-                                    systemImage: sortMethod == .eNone
-                                    ? "checkmark"
-                                    : ""
-                                )
-                            }
-                            
-                            Button( action: {
-                                
-                            }) {
-                                Label(
-                                    "Cancel",
-                                    systemImage: "xmark"
-                                )
-                            }
-                        } label: {
-                            Image(systemName: "text.justify.left")
-                        }
-                        .padding()
-                        
                         Button( action:{
                             self.scanningAll.toggle()
                             if self.scanningAll {
@@ -126,38 +79,93 @@ struct ContentView: View {
                         .foregroundColor(.white)
                         .cornerRadius(5.0)
                         
-                        Menu {
-                            Button("Add Device Group"){
-                                if (!store.devices.isEmpty)
-                                {
-                                    showAddDeviceGroup = true
+                        VStack{
+                            Menu {
+                                Button(action: {
+                                    selectSortMethod(.eAlphabeticalOrder)
+                                }) {
+                                    Label(
+                                        "Alphabetical Order",
+                                        systemImage: sortMethod == .eAlphabeticalOrder
+                                        ? "checkmark"
+                                        : ""
+                                    )
                                 }
-                                else
-                                {
-                                    showNoScannedDeviceMsg = true
+                                
+                                Button(action: {
+                                    selectSortMethod(.eSignalStrength)
+                                }) {
+                                    Label(
+                                        "Signal Strength",
+                                        systemImage: sortMethod == .eSignalStrength
+                                        ? "checkmark"
+                                        : ""
+                                    )
+                                }
+                                
+                                Button(action: {
+                                    selectSortMethod(.eNone)
+                                }) {
+                                    Label(
+                                        "None",
+                                        systemImage: sortMethod == .eNone
+                                        ? "checkmark"
+                                        : ""
+                                    )
+                                }
+                                
+                                Button( action: {
+                                    
+                                }) {
+                                    Label(
+                                        "Cancel",
+                                        systemImage: "xmark"
+                                    )
+                                }
+                            } label: {
+                                HStack{
+                                    Text("Sort")
+                                    Image(systemName: "arrow.up.arrow.down")
                                 }
                             }
-                            Button("Remove Device Group") {
-                                if (!store.deviceGroups.isEmpty)
-                                {
-                                    showRemoveDeviceGroup = true
-                                }
-                                else
-                                {
-                                    showNoDeviceGroupMsg = true
-                                }
-                            }
+                            //.padding()
                             
-                            Button(action: {
-                                selectSortMethod(.eNone)
-                            }) {
-                                Label(
-                                    "Cancel",
-                                    systemImage: "xmark"
-                                )
+                            Menu {
+                                Button("Add Device Group"){
+                                    if (!store.devices.isEmpty)
+                                    {
+                                        showAddDeviceGroup = true
+                                    }
+                                    else
+                                    {
+                                        showNoScannedDeviceMsg = true
+                                    }
+                                }
+                                Button("Remove Device Group") {
+                                    if (!store.deviceGroups.isEmpty)
+                                    {
+                                        showRemoveDeviceGroup = true
+                                    }
+                                    else
+                                    {
+                                        showNoDeviceGroupMsg = true
+                                    }
+                                }
+                                
+                                Button(action: {
+                                    selectSortMethod(.eNone)
+                                }) {
+                                    Label(
+                                        "Cancel",
+                                        systemImage: "xmark"
+                                    )
+                                }
+                            } label: {
+                                HStack{
+                                    Text("Group")
+                                    Image(systemName: "square.stack.3d.up")
+                                }
                             }
-                        } label: {
-                            Image(systemName: "line.3.horizontal.decrease")
                         }
                     }
                     .padding()
@@ -229,13 +237,13 @@ struct ContentView: View {
                 .navigationBarItems(trailing: Menu
                 {
                     VStack{
-                        Button( action: {self.showBackgroundAlarmSettings.toggle()})
-                        {
-                            HStack{
-                                Text("Background Alarm Scanning")
-                                Image(systemName: "gear")
-                            }
-                        }
+//                        Button( action: {self.showBackgroundAlarmSettings.toggle()})
+//                        {
+//                            HStack{
+//                                Text("Background Alarm Scanning")
+//                                Image(systemName: "gear")
+//                            }
+//                        }
                         Button ( action: { self.showAbout.toggle() } )
                         {
                             HStack{
