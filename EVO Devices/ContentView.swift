@@ -93,6 +93,9 @@ struct ContentView: View {
                             if self.scanningAll {
                                 //store.clearStore()
                                 //self.scanTimer = 0
+                                for group in store.deviceGroups {
+                                    group.reset_All_Devices_Before_Scanning()
+                                }
                                 cleanup()
                                 startScan()
                             }
@@ -259,6 +262,9 @@ struct ContentView: View {
                         await MainActor.run {
                                 cleanup()
                                 self.scanningAll = true
+                                for group in store.deviceGroups {
+                                    group.reset_All_Devices_Before_Scanning()
+                                }
                                 startScan()
                             }
                     }
@@ -462,8 +468,7 @@ struct DeviceCell: View {
                             .foregroundColor(.black)
                     }
                     HStack(){
-                        if (device.deviceRSSI == Device_Group.NO_SIGNAL)
-                        {
+                        if device.deviceRSSI == Device_Group.NO_SIGNAL {
                             Text("offline")
                                 .font(.subheadline)
                                 .foregroundColor(.red)

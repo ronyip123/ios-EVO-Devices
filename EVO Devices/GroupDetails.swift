@@ -88,6 +88,7 @@ struct GroupDetails: View {
                         //store.clearStore()
                         //self.scanTimer = 0
                         cleanup()
+                        group.reset_All_Devices_Before_Scanning()
                         startScan()
                     }
                     else{
@@ -131,6 +132,7 @@ struct GroupDetails: View {
                     await MainActor.run {
                         cleanup()
                         self.scanningGroup = true
+                        group.reset_All_Devices_Before_Scanning()
                         startScan()
                     }
                 }
