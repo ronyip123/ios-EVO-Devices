@@ -206,6 +206,7 @@ struct ContentView: View {
                     GroupNavigationLink(
                         group: selectedGroup,
                         store: store,
+                        sortMethod: sortMethod,
                         isActive: $showGroupDetail
                     )
                     .onChange(of: showGroupDetail) { isActive in
@@ -498,14 +499,14 @@ struct DeviceCell: View {
 
 // This view is for isolating GroupDetails from ContentView so that GroupDetails is not re-created
 // when DeviceStore refreshes causing ContentView re-evlaute
-//ContentView (@StateObject DeviceStore)
+// ContentView (@StateObject DeviceStore)
 //    └── GroupNavigationLink
 //          └── GroupDetails
 //                └── DeviceDetail
 struct GroupNavigationLink: View {
     let group: Device_Group?
     let store: DeviceStore
-
+    let sortMethod: DeviceStore.DeviceListSortMode?
     @Binding var isActive: Bool
 
     var body: some View {
@@ -514,7 +515,8 @@ struct GroupNavigationLink: View {
                 if let group = group {
                     GroupDetails(
                         group: group,
-                        store: store
+                        store: store,
+                        sortMethod: sortMethod
                     )
                 } else {
                     EmptyView()

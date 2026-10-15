@@ -11,9 +11,8 @@ struct AddDeviceGroup: View {
     @Binding var showViewState: Bool
     var store : DeviceStore
     var sortMethod :DeviceStore.DeviceListSortMode
+
     @State private var selectedDevices = Set<Device>()//Set<UUID>()
-    //@State var inEditMode = false
-    //@State var changeNotSaved = false
     @State var groupNameStr: String = ""
     
     var body: some View {

@@ -11,24 +11,30 @@ import SwiftUI
 struct GroupDetails: View {
     
     let group: Device_Group
+    // no update is required from store into this object so don't need to be an ObservedObject
 //    @ObservedObject var store: DeviceStore
     let store: DeviceStore
+    let sortMethod: DeviceStore.DeviceListSortMode?
     
     @State private var groupName: String
     @State private var offLineDeviceCount : Int
     @State private var alarmDeviceCount: Int
     
-    @State var scanningGroup = false
+    @State private var showEditDeviceGroup = false
+    @State private var scanningGroup = false
     @State private var scanGroupTimer = 0
     private let scanGroupTimerPublisher =
         Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     let scanGroupProgressView = ProgressView("Tap Stop Scan to stop..");
+    @State private var inEditMode = false
+    @State private var groupRevision = 0
     
     // DeviceStore is actually not used in this View. It is passed in so that we can use
     // DeviceCell to display the Group devices in the list
-    init(group: Device_Group, store: DeviceStore ) {
+    init(group: Device_Group, store: DeviceStore, sortMethod: DeviceStore.DeviceListSortMode? ) {
         self.group = group
         self.store = store
+        self.sortMethod = sortMethod
 
         _groupName = State(initialValue: group.groupName)
         alarmDeviceCount = group.devices.filter { device in
@@ -59,7 +65,12 @@ struct GroupDetails: View {
             
             HStack{
                 Button(action: {
-                    
+                    //showEditDeviceGroup = true;
+                    // start scanning to refresh the discovered devices
+                    cleanup()
+                    startScan()
+                    self.scanningGroup = true
+                    inEditMode = true;
                 }){
                     Text("Edit")
                         .fontWeight(.bold)
@@ -81,6 +92,9 @@ struct GroupDetails: View {
                     }
                     else{
                         stopScan()
+                        if (inEditMode){
+                            showEditDeviceGroup = true
+                        }
                     }
                 })
                 {
@@ -111,6 +125,7 @@ struct GroupDetails: View {
                             .background(device.inRPMAlarm || device.inFilterAlarm ? Color.red : Color.white)
                     }
                 }
+                .id(groupRevision)
                 .refreshable{
                     await MainActor.run {
                         cleanup()
@@ -130,6 +145,16 @@ struct GroupDetails: View {
                 }
             }
         }
+        .sheet(isPresented: $showEditDeviceGroup, content: {
+            let combinedDeviceArray = store.devices + group.getOffLineDeviceList()
+            EditDeviceGroup(showViewState: $showEditDeviceGroup, store: store, group: group, sortMethod: sortMethod ?? DeviceStore.DeviceListSortMode.eAlphabeticalOrder, combined_store_devices_and_group_offline_devices: combinedDeviceArray)
+              //  .animation(.spring())
+                .transition(.slide)
+                .onDisappear(){
+                    inEditMode = false
+                    groupRevision += 1
+                }
+        })
         .navigationTitle("Device Group")
         .navigationBarTitleDisplayMode(.inline)
         .onReceive(scanGroupTimerPublisher) { _ in
@@ -140,6 +165,9 @@ struct GroupDetails: View {
                 if scanGroupTimer >= ContentView.scanTime {
                     scanningGroup = false
                     stopScan()
+                    if inEditMode{
+                        showEditDeviceGroup = true
+                    }
                     print(".onReceive: scanGroupTimer = \(scanGroupTimer)")
                 }
             }
