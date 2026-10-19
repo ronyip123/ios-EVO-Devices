@@ -303,6 +303,19 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
 //            })
             
         }
+        .alert(
+            "Bluetooth Pairing Failed",
+            isPresented: Binding(
+                get: { store.pairingErrorMessage != nil },
+                set: { if !$0 { store.pairingErrorMessage = nil } }
+            )
+        ) {
+            Button("OK") {
+                store.pairingErrorMessage = nil
+            }
+        } message: {
+            Text(store.pairingErrorMessage ?? "")
+        }
         .onAppear(){
             print(">>> DeviceDetail.onAppear")
             store.isAliveListener = self
@@ -340,7 +353,7 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
             hideStatusDetails = !(data.IsRPMOrFilterMonitoringEnabled() && version3AndHigher)
                 
             if uiDevice == .phone {
-                store.isBLEConectionStillAlive()
+                store.isBLEConnectionStillAlive()
             }
                 
             store.readRSSI()

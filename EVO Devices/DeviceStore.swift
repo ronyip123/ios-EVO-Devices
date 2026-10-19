@@ -123,6 +123,27 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     var totalRunningHoursCharacteristic: CBCharacteristic?
     
     @Published var output: Double = 0.0
+    @Published var pairingErrorMessage: String?
+    
+    func handleBluetoothError(_ error: Error?) {
+        guard let error = error else { return }
+
+        let nsError = error as NSError
+
+        if nsError.domain == CBATTErrorDomain {
+            switch nsError.code {
+            case CBATTError.insufficientAuthentication.rawValue,
+                 CBATTError.insufficientEncryption.rawValue,
+                 CBATTError.insufficientEncryptionKeySize.rawValue:
+
+                pairingErrorMessage =
+                    "Bluetooth pairing failed. Please check the pairing passkey and try again."
+
+            default:
+                print("Bluetooth error: \(error.localizedDescription)")
+            }
+        }
+    }
     
     init(devices: [Device] = []){
         self.devices = devices
@@ -277,6 +298,9 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     }
     
     func connect(targetPeripheral peripheral: CBPeripheral){
+        // clear the erro message first before reconnecting
+        pairingErrorMessage = nil
+        
         // This will result in CBCentralManager calling
         //func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral)
         centralManager?.connect(peripheral)
@@ -320,10 +344,14 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
         print("successfully disconnected from peripheral")
     }
     
-    func isBLEConectionStillAlive() {
+    func isBLEConnectionStillAlive() {
         if self.targetPeripheral?.state != CBPeripheralState.connected {
             if lostConnectionCount == 5 {
-                self.isAliveListener?.bluetoothLost()
+                // call bluetoothLost to exit DeviceDetail if no error was reported.
+                // Otherwise, do not exit and allow user to read the error message and manually return to ContentView
+                if  nil == pairingErrorMessage {
+                    self.isAliveListener?.bluetoothLost()
+                }
             }
             else {
                 lostConnectionCount += 1;
@@ -477,8 +505,8 @@ extension DeviceStore: CBPeripheralDelegate {
     //
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         
-        if let er = error {
-            print(er.localizedDescription)
+        if let error = error {
+            handleBluetoothError(error)
             return
         }
         
@@ -694,6 +722,12 @@ extension DeviceStore: CBPeripheralDelegate {
     //
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         print(characteristic)
+        
+        if let error = error {
+            handleBluetoothError(error)
+            return
+        }
+        
         if characteristic.uuid.isEqual(RPM_CHARACTERISTICS_UUID){
             if let data = deviceData{
                 data.RPM = Int(convert_Data_to_Int( characteristicData: characteristic.value ))
@@ -934,21 +968,23 @@ extension DeviceStore: CBPeripheralDelegate {
     //
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: (any Error)?) {
         
-        if (error == nil)
+        if let error = error {
+            handleBluetoothError(error)
+            return
+        }
+        
+        // write successfully
+        if (characteristic.uuid.isEqual(RPM_TYPE_CHARACTERISTIC_UUID))
         {
-            // write successfully
-            if (characteristic.uuid.isEqual(RPM_TYPE_CHARACTERISTIC_UUID))
-            {
-                // update motor returns RPM flag to true after updated RPM Type. See sendRPMType
-                guard let data = deviceData else { return }
+            // update motor returns RPM flag to true after updated RPM Type. See sendRPMType
+            guard let data = deviceData else { return }
                 
-                if let characteristic = motorHistorySettingsCharacteristic {
-                    let b = data.getMotorHistorySettings() | DeviceData.MOTOR_SENDS_RPM
-                    let bytes = [b]
-                    let data: NSData = NSData(bytes: bytes, length: bytes.count)
-                    if let peripheral = targetPeripheral {
-                        peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
-                    }
+            if let characteristic = motorHistorySettingsCharacteristic {
+                let b = data.getMotorHistorySettings() | DeviceData.MOTOR_SENDS_RPM
+                let bytes = [b]
+                let data: NSData = NSData(bytes: bytes, length: bytes.count)
+                if let peripheral = targetPeripheral {
+                    peripheral.writeValue(data as Data, for: characteristic, type: .withResponse)
                 }
             }
         }
