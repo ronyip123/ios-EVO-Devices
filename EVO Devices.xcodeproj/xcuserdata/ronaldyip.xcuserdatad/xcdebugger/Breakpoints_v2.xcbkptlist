@@ -39,15 +39,15 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "36005A94-1131-4898-87AA-35DE04E27B6C"
+            uuid = "E32BA22E-6C1D-4C63-9E99-0A71E0731528"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "EVO Devices/GroupDetails.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "125"
-            endingLineNumber = "125"
+            startingLineNumber = "140"
+            endingLineNumber = "140"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>

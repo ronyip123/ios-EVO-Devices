@@ -28,6 +28,7 @@ struct GroupDetails: View {
     let scanGroupProgressView = ProgressView("Tap Stop Scan to stop..");
     @State private var inEditMode = false
     @State private var groupRevision = 0
+    @State private var showSendGroupFlowIndex = false;
     
     // DeviceStore is actually not used in this View. It is passed in so that we can use
     // DeviceCell to display the Group devices in the list
@@ -94,6 +95,7 @@ struct GroupDetails: View {
                     else{
                         stopScan()
                         evaluateaAlarmOfflineCount()
+                        sortDevices(sortMethod: sortMethod ?? DeviceStore.DeviceListSortMode.eAlphabeticalOrder)
                         if (inEditMode){
                             showEditDeviceGroup = true
                         }
@@ -117,6 +119,19 @@ struct GroupDetails: View {
                 .foregroundColor(.white)
                 .cornerRadius(5.0)
             }
+            
+            Button(action: {
+                showSendGroupFlowIndex = true;
+            }){
+                Text("Send Group Flow Index")
+                    .fontWeight(.bold)
+                    .font(.title)
+            }
+            .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: .infinity)
+            .padding()
+            .background(Color.green)
+            .foregroundColor(.white)
+            .cornerRadius(5.0)
             
             ZStack{
                 // Device list
@@ -148,6 +163,10 @@ struct GroupDetails: View {
                 }
             }
         }
+        .sheet(isPresented: $showSendGroupFlowIndex, content: {
+            GroupFlowIndexEdit(showViewState: $showSendGroupFlowIndex, store: store, group: group, groupFlowIndex: Double(group.groupFlowIndex))
+                .transition(.slide)
+        })
         .sheet(isPresented: $showEditDeviceGroup, content: {
             let combinedDeviceArray = store.devices + group.getOffLineDeviceList()
             EditDeviceGroup(showViewState: $showEditDeviceGroup, store: store, group: group, sortMethod: sortMethod ?? DeviceStore.DeviceListSortMode.eAlphabeticalOrder, combined_store_devices_and_group_offline_devices: combinedDeviceArray)
@@ -169,6 +188,7 @@ struct GroupDetails: View {
                     scanningGroup = false
                     evaluateaAlarmOfflineCount()
                     stopScan()
+                    sortDevices(sortMethod: sortMethod ?? DeviceStore.DeviceListSortMode.eAlphabeticalOrder)
                     if inEditMode{
                         showEditDeviceGroup = true
                     }
@@ -214,5 +234,21 @@ struct GroupDetails: View {
         offLineDeviceCount = group.devices.filter { device in
                     device.deviceRSSI == Device_Group.NO_SIGNAL
                 }.count
+    }
+    
+    func sortDevices(sortMethod: DeviceStore.DeviceListSortMode)
+    {
+        switch (sortMethod)
+        {
+            case .eNone:
+                // do nothing
+                break;
+            case .eAlphabeticalOrder:
+                print("sort by alphabetucal order")
+                group.devices = group.devices.sorted{ $0.getNameString() < $1.getNameString() }
+            case .eSignalStrength:
+                print("sort by signal strength")
+            group.devices = group.devices.sorted{$0.deviceRSSI > $1.deviceRSSI }
+        }
     }
 }
