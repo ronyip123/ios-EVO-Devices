@@ -12,8 +12,9 @@ struct GroupDetails: View {
     
     let group: Device_Group
     // no update is required from store into this object so don't need to be an ObservedObject
-//    @ObservedObject var store: DeviceStore
-    let store: DeviceStore
+    // let store: DeviceStore
+    // The above comment is no longer true. We now need to get the update of the group flow index command status
+    @ObservedObject var store: DeviceStore
     let sortMethod: DeviceStore.DeviceListSortMode?
     
     @State private var groupName: String
@@ -29,6 +30,11 @@ struct GroupDetails: View {
     @State private var inEditMode = false
     @State private var groupRevision = 0
     @State private var showSendGroupFlowIndex = false;
+    
+    //*** New Code for Grooup Flow Index
+    @State private var showGroupFlowResult = false
+    @State private var groupFlowWasRunning = false
+    //*** New Code for Group Flow Index ends
     
     // DeviceStore is actually not used in this View. It is passed in so that we can use
     // DeviceCell to display the Group devices in the list
@@ -133,6 +139,12 @@ struct GroupDetails: View {
             .foregroundColor(.white)
             .cornerRadius(5.0)
             
+            //*** New Code for Group Flow Index
+            if store.groupFlowTotal > 0 {
+                groupFlowProgressView
+            }
+            //*** New Code for Group Flow Index ends
+            
             ZStack{
                 // Device list
                 List {
@@ -207,7 +219,33 @@ struct GroupDetails: View {
         {
             print(">>> GroupDetails.onDisappear")
         }
+        //*** New Code for Group Flow Index
+        .onChange(of: store.groupFlowIndexCommandRunning) { isRunning in
+
+            if isRunning {
+                groupFlowWasRunning = true
+            }
+            else if groupFlowWasRunning {
+                groupFlowWasRunning = false
+                showGroupFlowResult = true
+            }
+        }
+        .alert("Group Flow Index Completed",
+               isPresented: $showGroupFlowResult) {
+
+            Button("OK") { }
+
+        } message: {
+
+            Text("""
+            Total Devices: \(store.groupFlowTotal)
+            Successful: \(store.groupFlowCompleted)
+            Failed: \(store.groupFlowFailed)
+            Offline: \(store.groupFlowSkipped)
+            """)
+        }
     }
+    //*** New Code for Group Flow Index ends
     
     func startScan()
     {
@@ -251,4 +289,41 @@ struct GroupDetails: View {
             group.devices = group.devices.sorted{$0.deviceRSSI > $1.deviceRSSI }
         }
     }
+    
+    //*** New Code for Group Flow Index
+    private var groupFlowProgressView: some View {
+        VStack(alignment: .leading, spacing: 10) {
+
+            Text("Group Flow Index Progress")
+                .font(.headline)
+
+            ProgressView(
+                value: Double(
+                    store.groupFlowCompleted +
+                    store.groupFlowFailed +
+                    store.groupFlowSkipped
+                ),
+                total: Double(max(store.groupFlowTotal, 1))
+            )
+            .tint(.green)
+
+            Text(store.groupFlowStatus)
+                .font(.subheadline)
+
+            HStack {
+                Text("Success: \(store.groupFlowCompleted)")
+                    .foregroundColor(.green)
+
+                Text("Failed: \(store.groupFlowFailed)")
+                    .foregroundColor(.red)
+
+                Text("Skipped: \(store.groupFlowSkipped)")
+                    .foregroundColor(.secondary)
+            }
+            .font(.subheadline)
+
+        }
+        .padding()
+    }
+    //*** New Code for Group Flow Index ends
 }

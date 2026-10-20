@@ -9,8 +9,7 @@ import SwiftUI
 import Combine
 import CoreBluetooth
 
-
-class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
+class DeviceStore : NSObject, ObservableObject, CBCentralManagerDelegate {
     @Published var devices: [Device]{
         didSet{didChange.send()}
     }
@@ -87,6 +86,198 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     //var MOTOR_CONTROL_CHARACTERISTICS_UUIDS = [RPM_CHARACTERISTICS_UUID, ]
 //    @Published var RPM: Int
 //    @Published var type: String
+    
+    //*** new code for group flow index command
+    
+    // Sequential group Flow Index operation. Only one peripheral is active at a time.
+    @Published private(set) var groupFlowIndexCommandRunning = false
+    @Published private(set) var groupFlowCompleted = 0
+    @Published private(set) var groupFlowFailed = 0
+    @Published private(set) var groupFlowSkipped = 0
+    @Published private(set) var groupFlowTotal = 0
+    @Published private(set) var groupFlowStatus = ""
+
+    private enum GroupFlowStage { case idle, connecting, discovering, readingSecurity, authenticating, readingVerification, writingFlow }
+    private var groupFlowStage: GroupFlowStage = .idle
+    private var groupFlowDevices: [Device] = []
+    private var groupFlowPosition = 0
+    private var groupFlowValue: UInt8 = 0
+    private var groupFlowPassword = ""
+    private var groupFlowPeripheral: CBPeripheral?
+    private var groupFlowMotorReady = false
+    private var groupFlowSecurityReady = false
+    private var groupFlowTimeout: DispatchWorkItem?
+    private var groupFlowTimeoutID = UUID()
+
+    func startGroupFlowIndex(group: Device_Group, flowIndex: UInt8, password: String) {
+        guard !groupFlowIndexCommandRunning else { return }
+        guard centralManager?.state == .poweredOn else {
+            groupFlowStatus = "Bluetooth is not powered on"
+            return
+        }
+        groupFlowDevices = group.devices
+        groupFlowTotal = groupFlowDevices.count
+        groupFlowCompleted = 0
+        groupFlowFailed = 0
+        groupFlowSkipped = 0
+        groupFlowPosition = 0
+        groupFlowValue = flowIndex
+        groupFlowPassword = password
+        groupFlowIndexCommandRunning = true
+        processNextGroupDevice()
+    }
+
+    private func processNextGroupDevice() {
+        groupFlowTimeout?.cancel()
+        groupFlowTimeout = nil
+        groupFlowStage = .idle
+        groupFlowPeripheral = nil
+        while groupFlowPosition < groupFlowDevices.count {
+            let device = groupFlowDevices[groupFlowPosition]
+            if device.deviceRSSI == Device_Group.NO_SIGNAL || device.peripheral == nil {
+                groupFlowSkipped += 1
+                groupFlowPosition += 1
+                continue
+            }
+            let peripheral = device.peripheral!
+            groupFlowPeripheral = peripheral
+            groupFlowMotorReady = false
+            groupFlowSecurityReady = false
+            flowIndexCharacteristic = nil
+            verifyUserPasswordCharacteristic = nil
+            groupFlowStage = .connecting
+            groupFlowStatus = "Connecting to \(device.getNameString())"
+            connect(targetPeripheral: peripheral)
+            armGroupFlowTimeout()
+            return
+        }
+        // completed all devices in the group
+        groupFlowIndexCommandRunning = false
+        groupFlowStatus = "Finished: \(groupFlowCompleted) succeeded, \(groupFlowFailed) failed, \(groupFlowSkipped) offline"
+    }
+    
+    private func armGroupFlowTimeout() {
+            
+        groupFlowTimeout?.cancel()
+        
+        let timeoutID = UUID()
+            groupFlowTimeoutID = timeoutID
+        
+        let item = DispatchWorkItem { [weak self] in
+                
+            guard let self = self else { return }
+                
+            // Ignore an outdated timeout
+            guard self.groupFlowTimeoutID == timeoutID else {
+                // if not equal
+                return
+            }
+                
+            guard self.groupFlowIndexCommandRunning else {
+                // if not rnning
+                return
+            }
+
+            self.finishCurrentGroupFlowDevice(success: false, reason: "Timeout")
+        }
+        
+        groupFlowTimeout = item
+        DispatchQueue.main.asyncAfter(deadline: .now() + 12, execute: item)
+    }
+
+    private func finishCurrentGroupFlowDevice(success: Bool, reason: String = "") {
+        guard groupFlowIndexCommandRunning, let peripheral = groupFlowPeripheral else { return }
+        groupFlowTimeout?.cancel()
+        groupFlowTimeout = nil
+        if success { groupFlowCompleted += 1 } else { groupFlowFailed += 1 }
+        groupFlowStatus = "\(groupFlowDevices[groupFlowPosition].getNameString()): " + (success ? "Updated" : "Failed - \(reason)")
+        groupFlowStage = .idle
+        groupFlowPeripheral = nil
+        groupFlowPosition += 1
+        centralManager?.cancelPeripheralConnection(peripheral)
+        connected = false
+        targetPeripheral = nil
+        // since the DispatchWorkItem in armGroupFlowTimeou and callbacks in CBCentralManager methods are
+        // all executed in the main thread so processNextGroupDevice does not need to be executed
+        // later on the main-queue turn
+        //DispatchQueue.main.async { @MainActor [weak self] in self?.processNextGroupDevice() }
+        processNextGroupDevice()
+    }
+    
+    private func groupFlowCharacteristicsReady(_ peripheral: CBPeripheral) {
+        guard groupFlowIndexCommandRunning, groupFlowPeripheral?.identifier == peripheral.identifier,
+                groupFlowMotorReady, groupFlowSecurityReady,
+                groupFlowStage == .discovering else { return }
+        guard let service = peripheral.services?.first(where: { $0.uuid == SECURITY_SERVICE_UUID }),
+            let characteristic = service.characteristics?.first(where: { $0.uuid == GET_ALL_PASSWORD_ENABLE_STATES_CHARACTERISTIC_UUID }),
+            flowIndexCharacteristic != nil else {
+            finishCurrentGroupFlowDevice(success: false, reason: "Required characteristics missing")
+            return
+        }
+        groupFlowStage = .readingSecurity
+        peripheral.readValue(for: characteristic)
+        armGroupFlowTimeout()
+    }
+
+    private func groupFlowReceivedValue(_ peripheral: CBPeripheral, _ characteristic: CBCharacteristic)
+    {
+        guard groupFlowIndexCommandRunning, groupFlowPeripheral?.identifier == peripheral.identifier else { return }
+        if groupFlowStage == .readingSecurity && characteristic.uuid == GET_ALL_PASSWORD_ENABLE_STATES_CHARACTERISTIC_UUID
+        {
+            guard let byte = characteristic.value?.first else {
+                finishCurrentGroupFlowDevice(success: false, reason: "No password status")
+                return
+            }
+            if byte & 0x01 != 0 {
+                // user password is enabled if bit 0 is set in the returned value for readValue in groupFlowCharacteristicsReady
+                guard !groupFlowPassword.isEmpty, let verify = verifyUserPasswordCharacteristic else {
+                    finishCurrentGroupFlowDevice(success: false, reason: "Password required")
+                    return
+                }
+                groupFlowStage = .authenticating
+                peripheral.writeValue(Data(groupFlowPassword.utf8), for: verify, type: .withResponse)
+                armGroupFlowTimeout()
+            } else {
+                // user password is not enabled. We can write the group flow index to the current device
+                writeGroupFlowIndex(peripheral)
+            }
+        } else if groupFlowStage == .readingVerification && characteristic.uuid == USER_PASSWORD_VERIFIED_CHARACTERISTIC_UUID {
+            if characteristic.value?.first == 1 { writeGroupFlowIndex(peripheral) }
+            else { finishCurrentGroupFlowDevice(success: false, reason: "Password rejected") }
+        }
+    }
+
+    private func writeGroupFlowIndex(_ peripheral: CBPeripheral) {
+        guard let characteristic = flowIndexCharacteristic else {
+            finishCurrentGroupFlowDevice(success: false, reason: "Flow Index unavailable")
+            return
+        }
+        groupFlowStage = .writingFlow
+        peripheral.writeValue(Data([groupFlowValue]), for: characteristic, type: .withResponse)
+        armGroupFlowTimeout()
+    }
+
+    private func groupFlowDidWrite(_ peripheral: CBPeripheral, _ characteristic: CBCharacteristic, error: Error?) -> Bool {
+        guard groupFlowIndexCommandRunning, groupFlowPeripheral?.identifier == peripheral.identifier else { return false }
+        if groupFlowStage == .authenticating && characteristic.uuid == VERIFY_USER_PASSWORD_CHARACTERISTIC_UUID {
+            if let error = error { finishCurrentGroupFlowDevice(success: false, reason: error.localizedDescription); return true }
+            guard let verified = peripheral.services?.first(where: { $0.uuid == SECURITY_SERVICE_UUID })?.characteristics?.first(where: { $0.uuid == USER_PASSWORD_VERIFIED_CHARACTERISTIC_UUID }) else {
+                finishCurrentGroupFlowDevice(success: false, reason: "Verification status unavailable")
+                return true
+            }
+            groupFlowStage = .readingVerification
+            peripheral.readValue(for: verified)
+            armGroupFlowTimeout()
+            return true
+        }
+        if groupFlowStage == .writingFlow && characteristic.uuid == FLOW_INDEX_CHARACTERISTIC_UUID {
+            finishCurrentGroupFlowDevice(success: error == nil, reason: error?.localizedDescription ?? "")
+            return true
+        }
+        return false
+    }
+
+    //*** new code for group flow index command ends
     
     var centralManager: CBCentralManager?
     var connected = false
@@ -324,6 +515,12 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
     //
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         print("Connected!")
+        // *** new code for Group Flow Index
+        if groupFlowIndexCommandRunning && groupFlowPeripheral?.identifier == peripheral.identifier {
+            groupFlowStage = .discovering
+            armGroupFlowTimeout()
+        }
+        // *** new code for Group Flow Index ends
         connected = true;
         // This will result in CBPeripheral calling
         // func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) in
@@ -332,10 +529,26 @@ class DeviceStore :NSObject, ObservableObject, CBCentralManagerDelegate {
         //targetPeripheral?.discoverServices(Array(_immutableCocoaArray: GENERIC_ACCESS_SERVICE_UUID))
     }
     
+    
+    // *** new code for Group FlowIndex
+    func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+            if groupFlowIndexCommandRunning && groupFlowPeripheral?.identifier == peripheral.identifier {
+                finishCurrentGroupFlowDevice(success: false, reason: error?.localizedDescription ?? "Connection failed")
+            }
+        }
+    // *** new code for Group FlowIndex ends
+    
+    
     //
     // delegate to handle centralManager?.cancelPeripheralConnection(peripheral) results
     //
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        // *** new code for Group FlowIndex
+        if groupFlowIndexCommandRunning && groupFlowPeripheral?.identifier == peripheral.identifier {
+                    finishCurrentGroupFlowDevice(success: false, reason: "Disconnected")
+                    return
+                }
+        // *** new code for Group FlowIndex ends
         if error != nil {
                 // Handle error
                 return
@@ -455,11 +668,25 @@ extension DeviceStore: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         
         if let er = error {
+            // *** New code for Group Flow Index
+            if groupFlowIndexCommandRunning && groupFlowPeripheral?.identifier == peripheral.identifier {
+                finishCurrentGroupFlowDevice(success: false, reason: er.localizedDescription)
+            }
+            // *** New code for Group Flow Index ends
             print(er.localizedDescription)
             return
         }
         
         guard let services = peripheral.services else { return }
+        // *** New code for Group Flow Index
+        if groupFlowIndexCommandRunning && groupFlowPeripheral?.identifier == peripheral.identifier {
+            if !services.contains(where: { $0.uuid == MOTOR_CONTROL_SERVICE_UUID }) ||
+                !services.contains(where: { $0.uuid == SECURITY_SERVICE_UUID }) {
+                    finishCurrentGroupFlowDevice(success: false, reason: "Required service missing")
+                    return
+                }
+        }
+        // *** New code for Group Flow Index ends
         
         for service in services {
             print(service)
@@ -506,6 +733,11 @@ extension DeviceStore: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         
         if let error = error {
+            //*** New Code for Group Flow Index
+            if groupFlowIndexCommandRunning && groupFlowPeripheral?.identifier == peripheral.identifier {
+                finishCurrentGroupFlowDevice(success: false, reason: error.localizedDescription)
+            }
+            //*** New Code for Group Flow Index ends
             handleBluetoothError(error)
             return
         }
@@ -715,6 +947,13 @@ extension DeviceStore: CBPeripheralDelegate {
                 }
             }
         }
+        //*** New Code for Group Flow Index
+        if groupFlowIndexCommandRunning && groupFlowPeripheral?.identifier == peripheral.identifier {
+            if service.uuid == MOTOR_CONTROL_SERVICE_UUID { groupFlowMotorReady = true }
+            if service.uuid == SECURITY_SERVICE_UUID { groupFlowSecurityReady = true }
+                groupFlowCharacteristicsReady(peripheral)
+        }
+        //*** New Code for Group Flow Index ends
     }
     
     //
@@ -724,9 +963,18 @@ extension DeviceStore: CBPeripheralDelegate {
         print(characteristic)
         
         if let error = error {
+            //*** New Code for Group Flow Index
+            if groupFlowIndexCommandRunning && groupFlowPeripheral?.identifier == peripheral.identifier &&
+                (groupFlowStage == .readingSecurity || groupFlowStage == .readingVerification) {
+                finishCurrentGroupFlowDevice(success: false, reason: error.localizedDescription)
+            }
+            //*** New Code for Group Flow Index ends
             handleBluetoothError(error)
             return
         }
+        //*** New Code for Group Flow Index
+        groupFlowReceivedValue(peripheral, characteristic)
+        //*** New Code for Group Flow Index ends
         
         if characteristic.uuid.isEqual(RPM_CHARACTERISTICS_UUID){
             if let data = deviceData{
@@ -967,6 +1215,9 @@ extension DeviceStore: CBPeripheralDelegate {
     // delegate to receive the result after the peripheral tried to set a value for the characteristic.
     //
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: (any Error)?) {
+        //*** New Code for Group Flow Index
+        if groupFlowDidWrite(peripheral, characteristic, error: error) { return }
+        //*** New Code for Group Flow Index ends
         
         if let error = error {
             handleBluetoothError(error)

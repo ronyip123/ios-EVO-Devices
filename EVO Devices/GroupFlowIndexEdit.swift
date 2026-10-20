@@ -12,6 +12,17 @@ struct GroupFlowIndexEdit: View{
     let group : Device_Group
     @State var groupFlowIndex : Double
     @State var userPassword = ""
+    //*** New Code for Group Flow Index
+    @ObservedObject private var batchStore: DeviceStore
+
+    init(showViewState: Binding<Bool>, store: DeviceStore, group: Device_Group, groupFlowIndex: Double) {
+        self._showViewState = showViewState
+        self.store = store
+        self.group = group
+        self._groupFlowIndex = State(initialValue: groupFlowIndex)
+        self._batchStore = ObservedObject(wrappedValue: store)
+    }
+    //*** New Code for Group Flow Index ends
     
     var body: some View {
         NavigationView {
@@ -87,6 +98,32 @@ struct GroupFlowIndexEdit: View{
                     Button( action:{
                         group.groupFlowIndex = UInt8(groupFlowIndex)
                         store.saveGroups()
+                        
+                        // Here is the process flow for the Group Flow Index Command
+                        // Start processing all devices in the group
+                        
+                        //GroupFlowIndexEdit
+                        //User enters Flow Index and password
+                        //          V
+                        //User presses Start
+                        //Start BLE operation and dismiss sheet
+                        //          V
+                        //GroupDetails
+                        //Displays progress and device counts
+                        //          V
+                        //DeviceStore
+                        //Processes devices sequentially, skipping offline devices and authenticating when required
+                        //          V
+                        //GroupDetails
+                        //Displays completion alert with results
+                        
+                        store.startGroupFlowIndex(
+                            group: group,
+                            flowIndex: UInt8(groupFlowIndex),
+                            password: userPassword
+                        )
+                        
+                        // Dismiss GroupFlowIndexEdit immediately
                         showViewState = false
                     })
                     {
@@ -98,6 +135,9 @@ struct GroupFlowIndexEdit: View{
                         }
                     }
                     .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
+                    //*** New Code for Group Flow Index
+                    .disabled(batchStore.groupFlowIndexCommandRunning)
+                    //*** New Code for Group Flow Index ends
                     
                     Button( action:{
                         showViewState = false
@@ -112,6 +152,14 @@ struct GroupFlowIndexEdit: View{
                     }
                     .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                 }
+                //*** New Code for Group Flow Index
+                if batchStore.groupFlowIndexCommandRunning {
+                    ProgressView(value: Double(batchStore.groupFlowCompleted + batchStore.groupFlowFailed + batchStore.groupFlowSkipped), total: Double(max(batchStore.groupFlowTotal, 1)))
+                }
+                Text(batchStore.groupFlowStatus)
+                Text("Succeeded: \(batchStore.groupFlowCompleted)   Failed: \(batchStore.groupFlowFailed)   Offline: \(batchStore.groupFlowSkipped)")
+                    .font(.footnote)
+                // New Code for Group Flow Index ends
             }
         }
     }
