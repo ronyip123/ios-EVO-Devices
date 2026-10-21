@@ -96,6 +96,8 @@ class DeviceStore : NSObject, ObservableObject, CBCentralManagerDelegate {
     @Published private(set) var groupFlowSkipped = 0
     @Published private(set) var groupFlowTotal = 0
     @Published private(set) var groupFlowStatus = ""
+    @Published private(set) var groupFlowOfflineDeviceNames : [String] = []
+    @Published private(set) var groupFlowFailedDeviceNames : [String] = []
 
     private enum GroupFlowStage { case idle, connecting, discovering, readingSecurity, authenticating, readingVerification, writingFlow }
     private var groupFlowStage: GroupFlowStage = .idle
@@ -124,6 +126,8 @@ class DeviceStore : NSObject, ObservableObject, CBCentralManagerDelegate {
         groupFlowValue = flowIndex
         groupFlowPassword = password
         groupFlowIndexCommandRunning = true
+        groupFlowOfflineDeviceNames.removeAll()
+        groupFlowFailedDeviceNames.removeAll()
         processNextGroupDevice()
     }
 
@@ -137,6 +141,7 @@ class DeviceStore : NSObject, ObservableObject, CBCentralManagerDelegate {
             if device.deviceRSSI == Device_Group.NO_SIGNAL || device.peripheral == nil {
                 groupFlowSkipped += 1
                 groupFlowPosition += 1
+                groupFlowOfflineDeviceNames.append(device.getNameString())
                 continue
             }
             let peripheral = device.peripheral!
@@ -189,7 +194,13 @@ class DeviceStore : NSObject, ObservableObject, CBCentralManagerDelegate {
         guard groupFlowIndexCommandRunning, let peripheral = groupFlowPeripheral else { return }
         groupFlowTimeout?.cancel()
         groupFlowTimeout = nil
-        if success { groupFlowCompleted += 1 } else { groupFlowFailed += 1 }
+        if success {
+            groupFlowCompleted += 1
+        }
+        else {
+            groupFlowFailed += 1
+            groupFlowFailedDeviceNames.append(groupFlowDevices[groupFlowPosition].getNameString())
+        }
         groupFlowStatus = "\(groupFlowDevices[groupFlowPosition].getNameString()): " + (success ? "Updated" : "Failed - \(reason)")
         groupFlowStage = .idle
         groupFlowPeripheral = nil

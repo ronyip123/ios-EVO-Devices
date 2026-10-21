@@ -153,12 +153,12 @@ struct GroupFlowIndexEdit: View{
                     .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                 }
                 //*** New Code for Group Flow Index
-                if batchStore.groupFlowIndexCommandRunning {
-                    ProgressView(value: Double(batchStore.groupFlowCompleted + batchStore.groupFlowFailed + batchStore.groupFlowSkipped), total: Double(max(batchStore.groupFlowTotal, 1)))
-                }
-                Text(batchStore.groupFlowStatus)
-                Text("Succeeded: \(batchStore.groupFlowCompleted)   Failed: \(batchStore.groupFlowFailed)   Offline: \(batchStore.groupFlowSkipped)")
-                    .font(.footnote)
+//                if batchStore.groupFlowIndexCommandRunning {
+//                    ProgressView(value: Double(batchStore.groupFlowCompleted + batchStore.groupFlowFailed + batchStore.groupFlowSkipped), total: Double(max(batchStore.groupFlowTotal, 1)))
+//                }
+//                Text(batchStore.groupFlowStatus)
+//                Text("Succeeded: \(batchStore.groupFlowCompleted)   Failed: \(batchStore.groupFlowFailed)   Offline: \(batchStore.groupFlowSkipped)")
+//                    .font(.footnote)
                 // New Code for Group Flow Index ends
             }
         }

@@ -65,10 +65,11 @@ struct GroupDetails: View {
             }
             
             HStack{
-                Text( String(group.devices.count) + " Controls").padding()
-                Text(String(alarmDeviceCount) + " In Alarm").padding()
-                Text(String(offLineDeviceCount) + " Offline").padding()
+                Text("\(group.devices.count) Controls,").padding(2)
+                Text("\(alarmDeviceCount) In Alarm,").padding(2)
+                Text("\(offLineDeviceCount) Offline").padding(2)
             }
+            .frame(maxWidth: .infinity, alignment: .center)
             
             HStack{
                 Button(action: {
@@ -236,14 +237,30 @@ struct GroupDetails: View {
             Button("OK") { }
 
         } message: {
-
-            Text("""
-            Total Devices: \(store.groupFlowTotal)
-            Successful: \(store.groupFlowCompleted)
-            Failed: \(store.groupFlowFailed)
-            Offline: \(store.groupFlowSkipped)
-            """)
+            Text(groupFlowResultMessage)
         }
+    }
+    
+    private var groupFlowResultMessage: String {
+
+        var message = """
+        Total Devices: \(store.groupFlowTotal)
+        Successful: \(store.groupFlowCompleted)
+        Failed: \(store.groupFlowFailed)
+        Offline: \(store.groupFlowSkipped)
+        """
+
+        if !store.groupFlowFailedDeviceNames.isEmpty {
+            message += "\n\nFailed Devices:\n"
+            message += store.groupFlowFailedDeviceNames.joined(separator: "\n")
+        }
+
+        if !store.groupFlowOfflineDeviceNames.isEmpty {
+            message += "\n\nOffline Devices:\n"
+            message += store.groupFlowOfflineDeviceNames.joined(separator: "\n")
+        }
+
+        return message
     }
     //*** New Code for Group Flow Index ends
     
@@ -310,20 +327,7 @@ struct GroupDetails: View {
             Text(store.groupFlowStatus)
                 .font(.subheadline)
 
-            HStack {
-                Text("Success: \(store.groupFlowCompleted)")
-                    .foregroundColor(.green)
-
-                Text("Failed: \(store.groupFlowFailed)")
-                    .foregroundColor(.red)
-
-                Text("Skipped: \(store.groupFlowSkipped)")
-                    .foregroundColor(.secondary)
-            }
-            .font(.subheadline)
-
         }
-        .padding()
     }
     //*** New Code for Group Flow Index ends
 }
