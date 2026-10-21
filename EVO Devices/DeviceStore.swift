@@ -168,6 +168,7 @@ class DeviceStore : NSObject, ObservableObject, CBCentralManagerDelegate {
         let timeoutID = UUID()
             groupFlowTimeoutID = timeoutID
         
+        // the DispatchWorkItem item runs in the Main thread after 12 sec.
         let item = DispatchWorkItem { [weak self] in
                 
             guard let self = self else { return }
@@ -353,6 +354,7 @@ class DeviceStore : NSObject, ObservableObject, CBCentralManagerDelegate {
         super.init()
         // This will result in CBCentralManager calling
         // func centralManagerDidUpdateState(_ central: CBCentralManager)
+        // With queue: nil, all callbacks will run in the Main thread
         self.centralManager = CBCentralManager(delegate: self, queue: nil)
     }
     

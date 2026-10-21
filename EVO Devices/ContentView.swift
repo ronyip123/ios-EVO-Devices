@@ -79,7 +79,7 @@ struct ContentView: View {
                         .foregroundColor(.white)
                         .cornerRadius(5.0)
                         
-                        VStack{
+                        VStack(spacing: 20){
                             Menu {
                                 Button(action: {
                                     selectSortMethod(.eAlphabeticalOrder)

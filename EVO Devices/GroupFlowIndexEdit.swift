@@ -153,6 +153,7 @@ struct GroupFlowIndexEdit: View{
                     .buttonStyle(RoundedRectangleButtonStyle(alarmstate: false))
                 }
                 //*** New Code for Group Flow Index
+                // Moved the progress and summary to GroupDetails
 //                if batchStore.groupFlowIndexCommandRunning {
 //                    ProgressView(value: Double(batchStore.groupFlowCompleted + batchStore.groupFlowFailed + batchStore.groupFlowSkipped), total: Double(max(batchStore.groupFlowTotal, 1)))
 //                }

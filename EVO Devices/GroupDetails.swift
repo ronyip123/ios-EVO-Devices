@@ -219,6 +219,9 @@ struct GroupDetails: View {
         .onDisappear()
         {
             print(">>> GroupDetails.onDisappear")
+            
+            group.groupName = groupName
+            store.saveGroups()
         }
         //*** New Code for Group Flow Index
         .onChange(of: store.groupFlowIndexCommandRunning) { isRunning in
