@@ -89,6 +89,7 @@ struct GroupDetails: View {
                 .background(Color.green)
                 .foregroundColor(.white)
                 .cornerRadius(5.0)
+                .disabled(self.scanningGroup || self.groupFlowWasRunning)
                 
                 Button( action:{
                     self.scanningGroup.toggle()
@@ -125,6 +126,7 @@ struct GroupDetails: View {
                 .background(Color.green)
                 .foregroundColor(.white)
                 .cornerRadius(5.0)
+                .disabled(self.groupFlowWasRunning)
             }
             
             Button(action: {
@@ -139,6 +141,7 @@ struct GroupDetails: View {
             .background(Color.green)
             .foregroundColor(.white)
             .cornerRadius(5.0)
+            .disabled(self.scanningGroup || self.groupFlowWasRunning)
             
             //*** New Code for Group Flow Index
             if store.groupFlowTotal > 0 {
@@ -155,6 +158,7 @@ struct GroupDetails: View {
                             .background(device.inRPMAlarm || device.inFilterAlarm ? Color.red : Color.white)
                     }
                 }
+                .disabled(self.scanningGroup || self.groupFlowWasRunning)
                 .id(groupRevision)
                 .refreshable{
                     await MainActor.run {
@@ -237,7 +241,11 @@ struct GroupDetails: View {
         .alert("Group Flow Index Completed",
                isPresented: $showGroupFlowResult) {
 
-            Button("OK") { }
+            Button("OK") {
+                self.scanningGroup = true;
+                cleanup()
+                group.reset_All_Devices_Before_Scanning()
+                startScan() }
 
         } message: {
             Text(groupFlowResultMessage)

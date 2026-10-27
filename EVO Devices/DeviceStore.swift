@@ -534,21 +534,38 @@ class DeviceStore : NSObject, ObservableObject, CBCentralManagerDelegate {
             armGroupFlowTimeout()
         }
         // *** new code for Group Flow Index ends
-        connected = true;
-        // This will result in CBPeripheral calling
-        // func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) in
-        // the extension DeviceStore: CBPeripheralDelegate
-        targetPeripheral?.discoverServices(nil)
-        //targetPeripheral?.discoverServices(Array(_immutableCocoaArray: GENERIC_ACCESS_SERVICE_UUID))
+        //connected = true;
+        /*This will result in CBPeripheral calling
+          func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) in
+          the extension DeviceStore: CBPeripheralDelegate */
+        //targetPeripheral?.discoverServices(nil)
+        /*targetPeripheral?.discoverServices(Array(_immutableCocoaArray: GENERIC_ACCESS_SERVICE_UUID)) */
+        
+        print("BLE didConnect: \(peripheral.identifier)")
+        print("State: \(peripheral.state.rawValue)")
+
+        connected = true
+        targetPeripheral = peripheral
+        peripheral.delegate = self
+
+        peripheral.discoverServices(nil)
     }
     
     
     // *** new code for Group FlowIndex
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-            if groupFlowIndexCommandRunning && groupFlowPeripheral?.identifier == peripheral.identifier {
-                finishCurrentGroupFlowDevice(success: false, reason: error?.localizedDescription ?? "Connection failed")
-            }
+        print("BLE didFailToConnect")
+        
+        if let error = error as NSError? {
+            print("Domain: \(error.domain)")
+            print("Code: \(error.code)")
+            print("Description: \(error.localizedDescription)")
         }
+        
+        if groupFlowIndexCommandRunning && groupFlowPeripheral?.identifier == peripheral.identifier {
+            finishCurrentGroupFlowDevice(success: false, reason: error?.localizedDescription ?? "Connection failed")
+        }
+    }
     // *** new code for Group FlowIndex ends
     
     

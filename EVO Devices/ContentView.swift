@@ -129,6 +129,7 @@ struct ContentView: View {
                                 }
                             }
                             //.padding()
+                            .disabled(self.scanningAll)
                             
                             Menu {
                                 Button("Add Device Group"){
@@ -166,6 +167,7 @@ struct ContentView: View {
                                     Image(systemName: "square.stack.3d.up")
                                 }
                             }
+                            .disabled(self.scanningAll)
                         }
                     }
                     .padding()
@@ -187,6 +189,7 @@ struct ContentView: View {
                         .pickerStyle(.menu)
                         .labelsHidden()
                         .font(.body)
+                        .disabled(self.scanningAll)
                         .onChange(of: selectedGroupID) { newGroupID in
                             
                             print(">>> selectedGroupID = \(String(describing: newGroupID))")
@@ -266,6 +269,7 @@ struct ContentView: View {
                                     .background(device.inRPMAlarm || device.inFilterAlarm ? Color.red : Color.white)
                         }
                     }
+                    .disabled(self.scanningAll)
                     .refreshable{
                         await MainActor.run {
                                 cleanup()
