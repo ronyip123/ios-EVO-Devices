@@ -238,6 +238,9 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
                     if data.PWEnableStatusReceived && (!data.adminPasswordEnabled || data.adminPasswordVerified) {
                         self.showSetPassword.toggle()
                     }
+                    else{
+                        self.showPasswordView.toggle() // allow user to enter password
+                    }
                 }){
                     HStack{
                         Text("Security Settings")

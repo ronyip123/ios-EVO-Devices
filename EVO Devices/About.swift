@@ -32,7 +32,12 @@ struct About: View {
             if let bundle = appBuild {
                 Text("Build: \(bundle)")
                     .font(/*@START_MENU_TOKEN@*/.title/*@END_MENU_TOKEN@*/)
+                    .padding()
             }
+            
+            Text("For support,")
+            Text("email sales@gotoevo.com")
+            Text("call 858-748-7359")
         }
         .onAppear(){
             StartViewTimer()
@@ -46,7 +51,9 @@ struct About: View {
     func StartViewTimer()
     {
         viewTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false){ _ in
-            showViewState = false
+            Task { @MainActor in
+                showViewState = false
+            }
         }
     }
 }

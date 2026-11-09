@@ -24,6 +24,10 @@ struct MotorSettings: View {
                 if (data.motorSettingsEditable == false){
                     Text("View Only")
                 }
+                else if (data.adminPasswordEnabled && !data.adminPasswordVerified)
+                {
+                    Text("Unlock Admin password to make changes.")
+                }
                 List{
                     VStack{
                         Text("RPM Type:")

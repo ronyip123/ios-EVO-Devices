@@ -456,7 +456,7 @@ struct DeviceCell: View {
                    showDeviceOfflineMsg = true
                 }
             }){
-                VStack(alignment: .leading){
+                VStack(alignment: .leading, spacing: 4){
                     let flow_index = device.getFlowIndexInAdvertisement()
                     
                     let alarmStr: String = {
@@ -500,6 +500,7 @@ struct DeviceCell: View {
                         
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .onAppear {
