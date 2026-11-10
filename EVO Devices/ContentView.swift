@@ -29,9 +29,7 @@ struct ContentView: View {
     @State var showRemoveDeviceGroup = false
     @State var showNoScannedDeviceMsg = false
     @State var showNoDeviceGroupMsg = false
-    @State private var selectedGroupID: UUID? =
-        UserDefaults.standard.string(forKey: savedSelectedGroupIDKey)
-            .flatMap { UUID(uuidString: $0) }
+    @State private var selectedGroupID: UUID? = nil
     @State private var selectedGroup: Device_Group?
     @State private var showGroupDetail = false
     
@@ -189,6 +187,7 @@ struct ContentView: View {
                         .pickerStyle(.menu)
                         .labelsHidden()
                         .font(.body)
+                        .id(store.groupNameRevision)
                         .disabled(self.scanningAll)
                         .onChange(of: selectedGroupID) { newGroupID in
                             
@@ -225,7 +224,8 @@ struct ContentView: View {
                     )
                     .onChange(of: showGroupDetail) { isActive in
                         print(">>> ContentView.showGroupDetail = \(isActive)")
-
+                        // User selected to exited GroupDetail. Remove the seleted Group ID
+                        // so it will not automatically jump to the GroupDetail next time.
                         if !isActive {
                             selectedGroupID = nil
                             selectedGroup = nil
@@ -311,14 +311,24 @@ struct ContentView: View {
                 }
             }
             .onAppear(){
-                print(">>> ContentView.onAppear")
+                print(">>> ContentView.onAppear START")
                 print("showGroupDetail = \(showGroupDetail)")
                 print("selectedGroupID = \(String(describing: selectedGroupID))")
                 if firstTime {
                     // skip scanning if launched the first time after installation
                     firstTime = false
-                    
+                    print(">>> Before loadGroups")
                     store.loadGroups()
+                    print(">>> After loadGroups")
+                    
+                    if let savedIDString = UserDefaults.standard.string(
+                        forKey: ContentView.savedSelectedGroupIDKey
+                    ),
+                        let savedID = UUID(uuidString: savedIDString),
+                        store.deviceGroups.contains(where: { $0.groupID == savedID }) {
+
+                        selectedGroupID = savedID
+                    }
                     
                     if ( UserDefaults.standard.object(forKey: sortKey) == nil)
                     {
@@ -337,6 +347,8 @@ struct ContentView: View {
                     self.scanAllTimer = 0
                     startScan()
                 }
+                
+                print(">>> ContentView.onAppear END")
 //                store.test_persisting_Groups()
             }
             .onDisappear(){

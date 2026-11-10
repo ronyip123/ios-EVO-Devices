@@ -223,9 +223,7 @@ struct GroupDetails: View {
         .onDisappear()
         {
             print(">>> GroupDetails.onDisappear")
-            
-            group.groupName = groupName
-            store.saveGroups()
+            store.renameGroup(group, newName: groupName)
         }
         //*** New Code for Group Flow Index
         .onChange(of: store.groupFlowIndexCommandRunning) { isRunning in

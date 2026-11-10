@@ -98,6 +98,7 @@ class DeviceStore : NSObject, ObservableObject, CBCentralManagerDelegate {
     @Published private(set) var groupFlowStatus = ""
     @Published private(set) var groupFlowOfflineDeviceNames : [String] = []
     @Published private(set) var groupFlowFailedDeviceNames : [String] = []
+    @Published private(set) var groupNameRevision = 0
 
     private enum GroupFlowStage { case idle, connecting, discovering, readingSecurity, authenticating, readingVerification, writingFlow }
     private var groupFlowStage: GroupFlowStage = .idle
@@ -1628,6 +1629,16 @@ extension DeviceStore: CBPeripheralDelegate {
                     group.devices = group.devices.sorted{$0.deviceRSSI > $1.deviceRSSI }
                 }
         }
+    }
+    
+    func renameGroup(_ group: Device_Group, newName: String) {
+        guard group.groupName != newName else {
+            return
+        }
+        objectWillChange.send()
+        group.groupName = newName
+        saveGroups()
+        groupNameRevision += 1
     }
 }
 

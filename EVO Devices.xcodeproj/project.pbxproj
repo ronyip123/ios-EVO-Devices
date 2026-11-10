@@ -82,6 +82,7 @@
 		1BBEBEF0308139AB00CCC23D /* EditDeviceGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditDeviceGroup.swift; sourceTree = "<group>"; };
 		1BC5473C3076C2DF0008B777 /* GroupDetails.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupDetails.swift; sourceTree = "<group>"; };
 		1BCBC3273086B30900034340 /* GroupFlowIndexEdit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupFlowIndexEdit.swift; sourceTree = "<group>"; };
+		1BCCB32C30A383290062B8F4 /* EVO Devices.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "EVO Devices.xcodeproj"; sourceTree = SOURCE_ROOT; };
 		1BDAB0BE306C351C00608660 /* Device_Group.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device_Group.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -133,6 +134,7 @@
 		1BB6A9E82625C3410063F378 /* EVO Devices */ = {
 			isa = PBXGroup;
 			children = (
+				1BCCB32C30A383290062B8F4 /* EVO Devices.xcodeproj */,
 				035BC0B630A273E400B6389F /* TestIcon.icon */,
 				1BCBC3273086B30900034340 /* GroupFlowIndexEdit.swift */,
 				1BBEBEF0308139AB00CCC23D /* EditDeviceGroup.swift */,
@@ -502,7 +504,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = TestIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 36;
+				CURRENT_PROJECT_VERSION = 37;
 				DEVELOPMENT_ASSET_PATHS = "\"EVO Devices/Preview Content\"";
 				DEVELOPMENT_TEAM = Z6VD4H2WH4;
 				ENABLE_PREVIEWS = YES;
@@ -532,7 +534,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = TestIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 36;
+				CURRENT_PROJECT_VERSION = 37;
 				DEVELOPMENT_ASSET_PATHS = "\"EVO Devices/Preview Content\"";
 				DEVELOPMENT_TEAM = Z6VD4H2WH4;
 				ENABLE_PREVIEWS = YES;
