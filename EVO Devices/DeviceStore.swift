@@ -438,7 +438,8 @@ class DeviceStore : NSObject, ObservableObject, CBCentralManagerDelegate {
                     // In case something is wrong and we cannot get name from kCBAdvDataLocalName key,
                     // we can still display the device with no name and still able to access the control
                     if let Name = advertisementData["kCBAdvDataLocalName"] as? String {
-                        DeviceName = Name
+                        // remove all trailing white spaces in Name
+                        DeviceName = String(Name.reversed().drop(while: { $0.isWhitespace }).reversed())
                     }
                     
                     if (rssi == 127)

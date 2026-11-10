@@ -29,6 +29,7 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
         Timer.publish(every: 3, on: .main, in: .common).autoconnect()
 
     var uiDevice = UIDevice.current.userInterfaceIdiom
+    let MaxDeviceNameLength = 19
     
     var body: some View {
         
@@ -47,6 +48,11 @@ struct DeviceDetail: View, @MainActor IsBLEConnectionAliveListener {
                     TextField("", text: $deviceNameStr, onCommit: {
                         deviceNameChanged(deviceNameStr)
                     })
+                    .onChange(of: deviceNameStr) { newValue in
+                        if newValue.count > MaxDeviceNameLength {
+                            deviceNameStr = String(newValue.prefix(MaxDeviceNameLength))
+                            }
+                        }
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .font(Font.title2.weight(.heavy))
                     .disabled(!data.PWEnableStatusReceived || (data.adminPasswordEnabled && !data.adminPasswordVerified))
